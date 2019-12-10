@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.project.smt.dzl.mapper.SmtDzlMapper">
+    
+    <resultMap type="SmtDzl" id="SmtDzlResult">
+        <result property="id"    column="id"    />
+        <result property="dzlName"    column="dzl_name"    />
+        <result property="mainType"    column="main_type"    />
+        <result property="typeName"    column="type_name"    />
+        <result property="status"    column="status"    />
+        <result property="createBy"    column="create_by"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="updateBy"    column="update_by"    />
+        <result property="updateTime"    column="update_time"    />
+        <result property="remark"    column="remark"    />
+        <result property="delFlag"    column="del_flag"    />
+    </resultMap>
+
+    <sql id="selectSmtDzlVo">
+        select id, dzl_name, main_type, type_name, status, create_by, create_time, update_by, update_time, remark, del_flag from smt_dzl
+    </sql>
+
+    <select id="selectSmtDzlList" parameterType="SmtDzl" resultMap="SmtDzlResult">
+        <include refid="selectSmtDzlVo"/>
+        <where>  
+            <if test="dzlName != null  and dzlName != ''"> and dzl_name like concat('%', #{dzlName}, '%')</if>
+            <if test="mainType != null  and mainType != ''"> and main_type = #{mainType}</if>
+            <if test="typeName != null  and typeName != ''"> and type_name like concat('%', #{typeName}, '%')</if>
+            <if test="status != null  and status != ''"> and status = #{status}</if>
+        </where>
+    </select>
+    
+    <select id="selectSmtDzlById" parameterType="Long" resultMap="SmtDzlResult">
+        <include refid="selectSmtDzlVo"/>
+        where id = #{id}
+    </select>
+
+    <!--通过电子料名称查询电子料id-->
+    <select id="getDzlIdByDzlName" resultType="java.lang.Integer">
+       select id from smt_dzl where dzl_name = #{dzlName} and del_flag = 0 limit 1
+    </select>
+
+    <!--验证电子料名称唯一性-->
+    <select id="validateDzlNameUnique" resultType="java.lang.Integer">
+        select count(1) from smt_dzl where dzl_name = #{dzlName}
+    </select>
+
+    <insert id="insertSmtDzl" parameterType="SmtDzl" useGeneratedKeys="true" keyProperty="id">
+        insert into smt_dzl
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="dzlName != null  and dzlName != ''">dzl_name,</if>
+            <if test="mainType != null  and mainType != ''">main_type,</if>
+            <if test="typeName != null  and typeName != ''">type_name,</if>
+            <if test="status != null  and status != ''">status,</if>
+            <if test="createBy != null  and createBy != ''">create_by,</if>
+            <if test="createTime != null ">create_time,</if>
+            <if test="updateBy != null  and updateBy != ''">update_by,</if>
+            <if test="updateTime != null ">update_time,</if>
+            <if test="remark != null  and remark != ''">remark,</if>
+            <if test="delFlag != null  and delFlag != ''">del_flag,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="dzlName != null  and dzlName != ''">#{dzlName},</if>
+            <if test="mainType != null  and mainType != ''">#{mainType},</if>
+            <if test="typeName != null  and typeName != ''">#{typeName},</if>
+            <if test="status != null  and status != ''">#{status},</if>
+            <if test="createBy != null  and createBy != ''">#{createBy},</if>
+            <if test="createTime != null ">#{createTime},</if>
+            <if test="updateBy != null  and updateBy != ''">#{updateBy},</if>
+            <if test="updateTime != null ">#{updateTime},</if>
+            <if test="remark != null  and remark != ''">#{remark},</if>
+            <if test="delFlag != null  and delFlag != ''">#{delFlag},</if>
+         </trim>
+    </insert>
+
+    <update id="updateSmtDzl" parameterType="SmtDzl">
+        update smt_dzl
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="dzlName != null  and dzlName != ''">dzl_name = #{dzlName},</if>
+            <if test="mainType != null  and mainType != ''">main_type = #{mainType},</if>
+            <if test="typeName != null  and typeName != ''">type_name = #{typeName},</if>
+            <if test="status != null  and status != ''">status = #{status},</if>
+            <if test="createBy != null  and createBy != ''">create_by = #{createBy},</if>
+            <if test="createTime != null ">create_time = #{createTime},</if>
+            <if test="updateBy != null  and updateBy != ''">update_by = #{updateBy},</if>
+            <if test="updateTime != null ">update_time = #{updateTime},</if>
+            <if test="remark != null  and remark != ''">remark = #{remark},</if>
+            <if test="delFlag != null  and delFlag != ''">del_flag = #{delFlag},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteSmtDzlById" parameterType="Long">
+        delete from smt_dzl where id = #{id}
+    </delete>
+
+    <delete id="deleteSmtDzlByIds" parameterType="String">
+        delete from smt_dzl where id in 
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+    
+</mapper>

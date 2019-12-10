@@ -1,0 +1,169 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.project.smt.delivery.mapper.SmtDeliveryRecordMapper">
+
+    <resultMap type="SmtDeliveryRecord" id="SmtDeliveryRecordResult">
+        <result property="id" column="id"/>
+        <result property="deliveryNo" column="delivery_no"/>
+        <result property="cusCode" column="cus_code"/>
+        <result property="orderNo" column="order_no"/>
+        <result property="orderType" column="order_type"/>
+        <result property="bomId" column="bom_id"/>
+        <result property="deliveryQty" column="delivery_qty"/>
+        <result property="createBy" column="create_by"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateBy" column="update_by"/>
+        <result property="updateTime" column="update_time"/>
+        <result property="remark" column="remark"/>
+        <result property="delFlag" column="del_flag"/>
+    </resultMap>
+
+    <sql id="selectSmtDeliveryRecordVo">
+        select id, delivery_no, cus_code,order_no,order_type, bom_id, delivery_qty, create_by, create_time, update_by, update_time, remark, del_flag from smt_delivery_record
+    </sql>
+
+    <select id="selectSmtDeliveryRecordList" parameterType="SmtDeliveryRecord" resultMap="SmtDeliveryRecordResult">
+        <include refid="selectSmtDeliveryRecordVo"/>
+        <where>
+            <if test="deliveryNo != null  and deliveryNo != ''">and delivery_no like concat('%',#{deliveryNo},'%')</if>
+            <if test="orderNo != null  and orderNo != ''">and order_no like concat('%',#{orderNo},'%')</if>
+            <if test="cusCode != null ">and cus_code = #{cusCode}</if>
+            <if test="orderType != null ">and order_type = #{orderType}</if>
+            <if test="bomId != null ">and bom_id = #{bomId}</if>
+            <if test="deliveryQty != null ">and delivery_qty = #{deliveryQty}</if>
+        </where>
+        order by create_time desc
+    </select>
+
+    <select id="selectSmtDeliveryRecordById" parameterType="Integer" resultMap="SmtDeliveryRecordResult">
+        <include refid="selectSmtDeliveryRecordVo"/>
+        where id = #{id}
+    </select>
+
+    <!--查询已发料数量-->
+    <select id="getDeliveryQty" resultType="java.lang.Integer">
+        SELECT
+        sum(delivery_qty)
+        FROM
+        `smt_delivery_record`
+        where del_flag = 0
+        and cus_code = #{cusCode} and order_type = #{orderType} and bom_id = #{bomId}
+        <if test="orderNo != null  and orderNo != ''">and order_no = #{orderNo}</if>
+        GROUP BY cus_code,order_type,bom_id
+    </select>
+
+    <!--查询FPC在线列表列表-->
+    <select id="selectFpcOnLineListList" resultType="com.ruoyi.project.smt.delivery.domain.SmtDeliveryRecord">
+        SELECT
+        cus_code as cusCode,
+        order_type as orderType,
+        bom_id as bomId,
+        order_no as orderNo,
+        sum( delivery_qty ) AS sumDeliveryQty
+        FROM
+        smt_delivery_record
+        WHERE
+        order_type = 1
+        and del_flag = 0
+        <if test="cusCode != null  and cusCode != ''">and cus_code = #{cusCode}</if>
+        <if test="orderNo != null  and orderNo != ''">and order_no = #{orderNo}</if>
+        GROUP BY
+        cus_code,
+        bom_id,
+        order_no
+    </select>
+
+    <!--查询DZL在线列表列表-->
+    <select id="selectDzlOnLineListList" resultType="com.ruoyi.project.smt.delivery.domain.SmtDeliveryRecord">
+        SELECT
+        r.cus_code AS cusCode,
+        r.order_type AS orderType,
+        r.bom_id AS bomId,
+        sum(r.delivery_qty ) AS sumDeliveryQty ,
+        d.dzl_name as dzlName,
+        d.type_name as typeName
+        FROM
+        smt_delivery_record r
+        left join smt_dzl d on r.bom_id = d.id
+        WHERE
+        r.order_type = 2
+        AND r.del_flag = 0
+        <if test="cusCode != null  and cusCode != ''">and r.cus_code = #{cusCode}</if>
+        <if test="dzlName != null  and dzlName != ''">and d.dzl_name like concat('%',#{dzlName},'%')</if>
+        GROUP BY
+        r.cus_code,
+        r.bom_id
+    </select>
+
+    <!--根据发料单号查询发料信息-->
+    <select id="getDeliveryRecordByNo" resultType="com.ruoyi.project.smt.delivery.domain.SmtDeliveryRecord" resultMap="SmtDeliveryRecordResult">
+        <include refid="selectSmtDeliveryRecordVo"/>
+        where del_flag = 0
+        and delivery_no = #{deliveryNo}
+    </select>
+
+
+    <insert id="insertSmtDeliveryRecord" parameterType="SmtDeliveryRecord" useGeneratedKeys="true" keyProperty="id">
+        insert into smt_delivery_record
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="deliveryNo != null  and deliveryNo != ''">delivery_no,</if>
+            <if test="cusCode != null ">cus_code,</if>
+            <if test="orderNo != null  and orderNo != ''">order_no,</if>
+            <if test="orderType != null ">order_type,</if>
+            <if test="bomId != null ">bom_id,</if>
+            <if test="deliveryQty != null ">delivery_qty,</if>
+            <if test="createBy != null  and createBy != ''">create_by,</if>
+            <if test="createTime != null ">create_time,</if>
+            <if test="updateBy != null  and updateBy != ''">update_by,</if>
+            <if test="updateTime != null ">update_time,</if>
+            <if test="remark != null  and remark != ''">remark,</if>
+            <if test="delFlag != null  and delFlag != ''">del_flag,</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="deliveryNo != null  and deliveryNo != ''">#{deliveryNo},</if>
+            <if test="cusCode != null ">#{cusCode},</if>
+            <if test="orderNo != null  and orderNo != ''">#{orderNo},</if>
+            <if test="orderType != null ">#{orderType},</if>
+            <if test="bomId != null ">#{bomId},</if>
+            <if test="deliveryQty != null ">#{deliveryQty},</if>
+            <if test="createBy != null  and createBy != ''">#{createBy},</if>
+            <if test="createTime != null ">#{createTime},</if>
+            <if test="updateBy != null  and updateBy != ''">#{updateBy},</if>
+            <if test="updateTime != null ">#{updateTime},</if>
+            <if test="remark != null  and remark != ''">#{remark},</if>
+            <if test="delFlag != null  and delFlag != ''">#{delFlag},</if>
+        </trim>
+    </insert>
+
+    <update id="updateSmtDeliveryRecord" parameterType="SmtDeliveryRecord">
+        update smt_delivery_record
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="deliveryNo != null  and deliveryNo != ''">delivery_no = #{deliveryNo},</if>
+            <if test="cusCode != null ">cus_code = #{cusCode},</if>
+            <if test="orderType != null ">order_type = #{orderType},</if>
+            <if test="bomId != null ">bom_id = #{bomId},</if>
+            <if test="deliveryQty != null ">delivery_qty = #{deliveryQty},</if>
+            <if test="createBy != null  and createBy != ''">create_by = #{createBy},</if>
+            <if test="createTime != null ">create_time = #{createTime},</if>
+            <if test="updateBy != null  and updateBy != ''">update_by = #{updateBy},</if>
+            <if test="updateTime != null ">update_time = #{updateTime},</if>
+            <if test="remark != null  and remark != ''">remark = #{remark},</if>
+            <if test="delFlag != null  and delFlag != ''">del_flag = #{delFlag},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteSmtDeliveryRecordById" parameterType="Integer">
+        delete from smt_delivery_record where id = #{id}
+    </delete>
+
+    <delete id="deleteSmtDeliveryRecordByIds" parameterType="String">
+        delete from smt_delivery_record where id in
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+
+</mapper>

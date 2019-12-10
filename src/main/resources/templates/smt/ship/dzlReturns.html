@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="zh" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <th:block th:include="include :: header('DZL退货页面')"/>
+</head>
+<style>
+    .ui-jqgrid-htable th {
+        height: 40px;
+        border-right: 1px solid #e1e1e1;
+        border-bottom: 1px solid #e1e1e1;
+        background-color: #9e9e9e1f;
+        text-align: center;
+    }
+
+    .ui-jqgrid-htable th span {
+        display: none;
+    }
+
+    #bomTable {
+        background-color: #f6f6f6;
+    }
+
+    #bomTable tr {
+        height: 20px;
+        font-size: 16px;
+    }
+
+    #bomTable tr td input {
+        height: 95%;
+        width: 95%;
+    }
+
+    #bomTable tr td {
+        height: 35px;
+        border-right: 1px solid #e1e1e1;
+        border-bottom: 1px solid #e1e1e1;
+    }
+
+    .bomDiv {
+        box-shadow: none;
+        padding-bottom: 0px;
+    }
+
+    select {
+        width: 95%;
+        height: 95% !important;
+    }
+
+
+    .legend-color {
+        color: #1890ff;
+    }
+</style>
+<body class="white-bg">
+<div class="wrapper wrapper-content animated fadeInRight ibox-content">
+    <form class="form-horizontal m" id="form-bom-edit">
+        <input type="hidden" id="shipList" name="shipList">
+        <fieldset>
+            <legend class="legend-color" style="margin-bottom: 0px;">退货信息</legend>
+            <div class="container-div">
+                <div class="row">
+                    <div class="col-sm-12 select-table table-striped bomDiv">
+                        <table id="bomTable" class="ui-jqgrid-htable"></table>
+                    </div>
+                </div>
+            </div>
+        </fieldset>
+    </form>
+</div>
+<th:block th:include="include :: footer"/>
+<script th:src="@{/ruoyi/jqGrid/4.6/js/jquery.jqGrid.js}"></script>
+<script th:src="@{/ruoyi/jqGrid/4.6/i18n/grid.locale-cn.js}"></script>
+<link th:href="@{/ruoyi/jqGrid/4.6/css/ui.jqgrid.css}">
+<script type="text/javascript">
+    const prefix = ctx + "smt/ship";
+    $(document).ready(function () {
+        $("#form-bom-edit").validate({
+            focusCleanup: true
+        });
+        //加载明细信息
+        loadTable();
+    });
+
+
+    function submitHandler() {
+        if ($.validate.form()) {
+            saveAllRows("bomTable");
+            let tableData = $("#bomTable").jqGrid("getRowData");
+            let dataArr = new Array();
+            for (let elem of tableData) {
+                if (elem.shipQty != "0" && $.common.trim(elem.shipQty) != "") {
+                    let arr = new Object();
+                    arr.cusCode = elem.cusCode;
+                    arr.orderType = elem.orderType;
+                    arr.bomId = elem.bomId;
+                    arr.shipType = 2;
+                    arr.shipQty = elem.shipQty;
+                    arr.remark = elem.remark;
+                    dataArr.push(arr);
+                }
+            }
+            if (dataArr.length == 0) {
+                $.modal.alertWarning("退货数量为空，无需保存!");
+                editAllRows("bomTable");
+                return;
+            }
+            $("#shipList").val(JSON.stringify(dataArr));
+            //$.operate.save(prefix + "/addDzl", $('#form-bom-edit').serialize());
+            let config = {
+                url: prefix + "/addDzl",
+                type: "post",
+                dataType: "json",
+                data: $('#form-bom-edit').serialize(),
+                beforeSend: function () {
+                    $.modal.loading("正在处理中，请稍后...");
+                    $.modal.disable();
+                },
+                success: function (result) {
+                    if (typeof callback == "function") {
+                        callback(result);
+                    }
+                    window.location.href = prefix + "/returnsPrint";
+                }
+            };
+            $.ajax(config);
+        }
+    }
+
+    //页面加载数据
+    function loadTable() {
+        let data = window.localStorage.getItem("dzlReturnsList");
+        let arrData = JSON.parse(data);
+
+        initTable("bomTable", arrData);
+    }
+
+    //初始化表格
+    function initTable(obj, data) {
+        $("#" + obj).jqGrid({
+            data: data,
+            datatype: "local",
+            height: 'auto',
+            beforeSelectRow: function (rowid, e) {
+                return false
+            },
+            colNames:
+                [
+                    "客户编码",
+                    "客户名称",
+                    "bomId",
+                    "产品型号",
+                    "类型",
+                    "产品类型(1.fpc 2.dzl)",
+                    "数量",
+                    "备注",
+                    "库存"
+                ],
+
+            colModel: [
+                {sortable: false, name: 'cusCode', align: "center", index: 'cusCode', editable: false, hidden: true},
+                {sortable: false, name: 'cusName', align: "center", index: 'cusName', editable: false, width: '300'},
+                {sortable: false, name: 'bomId', align: "center", index: 'bomId', editable: false, hidden: true},
+                {sortable: false, name: 'dzlName', align: "center", index: 'dzlName', editable: false},
+                {sortable: false, name: 'typeName', align: "center", index: 'typeName', editable: false, width: '100px'},
+                {sortable: false, name: 'orderType', align: "center", index: 'orderType', editable: false, hidden: true},
+                {
+                    sortable: false, name: 'shipQty', align: "center", index: 'shipQty', editable: true, width: '100px',
+                    editoptions: {
+                        dataInit: function (element) {
+                            $(element).on("keyup", function () {
+                                let v = element.value;
+                                if (v != "" && !(/(^[1-9]\d*$)/.test(v))) {
+                                    $.modal.msgWarning("退货数量不合法,请输入正整数!")
+                                    $(this).val("");
+                                    $(this).focus();
+                                    return;
+                                }
+                                let qty = parseInt($(this).parent().next().next().text());
+                                if (parseInt(v) > qty) {
+                                    $.modal.msgWarning("超出可退货数量,请重新输入!")
+                                    $(this).val("");
+                                    $(this).focus();
+                                }
+                            });
+                        }
+                    }
+                },
+                {sortable: false, name: 'remark', align: "center", index: 'remark', editable: true},
+                {sortable: false, name: 'sumDeliveryQty', align: "center", index: 'sumDeliveryQty', editable: false, width: '100px'},
+            ],
+            rownumbers: true,
+            cellsubmit: "clientArray",//编辑后本地保存
+            autowidth: true,
+        });
+        $("#list").jqGrid('setGridWidth', 1010);
+        jQuery("#bomTable").jqGrid('setLabel', 'rn', '序号', {'text-align': 'center', 'vertical-align': 'middle', 'width': '40px'});
+        // 遍历jqgrid 使其序号列宽度为40
+        $("#bomTable tbody").each(function () {//jqgrid 创建的表格都有role属性为grid
+            $('td:first').css("width", "40px"); // 使表体的序号列宽度为40
+        });
+        editAllRows("bomTable");
+    }
+</script>
+</body>
+</html>

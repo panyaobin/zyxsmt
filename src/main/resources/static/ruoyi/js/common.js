@@ -278,3 +278,91 @@ $.ajaxSetup({
         }
     }
 });
+
+/**
+ * 设置列表为编辑状态
+ * @param table 表id
+ * @returns
+ */
+function editAllRows(table) {
+	var obj = $("#" + table).jqGrid("getDataIDs");
+	//判断是否存在数据
+	if (obj != undefined && obj.length > 0) {
+		for (var i in obj) {
+			$("#" + table).jqGrid('editRow', obj[i], {
+				url: 'clientArray',
+				keys: false
+			});
+		}
+	}
+}
+
+/**
+ * 设置列表为保存状态
+ * @param table 表id
+ * @returns
+ */
+function saveAllRows(table) {
+	var obj = $("#" + table).jqGrid("getDataIDs");
+	//判断是否存在数据
+	if (obj != undefined && obj.length > 0) {
+		for (var i in obj) {
+			$("#" + table).jqGrid('saveRow', obj[i], {
+				url: 'clientArray',
+				keys: true
+			});
+		}
+	}
+}
+
+//新增表格按钮
+function addTableBtn(elem) {
+	var $that = $("#" + elem);
+	var newID = jqGridCreatNewId(elem);
+	$that.jqGrid("addRowData", newID, 'last');
+	//把新增行设置为可编辑
+	$that.jqGrid('editRow', newID, {
+		url: 'clientArray',
+		keys: true
+	});
+}
+
+// 批量删除表格信息按钮
+function deleteTableBtn(elem) {
+	var $that = $("#" + elem);
+	var trs = $that.find(".cbox:checkbox:checked").closest("tr");
+	if (trs.length == 0) {
+		sysAlert("请先选择要删除的记录!");
+		return;
+	}
+	trs.each(function () {
+		var id = $(this).attr("id");
+		$that.jqGrid("delRowData", id);
+	});
+	var inputN = $that.find(".cbox:checkbox:checked");
+	if (inputN.length == 0) {
+		$("#cb_" + elem).prop("checked", false);
+	}
+	$that.data("lastsel", null);
+
+}
+
+//单条记录删除
+function deleteT(rowId, elem) {
+	var $that = $("#" + elem);
+	$that.jqGrid('delRowData', rowId);
+	$that.data("lastsel", null);
+	return false
+}
+
+/**
+ * jqgrid生成一个新的行id(用于jqgrid新增行时)
+ * @param table 表格的id
+ */
+function jqGridCreatNewId(table){
+	if($("#"+table+' tr').length == 1){//只有表头
+		return 1;
+	}else{
+		return parseInt($("#"+table+' tr:last').attr('id')) + 1;
+	}
+}

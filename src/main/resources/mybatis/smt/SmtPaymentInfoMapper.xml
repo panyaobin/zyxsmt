@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.project.smt.payment.mapper.SmtPaymentInfoMapper">
+
+    <resultMap type="SmtPaymentInfo" id="SmtPaymentInfoResult">
+        <result property="id" column="id"/>
+        <result property="collectionUnit" column="collection_unit"/>
+        <result property="accountName" column="account_name"/>
+        <result property="accountNumber" column="account_number"/>
+        <result property="accountBank" column="account_bank"/>
+        <result property="createBy" column="create_by"/>
+        <result property="createDate" column="create_date"/>
+        <result property="updateBy" column="update_by"/>
+        <result property="updateDate" column="update_date"/>
+        <result property="remark" column="remark"/>
+        <result property="delFlag" column="del_flag"/>
+    </resultMap>
+
+    <sql id="selectSmtPaymentInfoVo">
+        select id, collection_unit, account_name, account_number, account_bank, create_by, create_date, update_by, update_date, remark, del_flag from smt_payment_info
+    </sql>
+
+    <select id="selectSmtPaymentInfoList" parameterType="SmtPaymentInfo" resultMap="SmtPaymentInfoResult">
+        <include refid="selectSmtPaymentInfoVo"/>
+        <where>
+            <if test="collectionUnit != null  and collectionUnit != ''">and collection_unit like concat('%', #{collectionUnit}, '%')</if>
+            <if test="accountName != null  and accountName != ''">and account_name like concat('%', #{accountName}, '%')</if>
+            <if test="accountNumber != null  and accountNumber != ''">and account_number = #{accountNumber}</if>
+            <if test="accountBank != null  and accountBank != ''">and account_bank like concat('%', #{accountBank}, '%')</if>
+        </where>
+    </select>
+
+    <select id="selectSmtPaymentInfoById" parameterType="Integer" resultMap="SmtPaymentInfoResult">
+        <include refid="selectSmtPaymentInfoVo"/>
+        where id = #{id}
+    </select>
+
+    <insert id="insertSmtPaymentInfo" parameterType="SmtPaymentInfo" useGeneratedKeys="true" keyProperty="id">
+        insert into smt_payment_info
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="collectionUnit != null  and collectionUnit != ''">collection_unit,</if>
+            <if test="accountName != null  and accountName != ''">account_name,</if>
+            <if test="accountNumber != null  and accountNumber != ''">account_number,</if>
+            <if test="accountBank != null  and accountBank != ''">account_bank,</if>
+            <if test="createBy != null  and createBy != ''">create_by,</if>
+            <if test="createDate != null ">create_date,</if>
+            <if test="updateBy != null  and updateBy != ''">update_by,</if>
+            <if test="updateDate != null ">update_date,</if>
+            <if test="remark != null  and remark != ''">remark,</if>
+            <if test="delFlag != null  and delFlag != ''">del_flag,</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="collectionUnit != null  and collectionUnit != ''">#{collectionUnit},</if>
+            <if test="accountName != null  and accountName != ''">#{accountName},</if>
+            <if test="accountNumber != null  and accountNumber != ''">#{accountNumber},</if>
+            <if test="accountBank != null  and accountBank != ''">#{accountBank},</if>
+            <if test="createBy != null  and createBy != ''">#{createBy},</if>
+            <if test="createDate != null ">#{createDate},</if>
+            <if test="updateBy != null  and updateBy != ''">#{updateBy},</if>
+            <if test="updateDate != null ">#{updateDate},</if>
+            <if test="remark != null  and remark != ''">#{remark},</if>
+            <if test="delFlag != null  and delFlag != ''">#{delFlag},</if>
+        </trim>
+    </insert>
+
+    <update id="updateSmtPaymentInfo" parameterType="SmtPaymentInfo">
+        update smt_payment_info
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="collectionUnit != null  and collectionUnit != ''">collection_unit = #{collectionUnit},</if>
+            <if test="accountName != null  and accountName != ''">account_name = #{accountName},</if>
+            <if test="accountNumber != null  and accountNumber != ''">account_number = #{accountNumber},</if>
+            <if test="accountBank != null  and accountBank != ''">account_bank = #{accountBank},</if>
+            <if test="createBy != null  and createBy != ''">create_by = #{createBy},</if>
+            <if test="createDate != null ">create_date = #{createDate},</if>
+            <if test="updateBy != null  and updateBy != ''">update_by = #{updateBy},</if>
+            <if test="updateDate != null ">update_date = #{updateDate},</if>
+            <if test="remark != null  and remark != ''">remark = #{remark},</if>
+            <if test="delFlag != null  and delFlag != ''">del_flag = #{delFlag},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteSmtPaymentInfoById" parameterType="Integer">
+        delete from smt_payment_info where id = #{id}
+    </delete>
+
+    <delete id="deleteSmtPaymentInfoByIds" parameterType="String">
+        delete from smt_payment_info where id in
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+
+</mapper>

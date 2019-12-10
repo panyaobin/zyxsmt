@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="zh" xmlns:th="http://www.thymeleaf.org" xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
+<head>
+    <th:block th:include="include :: header('DZL发料记录列表')"/>
+</head>
+<style>
+    .selectHeight {
+        height: 34px !important;
+    }
+
+    .inputHeight {
+        line-height: 24px;
+        width: 80px !important;
+    }
+</style>
+<body class="gray-bg">
+<div class="container-div">
+    <div class="row">
+        <div class="col-sm-12 search-collapse">
+            <form id="formId">
+                <input type="hidden" name="orderType" value="2">
+                <div class="select-list">
+                    <ul>
+                        <li>
+                            <p class="inputHeight">客户名称：</p>
+                            <select name="cusCode" class="form-control select2-selection--multiple selectHeight" th:with="cusList=${@cus.getCus()}" onchange="$.table.search()">
+                                <option value="">请选择</option>
+                                <option th:each="c:${cusList}" th:value="${c.cusCode}" th:text="${c.cusName}"></option>
+                            </select>
+                        </li>
+                        <li>
+                            <p class="inputHeight">发料单号：</p>
+                            <input type="text" class="selectHeight" name="deliveryNo"/>
+                        </li>
+                        <li>
+                            <a class="btn btn-primary btn-rounded btn-sm" onclick="$.table.search()"><i class="fa fa-search"></i>&nbsp;搜索</a>
+                            <a class="btn btn-warning btn-rounded btn-sm" onclick="$.form.reset()"><i class="fa fa-refresh"></i>&nbsp;重置</a>
+                        </li>
+                    </ul>
+                </div>
+            </form>
+        </div>
+
+        <div class="btn-group-sm" id="toolbar" role="group">
+            <a class="btn btn-danger multiple disabled" onclick="$.operate.removeAll()" shiro:hasPermission="smt:delivery:remove">
+                <i class="fa fa-remove"></i> 删除
+            </a>
+            <a class="btn btn-warning" onclick="$.table.exportExcel()" shiro:hasPermission="smt:delivery:export">
+                <i class="fa fa-download"></i> 导出
+            </a>
+        </div>
+        <div class="col-sm-12 select-table table-striped">
+            <table id="bootstrap-table"></table>
+        </div>
+    </div>
+</div>
+<th:block th:include="include :: footer"/>
+<script th:inline="javascript">
+    let editFlag = [[${@permission.hasPermi('smt:delivery:edit')}]];
+    let removeFlag = [[${@permission.hasPermi('smt:delivery:remove')}]];
+    let prefix = ctx + "smt/delivery";
+    $(function () {
+        var options = {
+            uniqueId: "id",
+            url: prefix + "/list",
+            createUrl: prefix + "/add",
+            updateUrl: prefix + "/edit/{id}",
+            removeUrl: prefix + "/remove",
+            exportUrl: prefix + "/export",
+            modalName: "发料记录",
+            columns: [
+                {
+                    checkbox: true
+                },
+                {
+                    title: "序号",
+                    formatter: function (value, row, index) {
+                        return $.table.serialNumber(index);
+                    }
+                },
+                {
+                    field: 'id',
+                    title: '序号',
+                    visible: false
+                },
+                {
+                    field: 'cusName',
+                    title: '客户名称'
+                },
+
+                {
+                    field: 'deliveryNo',
+                    title: '发料单号',
+                    formatter: function (value, row, index) {
+                        return "<a href='javascript:void(0)' onclick='rePrint(" + value + ")'>" + value + "</a>";
+                    }
+                },
+                {
+                    field: 'dzlName',
+                    title: '产品型号'
+                },
+                {
+                    field: 'typeName',
+                    title: '类型'
+                },
+                {
+                    field: 'deliveryQty',
+                    title: '发料数量'
+                },
+                {
+                    field: 'remark',
+                    title: '备注'
+                },
+                {
+                    title: '操作',
+                    align: 'center',
+                    formatter: function (value, row, index) {
+                        var actions = [];
+                        actions.push('<a class="btn btn-danger btn-xs ' + removeFlag + '" href="javascript:void(0)" onclick="$.operate.remove(\'' + row.id + '\')"><i class="fa fa-remove"></i>删除</a>');
+                        return actions.join('');
+                    }
+                }]
+        };
+        $.table.init(options);
+    });
+
+    /**
+     * 重新打印
+     * @param obj
+     */
+    function rePrint(obj) {
+        let url = prefix + "/rePrint/";
+        layer.open({
+            type: 2,
+            area: [800 + 'px', 600 + 'px'],
+            fix: false,
+            //不固定
+            maxmin: true,
+            shade: 0.3,
+            title: "打印发料单",
+            content: url + obj,
+            // 弹层外区域关闭
+            shadeClose: true,
+            cancel: function (index) {
+                return true;
+            }
+        });
+    }
+</script>
+</body>
+</html>

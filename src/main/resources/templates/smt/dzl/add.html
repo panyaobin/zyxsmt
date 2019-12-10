@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="zh" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <th:block th:include="include :: header('新增电子料信息')"/>
+</head>
+<body class="white-bg">
+<div class="wrapper wrapper-content animated fadeInRight ibox-content">
+    <form class="form-horizontal m" id="form-dzl-add">
+        <div class="form-group">
+            <label class="col-sm-3 control-label"><span style="color: red; ">*</span>电子料名称：</label>
+            <div class="col-sm-6">
+                <input name="dzlName" class="form-control" onblur="validateDzlNameUnique(this);" type="text" required>
+            </div>
+        </div>
+        <div class="form-group" hidden>
+            <div class="col-sm-6">
+                <input name="mainType" class="form-control" type="text" value="2">
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-3 control-label">电子料类型：</label>
+            <div class="col-sm-6">
+                <input name="typeName" class="form-control" type="text">
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-3 control-label">备注：</label>
+            <div class="col-sm-6">
+                <textarea id="remark" name="remark" class="form-control">[[*{remark}]]</textarea>
+            </div>
+        </div>
+    </form>
+</div>
+<th:block th:include="include :: footer"/>
+<script type="text/javascript">
+    var prefix = ctx + "smt/dzl"
+    $("#form-dzl-add").validate({
+        focusCleanup: true
+    });
+
+    function submitHandler() {
+        if ($.validate.form()) {
+            $.operate.save(prefix + "/add", $('#form-dzl-add').serialize());
+        }
+    }
+
+    /**
+     * 验证物料名称重复
+     */
+    function validateDzlNameUnique(obj) {
+        debugger
+        let name = $.common.trim($(obj).val());
+        if (null != name && name != "") {
+            $.ajax({
+                url: prefix + "/validateDzlNameUnique",
+                data: {
+                    dzlName: name
+                },
+                type: "post",
+                success: function (result) {
+                    if (result > 0) {
+                        $.modal.msgWarning("电子料名称已存在!");
+                        $(obj).val("");
+                        $(obj).focus();
+                    }
+                }
+            })
+        }
+    }
+</script>
+</body>
+</html>

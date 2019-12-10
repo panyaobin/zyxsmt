@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html lang="zh" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <th:block th:include="include :: header('FPC出货页面')"/>
+</head>
+<style>
+    .ui-jqgrid-htable th {
+        height: 40px;
+        border-right: 1px solid #e1e1e1;
+        border-bottom: 1px solid #e1e1e1;
+        background-color: #9e9e9e1f;
+        text-align: center;
+    }
+
+    .ui-jqgrid-htable th span {
+        display: none;
+    }
+
+    #bomTable {
+        background-color: #f6f6f6;
+    }
+
+    #bomTable tr {
+        height: 20px;
+        font-size: 16px;
+    }
+
+    #bomTable tr td input {
+        height: 95%;
+        width: 95%;
+    }
+
+    #bomTable tr td {
+        height: 35px;
+        border-right: 1px solid #e1e1e1;
+        border-bottom: 1px solid #e1e1e1;
+    }
+
+    .bomDiv {
+        box-shadow: none;
+        padding-bottom: 0px;
+    }
+
+    select {
+        width: 95%;
+        height: 95% !important;
+    }
+
+
+    .legend-color {
+        color: #1890ff;
+    }
+</style>
+<body class="white-bg">
+<div class="wrapper wrapper-content animated fadeInRight ibox-content">
+    <form class="form-horizontal m" id="form-bom-edit">
+        <input type="hidden" id="shipList" name="shipList">
+        <input type="hidden" id="cusCode" name="cusCode">
+        <input type="hidden" id="shipType" name="shipType">
+        <fieldset>
+            <legend class="legend-color" style="margin-bottom: 0px;padding-right: 28px;">出货信息<a href="#" onclick="calcDzl()" class="pull-right btn btn-xs btn-primary">计算电子料</a></legend>
+            <div class="container-div">
+                <div class="row">
+                    <div class="col-sm-12 select-table table-striped bomDiv">
+                        <table id="bomTable" class="ui-jqgrid-htable"></table>
+                    </div>
+                </div>
+            </div>
+
+            <div class="container-div">
+                <div class="row">
+                    <div class="col-sm-12 select-table table-striped bomDiv">
+                        <table id="dzlTable" class="ui-jqgrid-htable"></table>
+                    </div>
+                </div>
+            </div>
+
+        </fieldset>
+    </form>
+</div>
+<th:block th:include="include :: footer"/>
+<script th:src="@{/ruoyi/jqGrid/4.6/js/jquery.jqGrid.js}"></script>
+<script th:src="@{/ruoyi/jqGrid/4.6/i18n/grid.locale-cn.js}"></script>
+<link th:href="@{/ruoyi/jqGrid/4.6/css/ui.jqgrid.css}">
+<script type="text/javascript">
+    const prefix = ctx + "smt/ship";
+    let flag = false;
+    $(document).ready(function () {
+        //确认按钮隐藏
+        $(".layui-layer-btn0").hide();
+        $("#form-bom-edit").validate({
+            focusCleanup: true
+        });
+        //加载明细信息
+        loadTable();
+    });
+
+
+    function submitHandler() {
+        debugger
+        if ($.validate.form()) {
+            if (!flag) {
+                $.modal.msgWarning("请先计算电子料!");
+                $("#1_shipQty").focus();
+                return
+            }
+            saveAllRows("bomTable");
+            //fpc出货数据
+            let tableData = $("#bomTable").jqGrid("getRowData");
+            let dataArr = new Array();
+            let arr = new Object();
+            let cusCode = tableData[0].cusCode;
+            //电子料需要存入FPC名称
+            let bomName = tableData[0].bomName;
+            arr.cusCode = cusCode;
+            arr.orderType = 1;
+            arr.shipType = 1;
+            arr.orderNo = tableData[0].orderNo;
+            arr.bomName = tableData[0].bomName;
+            arr.bomId = tableData[0].bomId;
+            arr.shipQty = tableData[0].shipQty;
+            arr.remark = tableData[0].remark;
+            dataArr.push(arr);
+
+            //电子料出货数据
+            let data = $("#dzlTable").bootstrapTable('getData');
+
+            for (let elem of data) {
+                let arr = new Object();
+                arr.cusCode = cusCode;
+                arr.orderType = 2;
+                arr.shipType = 1;
+                arr.orderNo = tableData[0].orderNo;
+                arr.bomName = bomName;
+                arr.bomId = elem.dzlId;
+                arr.shipQty = elem.counts;
+                arr.dzlNumber = elem.dzlNumber;
+                arr.bak = elem.bak;
+                dataArr.push(arr);
+            }
+            $("#shipType").val(1);
+            $("#cusCode").val();
+            $("#shipList").val(JSON.stringify(dataArr));
+            let config = {
+                url: prefix + "/addShip",
+                type: "post",
+                dataType: "json",
+                data: $('#form-bom-edit').serialize(),
+                beforeSend: function () {
+                    $.modal.loading("正在处理中，请稍后...");
+                    $.modal.disable();
+                },
+                success: function (result) {
+                    if (typeof callback == "function") {
+                        callback(result);
+                    }
+                    window.location.href = prefix + "/print";
+                }
+            };
+            $.ajax(config);
+        }
+    }
+
+    //页面加载数据
+    function loadTable() {
+        let data = window.localStorage.getItem("fpcShipList");
+        let arrData = JSON.parse(data);
+        initTable("bomTable", arrData);
+    }
+
+    //初始化表格
+    function initTable(obj, data) {
+        $("#" + obj).jqGrid({
+            data: data,
+            datatype: "local",
+            height: 'auto',
+            beforeSelectRow: function (rowid, e) {
+                return false
+            },
+            colNames:
+                [
+                    "客户编码",
+                    "客户名称",
+                    "订单号",
+                    "bomId",
+                    "产品型号",
+                    "类型",
+                    "产品类型(1.fpc 2.dzl)",
+                    "数量",
+                    "备注",
+                    "库存"
+                ],
+
+            colModel: [
+                {sortable: false, name: 'cusCode', align: "center", index: 'cusCode', editable: false, hidden: true},
+                {sortable: false, name: 'cusName', align: "center", index: 'cusName', editable: false, width: '300'},
+                {
+                    sortable: false, name: 'orderNo', align: "center", index: 'orderNo', editable: false,
+                    formatter: function (value, row, obj) {
+                        if (value == undefined) {
+                            $("#bomTable").setGridParam().hideCol("orderNo");
+                            $("#bomTable").jqGrid('setGridWidth', 1010);
+                        } else {
+                            return value;
+                        }
+                    }
+                },
+                {sortable: false, name: 'bomId', align: "center", index: 'bomId', editable: false, hidden: true},
+                {sortable: false, name: 'bomName', align: "center", index: 'bomName', editable: false},
+                {sortable: false, name: 'typeName', align: "center", index: 'typeName', editable: false, width: '100px'},
+                {sortable: false, name: 'orderType', align: "center", index: 'orderType', editable: false, hidden: true},
+                {
+                    sortable: false, name: 'shipQty', align: "center", index: 'shipQty', editable: true, width: '100px',
+                    editoptions: {
+                        dataInit: function (element) {
+                            $(element).on("keyup", function () {
+                                let v = element.value;
+                                if (!(/(^[1-9]\d*$)/.test(v))) {
+                                    $.modal.msgWarning("出货数量不合法,请输入正整数!")
+                                    $(this).val("");
+                                    $(this).focus();
+                                    return;
+                                }
+                                let qty = parseInt($(this).parent().next().text());
+                                if (parseInt(v) > qty) {
+                                    $.modal.msgWarning("超出可出货数量,请重新输入!")
+                                    $(this).val("");
+                                    $(this).focus();
+                                }
+                            });
+                        }
+                    }
+                },
+                {sortable: false, name: 'remark', align: "center", index: 'remark', editable: true, width: '150px'},
+                {sortable: false, name: 'sumShipQty', align: "center", index: 'sumShipQty', editable: false, width: '100px'},
+            ],
+            rownumbers: true,
+            cellsubmit: "clientArray",//编辑后本地保存
+            autowidth: true,
+        });
+        $("#list").jqGrid('setGridWidth', 1010);
+        jQuery("#bomTable").jqGrid('setLabel', 'rn', '序号', {'text-align': 'center', 'vertical-align': 'middle', 'width': '40px'});
+        // 遍历jqgrid 使其序号列宽度为40
+        $("#bomTable tbody").each(function () {//jqgrid 创建的表格都有role属性为grid
+            $('td:first').css("width", "40px"); // 使表体的序号列宽度为40
+        });
+        editAllRows("bomTable");
+    }
+
+    /**
+     * 计算电子料
+     */
+    function calcDzl() {
+        let count = $("#1_shipQty").val();
+        let cusCode = $("#bomTable").find("td[aria-describedby='bomTable_cusCode']").text()
+        let bomName = $("#bomTable").find("td[aria-describedby='bomTable_bomName']").text()
+        if (count == "" || count == undefined) {
+            $.modal.msgWarning("请输入出货数量,计算电子料");
+            $("#1_shipQty").focus();
+            return
+        }
+        flag = true;
+        calcDzlTable(cusCode, bomName, count);
+    }
+
+    /**
+     * 计算电子料
+     * @param cusCode
+     * @param bomName
+     * @param count
+     */
+    function calcDzlTable(cusCode, bomName, count) {
+        $("#dzlTable").bootstrapTable('destroy');
+        var $table = $('#dzlTable').bootstrapTable({
+            url: prefix + "/getCustBomInfo",  /// /请求后台的URL（*）
+            method: 'post',                      /// /请求方式（*）
+            striped: true,                      /// /是否显示行间隔色
+            cache: false,                       /// /是否使用缓存，默认为true，所以一般情况下需要设置一下这个属性（*）
+            pagination: false,                   /// /是否显示分页（*）
+            sortable: true,                     /// /是否启用排序
+            sortOrder: "asc",                   /// /排序方式
+            queryParams: {"cusCode": cusCode, "bomName": bomName, count},/// /传递参数（*）
+            sidePagination: "server",           /// /分页方式：client客户端分页，server服务端分页（*）
+            pageNumber: 1,                       /// /初始化加载第一页，默认第一页
+            search: false,                       /// /是否显示表格搜索，此搜索是客户端搜索，不会进服务端，所以，个人感觉意义不大
+            strictSearch: false,
+            showColumns: false,                  /// /是否显示所有的列
+            showExport: false, 						//显示导出按钮
+            showRefresh: false,                  /// /是否显示刷新按钮
+            clickToSelect: false,                /// /是否启用点击选中行 /// 行高，如果没有设置height属性，表格自动根据记录条数觉得表格高度
+            contentType: "application/x-www-form-urlencoded",
+            uniqueId: "id",                     /// /每一行的唯一标识，一般为主键列
+            showToggle: false,                    /// /是否显示详细视图和列表视图的切换按钮
+            cardView: false,                    /// /是否显示详细视图
+            detailView: false,                   /// /是否显示父子表
+            resizable: true,      //设置table可以调整列宽
+            onLoadSuccess: function (result) {
+                console.log("result: " + result);
+            },
+            onLoadError: function (err) {
+                console.log("error: " + err);
+            },
+            responseHandler: function (res) {
+                return {total: res.length, rows: res};
+            },
+            columns: [{
+                title: "序号",
+                width: '50px',
+                formatter: rowIndexFormatter,
+                align: 'center',
+                valing: 'middle'
+            }, {
+                field: "dzlId",
+                title: "电子料BOM_ID",
+                titleTooltip: "电子料BOM_ID",
+                align: 'center',
+                valing: 'middle',
+               // visible: false
+            }, {
+                field: "dzlName",
+                title: "电子料型号",
+                titleTooltip: "电子料型号",
+                align: 'center',
+                valing: 'middle'
+            }, {
+                field: "typeName",
+                title: "电子料类型",
+                titleTooltip: "电子料类型",
+                align: 'center',
+                valing: 'middle'
+            },
+                {
+                    field: 'counts',
+                    title: "总用量",
+                    titleTooltip: "总用量",
+                    align: 'center',
+                    valing: 'middle'
+                },
+                {
+                    field: 'dzlNumber',
+                    title: "用量",
+                    titleTooltip: "用量",
+                    align: 'center',
+                    valing: 'middle',
+                    visible: false
+                },
+                {
+                    field: 'bak',
+                    title: "备品数量",
+                    titleTooltip: "备品数量",
+                    align: 'center',
+                    valing: 'middle'
+                },
+                {
+                    field: 'remark',
+                    title: "备注",
+                    titleTooltip: "备注",
+                    align: 'center',
+                    valing: 'middle'
+                }
+
+            ]
+        });
+    }
+
+    function rowIndexFormatter(value, row, index) {
+        return ++index;
+    }
+</script>
+</body>
+</html>

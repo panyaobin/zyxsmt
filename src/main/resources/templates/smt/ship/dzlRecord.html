@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="zh" xmlns:th="http://www.thymeleaf.org" xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
+<head>
+    <th:block th:include="include :: header('DZL出货记录')"/>
+</head>
+<style>
+    .selectHeight {
+        height: 34px !important;
+    }
+
+    .inputHeight {
+        line-height: 24px;
+        width: 80px !important;
+    }
+</style>
+<body class="gray-bg">
+<div class="container-div">
+    <div class="row">
+        <div class="col-sm-12 search-collapse">
+            <form id="formId">
+                <input type="hidden" name="orderType" value="2">
+                <input type="hidden" name="shipType" value="1">
+                <div class="select-list">
+                    <ul>
+                        <li>
+                            <p class="inputHeight">客户名称：</p>
+                            <select name="cusCode" class="form-control select2-selection--multiple selectHeight" th:with="cusList=${@cus.getCus()}" onchange="$.table.search()">
+                                <option value="">请选择</option>
+                                <option th:each="c:${cusList}" th:value="${c.cusCode}" th:text="${c.cusName}"></option>
+                            </select>
+                        </li>
+                        <li>
+                            <p class="inputHeight">出货单号：</p>
+                            <input type="text" onkeyup="this.value=this.value.replace(/\D/g,'')" maxlength="10" class="selectHeight" name="shipSearchNo"/>
+                        </li>
+
+                        <li class="select-time">
+                            <label>出货时间： </label>
+                            <input type="text" class="time-input" id="startTime" placeholder="开始时间" name="params[beginTime]"/>
+                            <span>-</span>
+                            <input type="text" class="time-input" id="endTime" placeholder="结束时间" name="params[endTime]"/>
+                        </li>
+
+                        <li>
+                            <a class="btn btn-primary btn-rounded btn-sm" onclick="$.table.search()"><i class="fa fa-search"></i>&nbsp;搜索</a>
+                            <a class="btn btn-warning btn-rounded btn-sm" onclick="$.form.reset()"><i class="fa fa-refresh"></i>&nbsp;重置</a>
+                        </li>
+                    </ul>
+                </div>
+            </form>
+        </div>
+
+        <div class="btn-group-sm" id="toolbar" role="group">
+            <a class="btn btn-warning" onclick="$.table.exportExcel()" shiro:hasPermission="smt:ship:export">
+                <i class="fa fa-download"></i> 导出
+            </a>
+        </div>
+        <div class="col-sm-12 select-table table-striped">
+            <table id="bootstrap-table"></table>
+        </div>
+    </div>
+</div>
+<th:block th:include="include :: footer"/>
+<script th:inline="javascript">
+    var editFlag = [[${@permission.hasPermi('smt:ship:edit')}]];
+    var removeFlag = [[${@permission.hasPermi('smt:ship:remove')}]];
+    var prefix = ctx + "smt/ship";
+
+    $(function () {
+        var options = {
+            url: prefix + "/dzlShipList?shipType=1&orderType=2",
+            createUrl: prefix + "/add",
+            updateUrl: prefix + "/edit/{id}",
+            removeUrl: prefix + "/remove",
+            exportUrl: prefix + "/export",
+            modalName: "产品出货",
+            columns: [
+                {
+                    title: '序号',
+                    formatter: function (value, row, index) {
+                        return $.table.serialNumber(index);
+                    }
+                }, {
+                    field: 'id',
+                    title: '序列号',
+                    visible: false
+                },
+                {
+                    field: 'cusName',
+                    title: '客户名称'
+                },
+                {
+                    field: 'shipNo',
+                    title: '出货单号',
+                    formatter: function (value, row, index) {
+                        return row.cusCode + "" + value
+                    }
+                },
+                {
+                    field: 'dzlName',
+                    title: '物料型号'
+                },
+                {
+                    field: 'typeName',
+                    title: '物料类型'
+                },
+                {
+                    field: 'dzlNumber',
+                    title: '用量'
+                },
+                {
+                    field: 'shipQty',
+                    title: '数量'
+                },
+                {
+                    field: 'bak',
+                    title: '备品'
+                },
+                {
+                    field: 'orderNo',
+                    title: '订单号'
+                },
+                {
+                    field: 'bomName',
+                    title: 'FPC型号'
+                },
+                {
+                    field: 'fpcShipQty',
+                    title: 'FPC数量'
+                },
+
+                {
+                    field: 'createTime',
+                    title: '出货时间'
+                }
+            ]
+        };
+        $.table.init(options);
+    });
+</script>
+</body>
+</html>

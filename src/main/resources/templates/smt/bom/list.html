@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="zh" xmlns:th="http://www.thymeleaf.org" xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
+<head>
+    <th:block th:include="include :: header('客户bom全部列表')"/>
+</head>
+<style>
+    .selectHeight {
+        height: 34px !important;
+    }
+
+    .inputHeight {
+        line-height: 24px;
+        width: 80px!important;
+    }
+</style>
+<body class="gray-bg">
+<div class="container-div">
+    <div class="row">
+        <div class="col-sm-12 search-collapse">
+            <form id="formId">
+                <div class="select-list">
+                    <ul>
+                        <li>
+                            <p class="inputHeight">客户名称：</p>
+                            <select name="cusCode" class="form-control select2-selection--multiple selectHeight" th:with="cusList=${@cus.getCus()}" onchange="$.table.search()">
+                                <option value="">请选择</option>
+                                <option th:each="c:${cusList}" th:value="${c.cusCode}" th:text="${c.cusName}"></option>
+                            </select>
+                        </li>
+                        <li>
+                            <p class="inputHeight">BOM名称：</p>
+                            <input type="text" class="selectHeight" name="bomName"/>
+                        </li>
+                        <li>
+                            <p class="inputHeight">电子料名称：</p>
+                            <input type="text" class="selectHeight" name="dzlName"/>
+                        </li>
+
+                        <li>
+                            <a class="btn btn-primary btn-rounded btn-sm" onclick="$.table.search()"><i class="fa fa-search"></i>&nbsp;搜索</a>
+                            <a class="btn btn-warning btn-rounded btn-sm" onclick="$.form.reset()"><i class="fa fa-refresh"></i>&nbsp;重置</a>
+                        </li>
+                    </ul>
+                </div>
+            </form>
+        </div>
+
+        <div class="btn-group-sm" id="toolbar" role="group">
+            <a class="btn btn-warning" onclick="$.table.exportExcel()" shiro:hasPermission="smt:bom:export">
+                <i class="fa fa-download"></i> 导出
+            </a>
+        </div>
+        <div class="col-sm-12 select-table table-striped">
+            <table id="bootstrap-table"></table>
+        </div>
+    </div>
+</div>
+<th:block th:include="include :: footer"/>
+<script th:inline="javascript">
+    var editFlag = [[${@permission.hasPermi('smt:bom:edit')}]];
+    var removeFlag = [[${@permission.hasPermi('smt:bom:remove')}]];
+    var prefix = ctx + "smt/bom";
+
+    $(function () {
+        var options = {
+            url: prefix + "/getAllList",
+            createUrl: prefix + "/add",
+            updateUrl: prefix + "/edit/{id}",
+            removeUrl: prefix + "/remove",
+            exportUrl: prefix + "/export",
+            importUrl: prefix + "/import",
+            modalName: "客户bom信息",
+            columns: [{
+                checkbox: true
+            },{
+                field: '',
+                title: '序号',
+                formatter: function (a, b, c) {
+                    return ++c;
+                }
+            },
+                {
+                    field: 'id',
+                    title: '序号id',
+                    visible: false
+                },
+                {
+                    field: 'cusName',
+                    title: '客户名称'
+                },
+                {
+                    field: 'bomName',
+                    title: 'BOM名称'
+                },
+                {
+                    field: 'bomPoint',
+                    title: '总点数'
+                },
+                {
+                    field: 'dzlName',
+                    title: '电子料名称'
+                },
+                {
+                    field: 'typeName',
+                    title: '电子料类型'
+                },
+                {
+                    field: 'dzlNumber',
+                    title: '用量'
+                },{
+                    field: 'position',
+                    title: '件位'
+                },{
+                    field: 'bak',
+                    title: '备品'
+                },
+                {
+                    field: 'createTime',
+                    title: '创建时间'
+                },
+                {
+                    field: 'remarks',
+                    title: '说明'
+                }
+               ]
+        };
+        $.table.init(options);
+    });
+</script>
+</body>
+</html>

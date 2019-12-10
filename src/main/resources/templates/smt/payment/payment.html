@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="zh" xmlns:th="http://www.thymeleaf.org" xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
+<head>
+    <th:block th:include="include :: header('付款信息列表')" />
+</head>
+<body class="gray-bg">
+     <div class="container-div">
+        <div class="row">
+            <div class="col-sm-12 search-collapse">
+                <form id="formId">
+                    <div class="select-list">
+                        <ul>
+                            <li>
+                                <p>收款单位：</p>
+                                <input type="text" name="collectionUnit"/>
+                            </li>
+                            <li>
+                                <p>户名：</p>
+                                <input type="text" name="accountName"/>
+                            </li>
+                            <li>
+                                <p>开户银行：</p>
+                                <input type="text" name="accountBank"/>
+                            </li>
+                            <li>
+                                <a class="btn btn-primary btn-rounded btn-sm" onclick="$.table.search()"><i class="fa fa-search"></i>&nbsp;搜索</a>
+                                <a class="btn btn-warning btn-rounded btn-sm" onclick="$.form.reset()"><i class="fa fa-refresh"></i>&nbsp;重置</a>
+                            </li>
+                        </ul>
+                    </div>
+                </form>
+            </div>
+
+            <div class="btn-group-sm" id="toolbar" role="group">
+                <a class="btn btn-success" onclick="$.operate.add()" shiro:hasPermission="smt:payment:add">
+                    <i class="fa fa-plus"></i> 添加
+                </a>
+                <a class="btn btn-primary single disabled" onclick="$.operate.editPayment()" shiro:hasPermission="smt:payment:edit">
+                    <i class="fa fa-edit"></i> 修改
+                </a>
+                <a class="btn btn-danger multiple disabled" onclick="$.operate.removeAll()" shiro:hasPermission="smt:payment:remove">
+                    <i class="fa fa-remove"></i> 删除
+                </a>
+                <a class="btn btn-warning" onclick="$.table.exportExcel()" shiro:hasPermission="smt:payment:export">
+                    <i class="fa fa-download"></i> 导出
+                 </a>
+            </div>
+            <div class="col-sm-12 select-table table-striped">
+                <table id="bootstrap-table"></table>
+            </div>
+        </div>
+    </div>
+    <th:block th:include="include :: footer" />
+    <script th:inline="javascript">
+        var editFlag = [[${@permission.hasPermi('smt:payment:edit')}]];
+        var removeFlag = [[${@permission.hasPermi('smt:payment:remove')}]];
+        var prefix = ctx + "smt/payment";
+
+        $(function() {
+            var options = {
+                uniqueId:'id',
+                url: prefix + "/list",
+                createUrl: prefix + "/add",
+                updateUrl: prefix + "/edit/{id}",
+                removeUrl: prefix + "/remove",
+                exportUrl: prefix + "/export",
+                modalName: "付款信息",
+                columns: [{
+                    checkbox: true
+                },
+                {
+                    title : '序号',
+                    formatter: function (value, row, index) {
+                        return $.table.serialNumber(index);
+                    }
+                },{
+                    field : 'id',
+                    title : '序列号',
+                    visible: false
+                },
+                {
+                    field : 'collectionUnit', 
+                    title : '收款单位'
+                },
+                {
+                    field : 'accountName', 
+                    title : '户名'
+                },
+                {
+                    field : 'accountNumber', 
+                    title : '卡号'
+                },
+                {
+                    field : 'accountBank', 
+                    title : '开户银行'
+                },
+                {
+                    field : 'createDate', 
+                    title : '创建时间'
+                },
+                {
+                    field : 'remark',
+                    title : '备注信息'
+                },
+                {
+                    title: '操作',
+                    align: 'center',
+                    formatter: function(value, row, index) {
+                        var actions = [];
+                        actions.push('<a class="btn btn-success btn-xs ' + editFlag + '" href="javascript:void(0)" onclick="$.operate.editPayment(\'' + row.id + '\')"><i class="fa fa-edit"></i>编辑</a> ');
+                        actions.push('<a class="btn btn-danger btn-xs ' + removeFlag + '" href="javascript:void(0)" onclick="$.operate.remove(\'' + row.id + '\')"><i class="fa fa-remove"></i>删除</a>');
+                        return actions.join('');
+                    }
+                }]
+            };
+            $.table.init(options);
+        });
+    </script>
+</body>
+</html>

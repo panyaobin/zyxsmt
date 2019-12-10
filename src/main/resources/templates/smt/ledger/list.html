@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="zh" xmlns:th="http://www.thymeleaf.org" xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
+<head>
+    <th:block th:include="include :: header('物料台账列表')"/>
+</head>
+<style>
+    /*.selectHeight {*/
+    /*height: 34px !important;*/
+    /*}*/
+
+    /*.inputHeight {*/
+    /*line-height: 24px;*/
+    /*width: 80px !important;*/
+    /*}*/
+</style>
+<body class="gray-bg">
+<div class="container-div">
+    <div class="row">
+        <div class="col-sm-12 search-collapse">
+            <form id="formId">
+                <div class="select-list">
+                    <ul>
+                        <li>
+                            <p class="inputHeight">客户名称：</p>
+                            <select name="cusCode" id="cusCode" class="form-control select2-selection--multiple selectHeight" th:with="cusList=${@cus.getCus()}" onchange="indexSearch()">
+                                <option value="">请选择</option>
+                                <option th:each="c:${cusList}" th:value="${c.cusCode}" th:text="${c.cusName}"></option>
+                            </select>
+                        </li>
+                        <li>
+                            <p class="inputHeight">型号：</p>
+                            <select name="bomId" id="bomId" class="form-control select2-selection--multiple" th:with="dzlList=${@dzl.getDzl()}" onchange="indexSearch()">
+                                <option value="">请选择</option>
+                                <option th:each="c:${dzlList}" th:value="${c.id}" th:text="${c.dzlName}"></option>
+                            </select>
+                        </li>
+
+                        <li class="select-time">
+                            <p class="inputHeight">时间：</p>
+                            <input type="text" class="time-input selectHeight" id="startTime" placeholder="开始时间" name="params[beginTime]"/>
+                            <span>-</span>
+                            <input type="text" class="time-input selectHeight" id="endTime" placeholder="结束时间" name="params[endTime]"/>
+                        </li>
+                        <li>
+                            <a class="btn btn-primary btn-rounded btn-sm" onclick="indexSearch()"><i class="fa fa-search"></i>&nbsp;搜索</a>
+                            <a class="btn btn-warning btn-rounded btn-sm" onclick="indexReset()"><i class="fa fa-refresh"></i>&nbsp;重置</a>
+                            <a class="btn btn-warning btn-rounded btn-sm" onclick="indexExportExcel()" shiro:hasPermission="smt:ledger:export">
+                                <i class="fa fa-download"></i> 条件导出
+                            </a>
+                            <a class="btn btn-warning btn-rounded btn-sm" onclick="" shiro:hasPermission="smt:ledger:export">
+                                <i class="fa fa-download"></i> 归类导出
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </form>
+        </div>
+
+        <!--物料入库统计-->
+        <div class="col-sm-12 select-table table-striped" style="width: 30%;border-radius: inherit;padding-right: 0px">
+            <table id="entry-table" border="1" width="100%" style="border-right-style: none;border-right-color: white">
+            </table>
+        </div>
+
+        <!--物料出货统计-->
+        <div class="col-sm-12 select-table table-striped" style="width: 70%;border-radius: inherit;padding-left: 0px">
+            <table id="ship-table" border="1" width="100%">
+            </table>
+        </div>
+
+    </div>
+</div>
+<th:block th:include="include :: footer"/>
+
+<link th:href="@{/ruoyi/css/select.css}" rel="stylesheet"/>
+<script th:src="@{/ruoyi/js/select.js}"></script>
+
+<script th:inline="javascript">
+    const prefix = ctx + "smt/ledger";
+    let exportUrl = prefix + "/export";
+    let exportAllUrl = prefix + "/exportAll";
+
+    $(function () {
+        $("#bomId").select2({
+            maximumSelectionSize:2
+        });
+        initEntryList();
+        initShipList();
+        $(".fixed-table-toolbar").css("display", "none");
+    });
+
+    //搜索，刷新表格
+    function indexSearch() {
+        $("#entry-table").bootstrapTable('refresh');
+        $("#ship-table").bootstrapTable('refresh');
+    }
+
+    //重置，清空条件，再刷新表格
+    function indexReset() {
+        $("#formId")[0].reset();
+        $(".select2-selection__rendered").text("请选择");
+        $("#select2-cusCode-5x-container").trigger();
+        $("#select2-bomId-ef-container").trigger();
+
+        $("#entry-table").bootstrapTable('refresh');
+        $("#ship-table").bootstrapTable('refresh');
+    }
+
+    //条件导出，导出Excel不归类，存在1个sheet
+    function indexExportExcel() {
+        let entryData = $("#entry-table").bootstrapTable('getData');
+        let shipData = $("#ship-table").bootstrapTable('getData');
+
+        let entryArr = new Array();
+        if (entryData.length > 0) {
+            for (let entry of entryData) {
+                let e = new Object()
+                e.cusCode = entry.cusCode;
+                e.dzlName = entry.dzlName;
+                e.entryTime = entry.entryTime;
+                e.orderNo = entry.orderNo;
+                e.orderQty = entry.orderQty;
+                entryArr.push(e);
+            }
+
+        }
+        let shipArr = new Array();
+        if (shipData.length > 0) {
+            for (let ship of shipData) {
+                let s = new Object();
+                s.cusCode = ship.cusCode;
+                s.dzlName = ship.dzlName;
+                s.shipTime = ship.createTime;
+                s.orderNo = ship.orderNo;
+                s.bomName = ship.bomName;
+                s.fpcShipQty = ship.fpcShipQty;
+                s.dzlNumber = ship.dzlNumber;
+                s.shipQty = ship.shipQty;
+                s.bak = ship.bak;
+                shipArr.push(s);
+            }
+        }
+        let jsonData = {"entryData": JSON.stringify(entryArr), "shipData": JSON.stringify(shipArr)};
+
+        //window.location.href = exportUrl;
+
+        $.modal.confirm("确定当前所有" + table.options.modalName + "吗？", function () {
+            $.modal.loading("正在导出数据，请稍后...");
+            $.post(exportUrl, jsonData, function (result) {
+                if (result.code == web_status.SUCCESS) {
+                    window.location.href = ctx + "common/download?fileName=" + encodeURI(result.msg) + "&delete=" + true;
+                } else if (result.code == web_status.WARNING) {
+                    $.modal.alertWarning(result.msg)
+                } else {
+                    $.modal.alertError(result.msg);
+                }
+                $.modal.closeLoading();
+            }, 'json');
+        });
+
+    }
+
+
+    /**
+     * 初始化来料数据
+     * */
+    function initEntryList() {
+        let options = {
+            url: prefix + "/dzlEntryList",
+            modalName: "电子料来料统计",
+            showSearch: false,
+            showRefresh: false,
+            showToggle: false,
+            showColumns: false,
+            columns: [
+                [{
+                    title: '来料',
+                    align: 'center',
+                    colspan: 6
+                }],
+                [{
+                    title: "序号",
+                    formatter: function (value, row, index) {
+                        return $.table.serialNumber(index);
+                    }
+                },
+                    {
+                        field: 'cusCode',
+                        title: '客户'
+                    },
+                    {
+                        field: 'dzlName',
+                        title: '电子料名称'
+                    },
+                    {
+                        field: 'entryTime',
+                        title: '日期',
+                        formatter: function (value, row, index) {
+                            return row.entryTime.substring(0, 10);
+                        }
+                    },
+                    {
+                        field: 'orderNo',
+                        title: '单号'
+                    },
+                    {
+                        field: 'orderQty',
+                        title: '数量'
+                    }]
+            ]
+        };
+        init(options, "entry-table");
+    }
+
+    /**
+     * 初始化出货数据
+     * */
+    function initShipList() {
+        let options = {
+            url: prefix + "/dzlShipList?orderType=2",
+            modalName: "物料台账",
+            showSearch: false,
+            showRefresh: false,
+            showToggle: false,
+            showColumns: false,
+            columns: [
+                [{
+                    title: '出货',
+                    align: 'center',
+                    colspan: 11
+                }],
+                [{
+                    title: "序号",
+                    formatter: function (value, row, index) {
+                        return $.table.serialNumber(index);
+                    }
+                },
+                    {
+                        field: 'cusCode',
+                        title: '客户'
+                    },
+                    {
+                        field: 'dzlName',
+                        title: '电子料名称'
+                    },
+                    {
+                        field: 'createTime',
+                        title: '日期'
+                    },
+                    {
+                        field: 'shipNo',
+                        title: '单号'
+                    },
+                    {
+                        field: 'bomName',
+                        title: 'FPC型号'
+                    },
+                    {
+                        field: 'fpcShipQty',
+                        title: 'FPC数量'
+                    },
+                    {
+                        field: 'dzlNumber',
+                        title: '用量'
+                    },
+                    {
+                        field: 'shipQty',
+                        title: '电子料出货'
+                    },
+                    {
+                        field: 'bak',
+                        title: '备品'
+                    }]
+            ]
+        };
+        init(options, "ship-table");
+    }
+
+
+    /**
+     * 公共请求数据
+     * @param options
+     * @param tableId
+     */
+    function init(options, tableId) {
+        let defaults = {
+            id: tableId,
+            type: 0, // 0 代表bootstrapTable 1代表bootstrapTreeTable
+            height: undefined,
+            sidePagination: "server",
+            sortName: "",
+            sortOrder: "asc",
+            pagination: true,
+            pageSize: 20,
+            pageList: [10, 30, 50, 99],
+            toolbar: "toolbar",
+            striped: false,
+            escape: false,
+            firstLoad: true,
+            showFooter: false,
+            search: false,
+            showSearch: true,
+            showPageGo: false,
+            showRefresh: true,
+            showColumns: true,
+            showToggle: true,
+            showExport: false,
+            clickToSelect: false,
+            mobileResponsive: true,
+            rememberSelected: false,
+            fixedColumns: false,
+            fixedNumber: 0,
+            rightFixedColumns: false,
+            rightFixedNumber: 0,
+            queryParams: $.table.queryParams,
+            rowStyle: {},
+        };
+        var options = $.extend(defaults, options);
+        table.options = options;
+        table.config[options.id] = options;
+        $.table.initEvent();
+        $('#' + tableId).bootstrapTable({
+            url: options.url,                                   // 请求后台的URL（*）
+            contentType: "application/x-www-form-urlencoded",   // 编码类型
+            method: 'post',                                     // 请求方式（*）
+            cache: false,                                       // 是否使用缓存
+            height: options.height,                             // 表格的高度
+            striped: options.striped,                           // 是否显示行间隔色
+            sortable: true,                                     // 是否启用排序
+            sortStable: true,                                   // 设置为 true 将获得稳定的排序
+            sortName: options.sortName,                         // 排序列名称
+            sortOrder: options.sortOrder,                       // 排序方式  asc 或者 desc
+            pagination: options.pagination,                     // 是否显示分页（*）
+            pageNumber: 1,                                      // 初始化加载第一页，默认第一页
+            pageSize: options.pageSize,                         // 每页的记录行数（*）
+            pageList: options.pageList,                         // 可供选择的每页的行数（*）
+            firstLoad: options.firstLoad,                       // 是否首次请求加载数据，对于数据较大可以配置false
+            escape: options.escape,                             // 转义HTML字符串
+            showFooter: options.showFooter,                     // 是否显示表尾
+            iconSize: 'outline',                                // 图标大小：undefined默认的按钮尺寸 xs超小按钮sm小按钮lg大按钮
+            toolbar: '#' + options.toolbar,                     // 指定工作栏
+            sidePagination: options.sidePagination,             // server启用服务端分页client客户端分页
+            search: options.search,                             // 是否显示搜索框功能
+            searchText: options.searchText,                     // 搜索框初始显示的内容，默认为空
+            showSearch: options.showSearch,                     // 是否显示检索信息
+            showPageGo: options.showPageGo,               		// 是否显示跳转页
+            showRefresh: options.showRefresh,                   // 是否显示刷新按钮
+            showColumns: options.showColumns,                   // 是否显示隐藏某列下拉框
+            showToggle: options.showToggle,                     // 是否显示详细视图和列表视图的切换按钮
+            showExport: options.showExport,                     // 是否支持导出文件
+            uniqueId: options.uniqueId,                         // 唯 一的标识符
+            clickToSelect: options.clickToSelect,				// 是否启用点击选中行
+            mobileResponsive: options.mobileResponsive,         // 是否支持移动端适配
+            detailView: options.detailView,                     // 是否启用显示细节视图
+            onClickRow: options.onClickRow,                     // 点击某行触发的事件
+            onDblClickRow: options.onDblClickRow,               // 双击某行触发的事件
+            onClickCell: options.onClickCell,                   // 单击某格触发的事件
+            onDblClickCell: options.onDblClickCell,             // 双击某格触发的事件
+            onEditableSave: options.onEditableSave,             // 行内编辑保存的事件
+            onExpandRow: options.onExpandRow,                   // 点击详细视图的事件
+            rememberSelected: options.rememberSelected,         // 启用翻页记住前面的选择
+            fixedColumns: options.fixedColumns,                 // 是否启用冻结列（左侧）
+            fixedNumber: options.fixedNumber,                   // 列冻结的个数（左侧）
+            rightFixedColumns: options.rightFixedColumns,       // 是否启用冻结列（右侧）
+            rightFixedNumber: options.rightFixedNumber,         // 列冻结的个数（右侧）
+            onReorderRow: options.onReorderRow,                 // 当拖拽结束后处理函数
+            queryParams: options.queryParams,                   // 传递参数（*）
+            rowStyle: options.rowStyle,                         // 通过自定义函数设置行样式
+            columns: options.columns,                           // 显示列信息（*）
+            responseHandler: $.table.responseHandler,           // 在加载服务器发送来的数据之前处理函数
+            onLoadSuccess: $.table.onLoadSuccess,               // 当所有数据被加载时触发处理函数
+            exportOptions: options.exportOptions,               // 前端导出忽略列索引
+            detailFormatter: options.detailFormatter,           // 在行下面展示其他数据列表
+        });
+    }
+</script>
+<style>
+    .select2-selection--single {
+        border: 1px solid #e5e6e7 !important;
+        height: 34px !important;
+    }
+
+    #select2-bomId-4w-container {
+        height: 34px !important;
+    }
+</style>
+</body>
+</html>

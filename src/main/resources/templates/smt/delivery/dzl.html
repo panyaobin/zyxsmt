@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="zh" xmlns:th="http://www.thymeleaf.org" xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
+<head>
+    <th:block th:include="include :: header('DZL仓记录列表')"/>
+</head>
+<style>
+    .selectHeight {
+        height: 34px !important;
+    }
+
+    .inputHeight {
+        line-height: 24px;
+        width: 80px !important;
+    }
+</style>
+<body class="gray-bg">
+<div class="container-div">
+    <div class="row">
+        <div class="col-sm-12 search-collapse">
+            <form id="formId">
+                <div class="select-list">
+                    <ul>
+                        <li>
+                            <p class="inputHeight">客户名称：</p>
+                            <select name="cusCode" class="form-control select2-selection--multiple selectHeight" th:with="cusList=${@cus.getCus()}" onchange="$.table.search()">
+                                <option value="">请选择</option>
+                                <option th:each="c:${cusList}" th:value="${c.cusCode}" th:text="${c.cusName}"></option>
+                            </select>
+                        </li>
+                        <li>
+                            <p class="inputHeight">产品型号：</p>
+                            <input type="text" class="selectHeight" name="dzlName"/>
+                        </li>
+                        <li>
+                            <a class="btn btn-primary btn-rounded btn-sm" onclick="$.table.search()"><i class="fa fa-search"></i>&nbsp;搜索</a>
+                            <a class="btn btn-warning btn-rounded btn-sm" onclick="$.form.reset()"><i class="fa fa-refresh"></i>&nbsp;重置</a>
+                        </li>
+                    </ul>
+                </div>
+            </form>
+        </div>
+
+        <div class="btn-group-sm" id="toolbar" role="group">
+            <a class="btn btn-danger multiple disabled" onclick="batchDelivery()" shiro:hasPermission="smt:delivery:add">
+                <i class="fa fa-edit"></i> 发料
+            </a>
+        </div>
+        <div class="col-sm-12 select-table table-striped">
+            <table id="bootstrap-table"></table>
+        </div>
+    </div>
+</div>
+<th:block th:include="include :: footer"/>
+<script th:src="@{/ruoyi/jqGrid/4.6/js/jquery.jqGrid.js}"></script>
+<script th:src="@{/ruoyi/jqGrid/4.6/i18n/grid.locale-cn.js}"></script>
+<link th:href="@{/ruoyi/jqGrid/4.6/css/ui.jqgrid.css}">
+<script th:inline="javascript">
+    let deliveryFlag = [[${@permission.hasPermi('smt:delivery:add')}]];
+    let prefix = ctx + "smt/delivery";
+
+    $(function () {
+        let options = {
+            uniqueId: "bomId",
+            url: prefix + "/dzlList",
+            createUrl: prefix + "/add",
+            updateUrl: prefix + "/edit/{id}",
+            removeUrl: prefix + "/remove",
+            exportUrl: prefix + "/export",
+            modalName: "发料记录",
+            columns: [{
+                checkbox: true
+            },
+                {
+                    title: '序号',
+                    width: '100px',
+                    formatter: function (value, row, index) {
+                        return ++index;
+                    }
+                },
+                {
+                    field: 'bomId',
+                    title: 'bomId',
+                    visible: false
+                },
+                {
+                    field: 'cusCode',
+                    title: '客户编码',
+                    visible: false
+                }, {
+                    field: 'orderType',
+                    title: '产品类型',
+                    visible: false
+                },
+                {
+                    field: 'cusName',
+                    title: '客户名称'
+                },
+                {
+                    field: 'dzlName',
+                    title: '产品型号'
+                }, {
+                    field: 'typeName',
+                    title: '类型'
+                },
+                {
+                    field: 'sumOrderQty',
+                    title: '数量'
+                },
+                {
+                    title: '操作',
+                    align: 'center',
+                    formatter: function (value, row, index) {
+                        var actions = [];
+                        actions.push('<a class="btn btn-success btn-xs ' + deliveryFlag + '" href="javascript:void(0)" ' +
+                            'onclick="delivery(\'' + row.cusCode + '\',\'' + row.cusName + '\','+row.bomId+',\'' + row.dzlName + '\',\'' + row.typeName + '\',' + row.orderType + ',\'' + row.sumOrderQty + '\')"><i class="fa fa-edit"></i>发料</a> ');
+                        return actions.join('');
+                    }
+                }]
+        };
+        $.table.init(options);
+    });
+
+
+    function delivery(cusCode, cusName,bomId, dzlName, typeName, orderType, sumOrderQty) {
+        let arr = new Array();
+        let obj = new Object();
+        obj.cusCode = cusCode;
+        obj.cusName = cusName;
+        obj.bomId = bomId;
+        obj.dzlName = dzlName;
+        obj.typeName = typeName;
+        obj.orderType = orderType;
+        obj.sumOrderQty = sumOrderQty;
+        arr.push(obj);
+        window.localStorage.setItem('deliveryDzlList', JSON.stringify(arr));
+        let url = prefix + "/deliveryDzl";
+        $.modal.open("仓库发料", url, "1100", "750");
+    }
+
+    /**
+     * 批量发料
+     */
+    function batchDelivery() {
+        let data = $("#bootstrap-table").bootstrapTable('getSelections');
+        if (data.length > 0) {
+            //判断如果不是同一个客户，禁止操作
+            for (let i = 0; i < data.length; i++) {
+                if (i < data.length - 1) {
+                    if (data[i].cusCode != data[i + 1].cusCode) {
+                        $.modal.msgWarning("禁止操作不同客户!")
+                        return;
+                    }
+                }
+            }
+            let arr = new Array();
+            for (let elem of data) {
+                let obj = new Object();
+                obj.cusCode = elem.cusCode;
+                obj.cusName = elem.cusName;
+                obj.dzlName = elem.dzlName;
+                obj.bomId = elem.bomId;
+                obj.typeName = elem.typeName;
+                obj.orderType = elem.orderType;
+                obj.sumOrderQty = elem.sumOrderQty;
+                arr.push(obj);
+            }
+            window.localStorage.setItem('deliveryDzlList', JSON.stringify(arr));
+            let url = prefix + "/deliveryDzl";
+            $.modal.open("仓库发料", url, "1100", "750");
+        }else{
+            $.modal.alertWarning("请至少选择一条记录")
+        }
+    }
+
+</script>
+</body>
+</html>

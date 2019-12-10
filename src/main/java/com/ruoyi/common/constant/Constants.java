@@ -66,4 +66,36 @@ public class Constants
      * 资源映射路径 前缀
      */
     public static final String RESOURCE_PREFIX = "/profile";
+
+    /**
+     * 通用物料类型
+     */
+    public static final Integer BOM_TYPE_FPC = 1;
+    public static final Integer BOM_TYPE_DZL = 2;
+
+    /**
+     * 通用物料类型名称
+     */
+    public static final String FPC_TYPE_NAME = "FPC";
+
+    /**
+     * 出货类型 1.出货  2.退货
+     */
+    public static final Integer SHIP_TYPE_SHIP = 1;
+    public static final Integer SHIP_TYPE_RETURNS = 2;
+
+    /**
+     * 发料单号首单号
+     */
+    public static final Integer DELIVERY_NO_START = 100000;
+
+    /**
+     * 退货单号首单号
+     */
+    public static final Integer RETURNS_NO_START = 900000;
+
+    /**
+     * 出货单号首单号
+     */
+    public static final Integer SHIP_NO_START = 100000;
 }

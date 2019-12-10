@@ -11,5 +11,17 @@ PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
 		<setting name="logImpl"                  value="SLF4J" /> <!-- 指定 MyBatis 所用日志的具体实现 -->
 		<!-- <setting name="mapUnderscoreToCamelCase" value="true"/>  驼峰式命名 -->
 	</settings>
-	
+
+	<typeAliases>
+		<typeAlias alias="SmtDzl" type="com.ruoyi.project.smt.dzl.domain.SmtDzl" />
+		<typeAlias alias="SmtBom" type="com.ruoyi.project.smt.bom.domain.SmtBom" />
+		<typeAlias alias="SmtCus" type="com.ruoyi.project.smt.cus.domain.SmtCus" />
+		<typeAlias alias="SmtBomLine" type="com.ruoyi.project.smt.bomLine.domain.SmtBomLine" />
+		<typeAlias alias="SmtOrderEntry" type="com.ruoyi.project.smt.entry.domain.SmtOrderEntry" />
+		<typeAlias alias="SmtOrderEntryVO" type="com.ruoyi.project.smt.entry.vo.SmtOrderEntryVO" />
+		<typeAlias alias="SmtOrderEntryLine" type="com.ruoyi.project.smt.entryLine.domain.SmtOrderEntryLine" />
+		<typeAlias alias="SmtDeliveryRecord" type="com.ruoyi.project.smt.delivery.domain.SmtDeliveryRecord" />
+		<typeAlias alias="SmtProductShip" type="com.ruoyi.project.smt.ship.domain.SmtProductShip" />
+		<typeAlias alias="SmtPaymentInfo" type="com.ruoyi.project.smt.payment.domain.SmtPaymentInfo" />
+	</typeAliases>
 </configuration>

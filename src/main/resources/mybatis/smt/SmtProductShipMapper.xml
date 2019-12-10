@@ -1,0 +1,212 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.project.smt.ship.mapper.SmtProductShipMapper">
+
+    <resultMap type="SmtProductShip" id="SmtProductShipResult">
+        <result property="id" column="id"/>
+        <result property="shipNo" column="ship_no"/>
+        <result property="cusCode" column="cus_code"/>
+        <result property="orderNo" column="order_no"/>
+        <result property="bomName" column="bom_name"/>
+        <result property="orderType" column="order_type"/>
+        <result property="bomId" column="bom_id"/>
+        <result property="shipType" column="ship_type"/>
+        <result property="shipQty" column="ship_qty"/>
+        <result property="dzlNumber" column="dzl_number"/>
+        <result property="bak" column="bak"/>
+        <result property="createBy" column="create_by"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateBy" column="update_by"/>
+        <result property="updateTime" column="update_time"/>
+        <result property="remark" column="remark"/>
+        <result property="delFlag" column="del_flag"/>
+    </resultMap>
+
+    <sql id="selectSmtProductShipVo">
+        select id, ship_no, cus_code, order_no,bom_name, order_type, bom_id, ship_type, ship_qty, dzl_number, bak, create_by, create_time, update_by, update_time, remark, del_flag from smt_product_ship
+    </sql>
+
+    <select id="selectSmtProductShipList" parameterType="SmtProductShip" resultMap="SmtProductShipResult">
+        <include refid="selectSmtProductShipVo"/>
+        <where>
+            <if test="shipNo != null ">and ship_no like concat('%', #{shipNo}, '%')</if>
+            <if test="shipPrintNo != null ">and ship_no = #{shipPrintNo}</if>
+            <if test="shipSearchNo != null  and shipSearchNo != ''">
+                and cus_code = #{cusSearchCode}
+                and ship_no = #{shipSearchNo}
+            </if>
+            <if test="cusCode != null ">and cus_code = #{cusCode}</if>
+            <if test="bomId != null ">and bom_id = #{bomId}</if>
+            <if test="shipType != null ">and ship_type = #{shipType}</if>
+            <if test="orderType != null ">and order_type = #{orderType}</if>
+            <if test="orderNo != null and orderNo != ''">and order_no = #{orderNo}</if>
+            <if test="params.beginTime != null and params.beginTime != ''"><!-- 开始时间检索 -->
+                AND date_format(create_time,'%y%m%d') &gt;= date_format(#{params.beginTime},'%y%m%d')
+            </if>
+            <if test="params.endTime != null and params.endTime != ''"><!-- 结束时间检索 -->
+                AND date_format(create_time,'%y%m%d') &lt;= date_format(#{params.endTime},'%y%m%d')
+            </if>
+        </where>
+        order by create_time desc
+    </select>
+
+    <select id="selectSmtProductShipById" parameterType="Integer" resultMap="SmtProductShipResult">
+        <include refid="selectSmtProductShipVo"/>
+        where id = #{id}
+    </select>
+
+    <!--统计FPC和dzl已出货量，根据客户编码，类型，bom分组-->
+    <select id="getFpcShipQty" resultType="com.ruoyi.project.smt.ship.domain.SmtProductShipVO">
+        SELECT
+        sum(bak) as sumBak,
+        sum(ship_qty) as sumShipQty
+        FROM
+        `smt_product_ship`
+        WHERE
+        cus_code = #{cusCode}
+        <if test="orderNo != null  and orderNo != ''">and order_no = #{orderNo}</if>
+        and order_type = #{orderType}
+        and bom_id = #{bomId}
+        group by cus_code,order_type,bom_id
+    </select>
+
+    <!--通过出货单号查询FPC出货数量-->
+    <select id="selectSmtProductShipByShipNoAndOrderType" resultType="java.lang.Integer">
+      SELECT
+         ship_qty
+      FROM
+        `smt_product_ship`
+      WHERE
+        del_flag = 0
+        AND order_type = 1
+        AND ship_no = #{shipNo}
+        limit 1
+    </select>
+
+    <insert id="insertSmtProductShip" parameterType="SmtProductShip" useGeneratedKeys="true" keyProperty="id">
+        insert into smt_product_ship
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="shipNo != null ">ship_no,</if>
+            <if test="cusCode != null ">cus_code,</if>
+            <if test="orderNo != null  and orderNo != ''">order_no,</if>
+            <if test="bomName != null  and bomName != ''">bom_name,</if>
+            <if test="orderType != null ">order_type,</if>
+            <if test="bomId != null ">bom_id,</if>
+            <if test="shipType != null ">ship_type,</if>
+            <if test="shipQty != null ">ship_qty,</if>
+            <if test="dzlNumber != null ">dzl_number,</if>
+            <if test="bak != null ">bak,</if>
+            <if test="createBy != null  and createBy != ''">create_by,</if>
+            <if test="createTime != null ">create_time,</if>
+            <if test="updateBy != null  and updateBy != ''">update_by,</if>
+            <if test="updateTime != null ">update_time,</if>
+            <if test="remark != null  and remark != ''">remark,</if>
+            <if test="delFlag != null  and delFlag != ''">del_flag,</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="shipNo != null ">#{shipNo},</if>
+            <if test="cusCode != null ">#{cusCode},</if>
+            <if test="orderNo != null  and orderNo != ''">#{orderNo},</if>
+            <if test="bomName != null  and bomName != ''">#{bomName},</if>
+            <if test="orderType != null ">#{orderType},</if>
+            <if test="bomId != null ">#{bomId},</if>
+            <if test="shipType != null ">#{shipType},</if>
+            <if test="shipQty != null ">#{shipQty},</if>
+            <if test="dzlNumber != null ">#{dzlNumber},</if>
+            <if test="bak != null ">#{bak},</if>
+            <if test="createBy != null  and createBy != ''">#{createBy},</if>
+            <if test="createTime != null ">#{createTime},</if>
+            <if test="updateBy != null  and updateBy != ''">#{updateBy},</if>
+            <if test="updateTime != null ">#{updateTime},</if>
+            <if test="remark != null  and remark != ''">#{remark},</if>
+            <if test="delFlag != null  and delFlag != ''">#{delFlag},</if>
+        </trim>
+    </insert>
+
+
+    <!--批量新增产品出货-->
+    <insert id="batchInsertSmtProductShip">
+        <if test="shipNo != null ">ship_no,</if>
+        <if test="cusCode != null ">cus_code,</if>
+        <if test="orderNo != null  and orderNo != ''">order_no,</if>
+        <if test="bomName != null  and bomName != ''">bom_name,</if>
+        <if test="orderType != null ">order_type,</if>
+        <if test="bomId != null ">bom_id,</if>
+        <if test="shipType != null ">ship_type,</if>
+        <if test="shipQty != null ">ship_qty,</if>
+        <if test="dzlNumber != null ">dzl_number,</if>
+        <if test="bak != null ">bak,</if>
+        <if test="createBy != null  and createBy != ''">create_by,</if>
+        <if test="createTime != null ">create_time,</if>
+        <if test="updateBy != null  and updateBy != ''">update_by,</if>
+        <if test="updateTime != null ">update_time,</if>
+        <if test="remark != null  and remark != ''">remark,</if>
+        <if test="delFlag != null  and delFlag != ''">del_flag,</if>
+        values
+        <foreach item="item" collection="list" separator=",">
+            (
+            #{item.shipNo},
+            #{item.cusCode},
+            #{item.orderNo},
+            #{item.bomName},
+            #{item.orderType},
+            #{item.bomId},
+            #{item.shipType},
+            #{item.shipQty},
+            #{item.dzlNumber},
+            #{item.bak},
+            #{item.createBy},
+            #{item.createTime},
+            #{item.updateBy},
+            #{item.updateTime},
+            #{item.remark},
+            #{item.delFlag}
+            )
+        </foreach>
+    </insert>
+
+    <update id="updateSmtProductShip" parameterType="SmtProductShip">
+        update smt_product_ship
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="shipNo != null ">ship_no = #{shipNo},</if>
+            <if test="cusCode != null ">cus_code = #{cusCode},</if>
+            <if test="orderNo != null  and orderNo != ''">order_no = #{orderNo},</if>
+            <if test="bomName != null  and bomName != ''">bom_name = #{bomName},</if>
+            <if test="orderType != null ">order_type = #{orderType},</if>
+            <if test="bomId != null ">bom_id = #{bomId},</if>
+            <if test="shipType != null ">ship_type = #{shipType},</if>
+            <if test="shipQty != null ">ship_qty = #{shipQty},</if>
+            <if test="dzlNumber != null ">dzl_number = #{dzlNumber},</if>
+            <if test="bak != null ">bak = #{bak},</if>
+            <if test="createBy != null  and createBy != ''">create_by = #{createBy},</if>
+            <if test="createTime != null ">create_time = #{createTime},</if>
+            <if test="updateBy != null  and updateBy != ''">update_by = #{updateBy},</if>
+            <if test="updateTime != null ">update_time = #{updateTime},</if>
+            <if test="remark != null  and remark != ''">remark = #{remark},</if>
+            <if test="delFlag != null  and delFlag != ''">del_flag = #{delFlag},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteSmtProductShipById" parameterType="Integer">
+        delete from smt_product_ship where id = #{id}
+    </delete>
+
+    <delete id="deleteSmtProductShipByIds" parameterType="String">
+        delete from smt_product_ship where id in
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+
+    <!--根据出货单号删除产品出货-->
+    <delete id="deleteSmtProductShipByShipNos">
+        delete from smt_product_ship where ship_no in
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+
+</mapper>

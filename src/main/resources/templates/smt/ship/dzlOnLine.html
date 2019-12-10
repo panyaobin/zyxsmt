@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="zh" xmlns:th="http://www.thymeleaf.org" xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
+<head>
+    <th:block th:include="include :: header('电子料列表')"/>
+</head>
+<style>
+    .selectHeight {
+        height: 34px !important;
+    }
+
+    .inputHeight {
+        line-height: 24px;
+        width: 80px !important;
+    }
+</style>
+<body class="gray-bg">
+<div class="container-div">
+    <div class="row">
+        <div class="col-sm-12 search-collapse">
+            <form id="formId">
+                <div class="select-list">
+                    <ul>
+                        <li>
+                            <p class="inputHeight">客户名称：</p>
+                            <select name="cusCode" class="form-control select2-selection--multiple selectHeight" th:with="cusList=${@cus.getCus()}" onchange="$.table.search()">
+                                <option value="">请选择</option>
+                                <option th:each="c:${cusList}" th:value="${c.cusCode}" th:text="${c.cusName}"></option>
+                            </select>
+                        </li>
+                        <li>
+                            <p class="inputHeight">物料名称：</p>
+                            <input class="selectHeight" type="text" name="dzlName"/>
+                        </li>
+                        <li>
+                            <a class="btn btn-primary btn-rounded btn-sm" onclick="$.table.search()"><i class="fa fa-search"></i>&nbsp;搜索</a>
+                            <a class="btn btn-warning btn-rounded btn-sm" onclick="$.form.reset()"><i class="fa fa-refresh"></i>&nbsp;重置</a>
+                        </li>
+                    </ul>
+                </div>
+            </form>
+        </div>
+
+        <div class="btn-group-sm" id="toolbar" role="group">
+            <a class="btn btn-danger" onclick="returns()" shiro:hasPermission="smt:ship:add">
+                <i class="fa fa-edit"></i> 退货
+            </a>
+        </div>
+        <div class="col-sm-12 select-table table-striped">
+            <table id="bootstrap-table"></table>
+        </div>
+    </div>
+</div>
+<th:block th:include="include :: footer"/>
+<script th:inline="javascript">
+    let returnsFlag = [[${@permission.hasPermi('smt:ship:returns')}]];
+    var prefix = ctx + "smt/ship";
+
+    $(function () {
+        var options = {
+            url: prefix + "/dzlOnLineList",
+            createUrl: prefix + "/add",
+            updateUrl: prefix + "/edit/{id}",
+            removeUrl: prefix + "/remove",
+            exportUrl: prefix + "/export",
+            modalName: "产品出货",
+            columns: [
+                {
+                    checkbox: true
+                },
+                {
+                    title: "序号",
+                    formatter: function (value, row, index) {
+                        return $.table.serialNumber(index);
+                    }
+                },
+                {
+                    field: 'cusName',
+                    title: '客户名称'
+                },
+                {
+                    field: 'dzlName',
+                    title: '物料名称'
+                },
+                {
+                    field: 'typeName',
+                    title: '物料类型'
+                },
+                {
+                    field: 'sumDeliveryQty',
+                    title: '在线数量'
+                },
+
+                {
+                    title: '操作',
+                    align: 'center',
+                    formatter: function (value, row, index) {
+                        var actions = [];
+                        actions.push('<a class="btn btn-success btn-xs ' + returnsFlag + '" href="javascript:void(0)" ' +
+                            'onclick="ship(\'' + row.cusCode + '\',\'' + row.cusName + '\',' + row.bomId + ',\'' + row.dzlName + '\',\'' + row.typeName + '\',' + row.orderType + ',\'' + row.sumDeliveryQty + '\')"><i class="fa fa-edit"></i>退货</a> ');
+                        return actions.join('');
+                    }
+                }
+            ]
+        };
+        $.table.init(options);
+    });
+
+    function ship(cusCode, cusName, bomId, dzlName, typeName, orderType, sumDeliveryQty) {
+        let arr = new Array();
+        let obj = new Object();
+        obj.cusCode = cusCode;
+        obj.cusName = cusName;
+        obj.orderType = orderType;
+        obj.typeName = typeName;
+        obj.dzlName = dzlName;
+        obj.bomId = bomId;
+        obj.sumDeliveryQty = sumDeliveryQty;
+        arr.push(obj);
+        window.localStorage.setItem('dzlReturnsList', JSON.stringify(arr));
+        let url = prefix + "/dzlReturns";
+        $.modal.open("DZL在线退货", url, "1100", "750");
+    }
+
+
+    /**
+     * 退货
+     * */
+    function returns() {
+        table.set();
+        let rows = $("#bootstrap-table").bootstrapTable('getSelections');
+        if (rows.length == 0) {
+            $.modal.alertWarning("请至少选择一条记录");
+            return;
+        }
+        //判断如果不是同一个客户，禁止操作
+        for (let i = 0; i < rows.length; i++) {
+            if (i < rows.length - 1) {
+                if (rows[i].cusCode != rows[i + 1].cusCode) {
+                    $.modal.msgWarning("禁止操作不同客户!")
+                    return;
+                }
+            }
+        }
+
+        let arr = new Array();
+        for (let elem of rows) {
+            let obj = new Object();
+            obj.cusCode = elem.cusCode;
+            obj.cusName = elem.cusName;
+            obj.orderType = elem.orderType;
+            obj.typeName = elem.typeName;
+            obj.dzlName = elem.dzlName;
+            obj.bomId = elem.bomId;
+            obj.sumDeliveryQty = elem.sumDeliveryQty;
+            arr.push(obj)
+        }
+        window.localStorage.setItem('dzlReturnsList', JSON.stringify(arr));
+        let url = prefix + "/dzlReturns";
+        $.modal.open("DZL在线退货", url, "1100", "750");
+    }
+</script>
+</body>
+</html>

@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="zh" xmlns:th="http://www.thymeleaf.org" xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
+<head>
+    <th:block th:include="include :: header('客户bom信息列表')"/>
+</head>
+<style>
+    .selectHeight {
+        height: 34px !important;
+    }
+
+    .inputHeight {
+        line-height: 24px;
+        width: 80px !important;
+    }
+</style>
+<body class="gray-bg">
+<div class="container-div">
+    <div class="row">
+        <div class="col-sm-12 search-collapse">
+            <form id="formId">
+                <div class="select-list">
+                    <ul>
+                        <li>
+                            <p class="inputHeight">客户名称：</p>
+                            <select name="cusCode" class="form-control select2-selection--multiple selectHeight" th:with="cusList=${@cus.getCus()}" onchange="$.table.search()">
+                                <option value="">请选择</option>
+                                <option th:each="c:${cusList}" th:value="${c.cusCode}" th:text="${c.cusName}"></option>
+                            </select>
+                        </li>
+                        <li>
+                            <p class="inputHeight">BOM名称：</p>
+                            <input type="text" class="selectHeight" name="bomName"/>
+                        </li>
+
+                        <li>
+                            <a class="btn btn-primary btn-rounded btn-sm" onclick="$.table.search()"><i class="fa fa-search"></i>&nbsp;搜索</a>
+                            <a class="btn btn-warning btn-rounded btn-sm" onclick="$.form.reset()"><i class="fa fa-refresh"></i>&nbsp;重置</a>
+                        </li>
+                    </ul>
+                </div>
+            </form>
+        </div>
+
+        <div class="btn-group-sm" id="toolbar" role="group">
+            <a class="btn btn-success" onclick="$.operate.addBom()" shiro:hasPermission="smt:bom:add">
+                <i class="fa fa-plus"></i> 新增
+            </a>
+            <a class="btn btn-primary single disabled" onclick="$.operate.editBom()" shiro:hasPermission="smt:bom:edit">
+                <i class="fa fa-edit"></i> 修改
+            </a>
+            <a class="btn btn-danger multiple disabled" onclick="$.operate.removeAll()" shiro:hasPermission="smt:bom:remove">
+                <i class="fa fa-remove"></i> 删除
+            </a>
+            <a class="btn btn-info" onclick="showAllBom()">
+                <i class="fa fa-black-tie"></i> 全部
+            </a>
+        </div>
+        <div class="col-sm-12 select-table table-striped">
+            <table id="bootstrap-table"></table>
+        </div>
+    </div>
+</div>
+<th:block th:include="include :: footer"/>
+<script th:inline="javascript">
+    var editFlag = [[${@permission.hasPermi('smt:bom:edit')}]];
+    var removeFlag = [[${@permission.hasPermi('smt:bom:remove')}]];
+    var prefix = ctx + "smt/bom";
+
+    $(function () {
+        var options = {
+            uniqueId: "id",
+            url: prefix + "/list",
+            createUrl: prefix + "/add",
+            updateUrl: prefix + "/edit/{id}",
+            removeUrl: prefix + "/remove",
+            exportUrl: prefix + "/export",
+            modalName: "客户bom信息",
+            detailView: true,
+            onExpandRow: function (index, row, $detail) {
+                initChildTable(index, row, $detail);
+            },
+            columns: [{
+                checkbox: true
+            }, {
+                field: '',
+                title: '序号',
+                formatter: function (a, b, c) {
+                    return ++c;
+                }
+            },
+                {
+                    field: 'id',
+                    title: '序号id',
+                    visible: false
+                },
+                {
+                    field: 'cusName',
+                    title: '客户名称'
+                },
+                {
+                    field: 'bomName',
+                    title: 'BOM名称'
+                },
+                {
+                    field: 'bomPoint',
+                    title: '总点数'
+                },
+                {
+                    field: 'createTime',
+                    title: '创建时间'
+                },
+                {
+                    field: 'remark',
+                    title: '备注'
+                },
+                {
+                    title: '操作',
+                    align: 'center',
+                    formatter: function (value, row, index) {
+                        var actions = [];
+                        actions.push('<a class="btn btn-success btn-xs ' + editFlag + '" href="javascript:void(0)" onclick="$.operate.editBom(\'' + row.id + '\')"><i class="fa fa-edit"></i>编辑</a> ');
+                        actions.push('<a class="btn btn-danger btn-xs ' + removeFlag + '" href="javascript:void(0)" onclick="$.operate.remove(\'' + row.id + '\')"><i class="fa fa-remove"></i>删除</a>');
+                        return actions.join('');
+                    }
+                }]
+        };
+        $.table.init(options);
+    });
+
+    // 查看全部信息,打开新页签
+    function showAllBom() {
+        var url = prefix + "/list";
+        $.modal.openTab("BOM详情", url);
+    }
+
+    initChildTable = function (index, row, $detail) {
+        var childTable = $detail.html('<table style="table-layout:fixed"></table>').find('table');
+        $(childTable).bootstrapTable({
+            url: prefix + "/getDetailList",
+            method: 'post',
+            sidePagination: "server",
+            contentType: "application/x-www-form-urlencoded",
+            queryParams: {
+                bomId: row.id
+            },
+            columns: [
+                {
+                    field: '',
+                    title: '序号',
+                    width: '100px',
+                    formatter: function (a, b, c) {
+                        return ++c;
+                    }
+                }, {
+                    field: 'dzlName',
+                    title: '电子料'
+                },
+                {
+                    field: 'typeName',
+                    title: '类型'
+                },
+                {
+                    field: 'dzlNumber',
+                    title: '用量'
+                }, {
+                    field: 'position',
+                    title: '件位'
+                }, {
+                    field: 'bak',
+                    title: '备品'
+                }, {
+                    field: 'remark',
+                    title: '说明'
+                }
+            ]
+        });
+    };
+</script>
+</body>
+</html>

@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="renderer" content="webkit">
-    <title>若依系统首页</title>
+    <title>生产系统首页</title>
     <!--[if lt IE 9]>
     <meta http-equiv="refresh" content="0;ie.html"/>
     <![endif]-->
@@ -29,7 +29,7 @@
             <ul class="nav" id="side-menu">
                 <a th:href="@{/index}">
                   <li class="logo">
-				    <span class="logo-lg" >RuoYi</span> 
+				    <span class="logo-lg" ><span class="sysProductName"></span>
             	  </li>
             	</a>
             	<li>
@@ -175,9 +175,7 @@
                     </a>
                 </div>
                 <ul class="nav navbar-top-links navbar-right welcome-message">
-                    <li><a title="阿里云双11" href="https://www.aliyun.com/1111/2019/group-buying-share?ptCode=79B1148C588D554F3E87264DB80E6C90647C88CF896EF535&userCode=brki8iof&share_source=copy_link" target="_blank"><i class="fa fa-cloud"></i> 阿里云双11</a></li>
-				    <li><a title="视频教程" href="http://doc.ruoyi.vip/ruoyi/document/spjc.html" target="_blank"><i class="fa fa-video-camera"></i> 视频教程</a></li>
-                    <li><a title="开发文档" href="http://doc.ruoyi.vip" target="_blank"><i class="fa fa-question-circle"></i> 开发文档</a></li>
+                    <!--<li><a title="开发文档" href="http://doc.ruoyi.vip" target="_blank"><i class="fa fa-question-circle"></i> 开发文档</a></li>-->
 	                <li><a title="全屏显示" href="javascript:void(0)" id="fullScreen"><i class="fa fa-arrows-alt"></i> 全屏显示</a></li>
                     <li class="dropdown user-menu">
 						<a href="javascript:void(0)" class="dropdown-toggle" data-hover="dropdown">
@@ -229,7 +227,7 @@
                     th:src="@{/system/main}" frameborder="0" seamless></iframe>
         </div>
         <div class="footer">
-            <div class="pull-right">© [[${copyrightYear}]] RuoYi Copyright </div>
+            <div class="pull-right">© [[${copyrightYear}]] 东莞市卓亿兴电子有限公司 Copyright </div>
         </div>
     </div>
     <!--右侧部分结束-->
@@ -249,6 +247,9 @@
 <script th:inline="javascript">
 var ctx = [[@{/}]];
 var skin = storage.get("skin");
+
+var productName = [[${@config.getKey('sys.index.productName')}]];
+$(".sysProductName").text(productName);
 // 本地主题优先，未设置取系统配置
 if($.common.isNotEmpty(skin)){
 	$("body").addClass(skin.split('|')[0]);

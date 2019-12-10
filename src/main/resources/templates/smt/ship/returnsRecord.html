@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="zh" xmlns:th="http://www.thymeleaf.org" xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
+<head>
+    <th:block th:include="include :: header('退货记录')"/>
+</head>
+<style>
+    .selectHeight {
+        height: 34px !important;
+    }
+
+    .inputHeight {
+        line-height: 24px;
+        width: 80px !important;
+    }
+</style>
+<body class="gray-bg">
+<div class="container-div">
+    <div class="row">
+        <div class="col-sm-12 search-collapse">
+            <form id="formId">
+                <div class="select-list">
+                    <ul>
+                        <li>
+                            <p class="inputHeight">客户名称：</p>
+                            <select name="cusCode" class="form-control select2-selection--multiple selectHeight" th:with="cusList=${@cus.getCus()}" onchange="$.table.search()">
+                                <option value="">请选择</option>
+                                <option th:each="c:${cusList}" th:value="${c.cusCode}" th:text="${c.cusName}"></option>
+                            </select>
+                        </li>
+                        <li>
+                            <p class="inputHeight">出货单号：</p>
+                            <input type="text" onkeyup="this.value=this.value.replace(/\D/g,'')" maxlength="10" class="selectHeight" name="shipNo"/>
+                        </li>
+
+                        <li>
+                            <p class="inputHeight">订单号：</p>
+                            <input type="text" class="selectHeight" name="orderNo"/>
+                        </li>
+                        <li>
+                            <a class="btn btn-primary btn-rounded btn-sm" onclick="$.table.search()"><i class="fa fa-search"></i>&nbsp;搜索</a>
+                            <a class="btn btn-warning btn-rounded btn-sm" onclick="$.form.reset()"><i class="fa fa-refresh"></i>&nbsp;重置</a>
+                        </li>
+                    </ul>
+                </div>
+            </form>
+        </div>
+
+        <div class="btn-group-sm" id="toolbar" role="group">
+            <a class="btn btn-warning" onclick="$.table.exportExcel()" shiro:hasPermission="smt:ship:export">
+                <i class="fa fa-download"></i> 导出
+            </a>
+        </div>
+        <div class="col-sm-12 select-table table-striped">
+            <table id="bootstrap-table"></table>
+        </div>
+    </div>
+</div>
+<th:block th:include="include :: footer"/>
+<script th:inline="javascript">
+    var editFlag = [[${@permission.hasPermi('smt:ship:edit')}]];
+    var removeFlag = [[${@permission.hasPermi('smt:ship:remove')}]];
+    var prefix = ctx + "smt/ship";
+
+    $(function () {
+        var options = {
+            url: prefix + "/list?shipType=2",
+            createUrl: prefix + "/add",
+            updateUrl: prefix + "/edit/{id}",
+            removeUrl: prefix + "/remove",
+            exportUrl: prefix + "/export",
+            modalName: "产品出货",
+            columns: [{
+                checkbox: true
+            },
+                {
+                    title: '序号',
+                    formatter: function (value, row, index) {
+                        return $.table.serialNumber(index);
+                    }
+                }, {
+                    field: 'id',
+                    title: '序列号',
+                    visible: false
+                },
+                {
+                    field: 'cusName',
+                    title: '客户名称'
+                },
+                {
+                    field: 'shipNo',
+                    title: '退货单号',
+                    formatter: function (value, row, index) {
+                        return "<a href='javascript:void(0)' onclick='rePrint(" + row.cusCode + "," + value + ")'>" + row.cusCode + value + "</a>";
+                    }
+                },
+
+                {
+                    field: 'bomName',
+                    title: '型号'
+                },
+                {
+                    field: 'typeName',
+                    title: '类型'
+                },
+                {
+                    field: 'shipQty',
+                    title: '出货数量'
+                },
+                {
+                    field: 'remark',
+                    title: '备注'
+                }
+            ]
+        };
+        $.table.init(options);
+    });
+
+
+    /**
+     * 重新打印退货单
+     * @param obj
+     */
+    function rePrint(cusCode, shipNo) {
+        let url = prefix + "/rePrintReturns/";
+        layer.open({
+            type: 2,
+            area: [800 + 'px', 600 + 'px'],
+            fix: false,
+            //不固定
+            maxmin: true,
+            shade: 0.3,
+            title: "打印发料单",
+            content: url + cusCode + "/" + shipNo,
+            // 弹层外区域关闭
+            shadeClose: true,
+            cancel: function (index) {
+                return true;
+            }
+        });
+    }
+</script>
+</body>
+</html>
