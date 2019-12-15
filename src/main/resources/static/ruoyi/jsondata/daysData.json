@@ -1,0 +1,47 @@
+[
+	{
+		"id":"1",
+		"title":"来料：3338DPA 100K\n 发货：3339DPA 35K\n损耗：0.1K\n丢失：5K",
+		"start":"2019-12-01"
+	},
+	{
+		"id":"2",
+		"title":"持续",
+		"start":"2019-12-02",
+		"end":"2019-12-04"
+	},
+	{
+		"id":"3",
+		"title":"带URL",
+		"start":"2019-12-04",
+		"url":"www.baidu.com"
+	},
+	{
+		"id":"4",
+		"title":"带颜色",
+		"start":"2019-12-05",
+		"url":"#",
+		"color":"red"
+	},
+	{
+		"id":"5",
+		"title":"带时间点",
+		"start":"2019-12-06T13:30:00",
+		"url":"#",
+		"color":"green"
+	},
+	{
+		"id":"6",
+		"title":"背景色",
+		"start":"2019-12-10",
+		"end":"2019-12-10",
+		"color":"yellow",
+		"rendering":"background"
+	},{
+		"id":"7",
+		"title":"好好学习",
+		"start":"2019-11-17",
+		"color":"black",
+		"rendering":"background"
+	}
+]
