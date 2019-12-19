@@ -135,7 +135,7 @@
                     formatter: function (value, row, index) {
                         var actions = [];
                         actions.push('<a class="btn btn-success btn-xs ' + deliveryFlag + '" href="javascript:void(0)" ' +
-                            'onclick="delivery(\'' + row.cusCode + '\',\'' + row.cusName + '\',' + row.orderNo + ',' + row.bomId + ',\'' + row.bomName + '\',\'' + row.typeName + '\',' + row.orderType + ',\'' + row.orderQty + '\')"><i class="fa fa-edit"></i>发料</a> ');
+                            'onclick="delivery(\'' + row.cusCode + '\',\'' + row.cusName + '\',\'' + row.orderNo + '\',' + row.bomId + ',\'' + row.bomName + '\',\'' + row.typeName + '\',' + row.orderType + ',\'' + row.orderQty + '\')"><i class="fa fa-edit"></i>发料</a> ');
                         return actions.join('');
                     }
                 }]
@@ -144,6 +144,7 @@
     });
 
     function delivery(cusCode, cusName, orderNo, bomId, dzlName, typeName, orderType, sumOrderQty) {
+        
         let arr = new Array();
         let obj = new Object();
         obj.cusCode = cusCode;

@@ -183,7 +183,8 @@ public class SmtDeliveryRecordController extends BaseController {
             int i = deliveryedQty == null ? 0 : deliveryedQty.intValue();
             vo.setSumOrderQty(vo.getSumOrderQty() - i);
         }
-        return getDataTable(convertList(list));
+        List<SmtOrderEntryVO> collect = list.stream().filter(dzl -> dzl.getSumOrderQty().intValue() > 0).collect(Collectors.toList());
+        return getDataTable(convertList(collect));
     }
 
 

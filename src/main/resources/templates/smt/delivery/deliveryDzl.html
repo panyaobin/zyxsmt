@@ -83,7 +83,6 @@
 
 
     function submitHandler() {
-        debugger
         if ($.validate.form()) {
             saveAllRows("bomTable");
             let tableData = $("#bomTable").jqGrid("getRowData");
@@ -108,7 +107,6 @@
                 return;
             }
             $("#deliveryDzlList").val(JSON.stringify(dataArr));
-            // $.operate.save(prefix + "/add", $('#form-bom-edit').serialize());
             let config = {
                 url: prefix + "/add",
                 type: "post",
@@ -165,14 +163,14 @@
                 {sortable: false, name: 'cusName', align: "center", index: 'cusName', editable: false, width: '300'},
                 {
                     sortable: false, name: 'orderNo', align: "center", index: 'orderNo', editable: false,
-                    formatter: function (value, row, obj) {
-                        if (value == undefined) {
-                            $("#bomTable").setGridParam().hideCol("orderNo");
-                            $("#bomTable").jqGrid('setGridWidth', 1010);
-                        } else {
-                            return value;
-                        }
-                    }
+                    // formatter: function (value, row, obj) {
+                    //     if (value == undefined) {
+                    //         $("#bomTable").setGridParam().hideCol("orderNo");
+                    //         $("#bomTable").jqGrid('setGridWidth', 1010);
+                    //     } else {
+                    //         return value;
+                    //     }
+                    // }
                 },
                 {sortable: false, name: 'bomId', align: "center", index: 'bomId', editable: false, hidden: true},
                 {sortable: false, name: 'dzlName', align: "center", index: 'dzlName', editable: false},
