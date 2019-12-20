@@ -555,7 +555,7 @@ public class SmtProductShipController extends BaseController {
         map.put("fpcCounts", String.valueOf(fpcShip.getShipQty()));
         //总点数
         String bomPoint = smtBomService.selectSmtBomByBomName(fpcShip.getCusCode(), fpcShip.getBomName());
-        map.put("pointCounts", bomPoint);
+        map.put("pointCounts", String.valueOf(fpcShip.getShipQty() * (Integer.valueOf(bomPoint))));
         map.put("createDate", new SimpleDateFormat("yyyy-MM-dd").format(new Date()));
         map.put("orderNo", fpcShip.getOrderNo());
         map.put("remark", null == fpcShip.getRemark() ? "" : fpcShip.getRemark());

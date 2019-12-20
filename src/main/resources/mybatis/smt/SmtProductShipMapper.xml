@@ -49,7 +49,7 @@
                 AND date_format(create_time,'%y%m%d') &lt;= date_format(#{params.endTime},'%y%m%d')
             </if>
         </where>
-        order by create_time desc
+        order by order_type asc,create_time desc
     </select>
 
     <select id="selectSmtProductShipById" parameterType="Integer" resultMap="SmtProductShipResult">
