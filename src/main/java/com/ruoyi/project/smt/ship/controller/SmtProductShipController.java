@@ -171,7 +171,8 @@ public class SmtProductShipController extends BaseController {
     public TableDataInfo fpcOnLineList(SmtDeliveryRecord record) {
         startPage();
         List<SmtDeliveryRecord> list = smtDeliveryRecordService.selectFpcOnLineListList(record);
-        return getDataTable(list);
+        List<SmtDeliveryRecord> newList = list.stream().filter(deliveryRecord -> deliveryRecord.getSumDeliveryQty().intValue() > 0).collect(Collectors.toList());
+        return getDataTable(newList);
     }
 
     /**
@@ -183,7 +184,8 @@ public class SmtProductShipController extends BaseController {
     public TableDataInfo dzlOnLineList(SmtDeliveryRecord record) {
         startPage();
         List<SmtDeliveryRecord> list = smtDeliveryRecordService.selectDzlOnLineListList(record);
-        return getDataTable(list);
+        List<SmtDeliveryRecord> newList = list.stream().filter(deliveryRecord -> deliveryRecord.getSumDeliveryQty().intValue() != 0).collect(Collectors.toList());
+        return getDataTable(newList);
     }
 
 
@@ -227,8 +229,7 @@ public class SmtProductShipController extends BaseController {
     public TableDataInfo list(SmtProductShip smtProductShip) {
         startPage();
         List<SmtProductShip> list = smtProductShipService.selectSmtProductShipList(smtProductShip);
-        List<SmtProductShip> newList = list.stream().filter(ship -> ship.getShipQty().intValue() > 0).collect(Collectors.toList());
-        return getDataTable(newList);
+        return getDataTable(list);
     }
 
     /**
@@ -240,8 +241,7 @@ public class SmtProductShipController extends BaseController {
     public TableDataInfo dzlShipList(SmtProductShip smtProductShip) {
         startPage();
         List<SmtProductShip> list = smtProductShipService.selectSmtProductShipExportList(smtProductShip);
-        List<SmtProductShip> newList = list.stream().filter(ship -> ship.getShipQty().intValue() > 0).collect(Collectors.toList());
-        return getDataTable(newList);
+        return getDataTable(list);
     }
 
 
