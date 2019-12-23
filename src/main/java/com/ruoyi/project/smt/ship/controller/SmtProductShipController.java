@@ -227,7 +227,8 @@ public class SmtProductShipController extends BaseController {
     public TableDataInfo list(SmtProductShip smtProductShip) {
         startPage();
         List<SmtProductShip> list = smtProductShipService.selectSmtProductShipList(smtProductShip);
-        return getDataTable(list);
+        List<SmtProductShip> newList = list.stream().filter(ship -> ship.getShipQty().intValue() > 0).collect(Collectors.toList());
+        return getDataTable(newList);
     }
 
     /**
@@ -239,7 +240,8 @@ public class SmtProductShipController extends BaseController {
     public TableDataInfo dzlShipList(SmtProductShip smtProductShip) {
         startPage();
         List<SmtProductShip> list = smtProductShipService.selectSmtProductShipExportList(smtProductShip);
-        return getDataTable(list);
+        List<SmtProductShip> newList = list.stream().filter(ship -> ship.getShipQty().intValue() > 0).collect(Collectors.toList());
+        return getDataTable(newList);
     }
 
 

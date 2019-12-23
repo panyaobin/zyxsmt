@@ -2,11 +2,10 @@ package com.ruoyi.project.smt.entry.service.impl;
 
 import com.ruoyi.common.constant.Constants;
 import com.ruoyi.common.utils.DateUtils;
+import com.ruoyi.common.utils.StringUtils;
 import com.ruoyi.common.utils.security.ShiroUtils;
 import com.ruoyi.common.utils.text.Convert;
 import com.ruoyi.project.smt.bom.vo.SmtBomDeliveryVO;
-import com.ruoyi.project.smt.bom.vo.SmtBomVO;
-import com.ruoyi.project.smt.bomLine.domain.SmtBomLine;
 import com.ruoyi.project.smt.entry.domain.SmtOrderEntry;
 import com.ruoyi.project.smt.entry.mapper.SmtOrderEntryMapper;
 import com.ruoyi.project.smt.entry.service.ISmtOrderEntryService;
@@ -113,6 +112,11 @@ public class SmtOrderEntryServiceImpl implements ISmtOrderEntryService {
      */
     @Override
     public int updateSmtBomAndBomLine(SmtOrderEntry smtOrderEntry) {
+        if (StringUtils.isNotEmpty(smtOrderEntry.getRemark()) && smtOrderEntry.getRemark().split(",").length > 0) {
+            smtOrderEntry.setRemark(smtOrderEntry.getRemark().split(",")[0]);
+        }else{
+            smtOrderEntry.setRemark("");
+        }
         smtOrderEntry.setUpdateTime(DateUtils.getNowDate());
         smtOrderEntry.setUpdateBy(ShiroUtils.getLoginName());
         smtOrderEntryMapper.updateSmtOrderEntry(smtOrderEntry);
