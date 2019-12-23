@@ -11,6 +11,7 @@ import java.util.stream.Collectors;
 
 import com.google.common.collect.Lists;
 import com.ruoyi.common.constant.Constants;
+import com.ruoyi.common.utils.StringUtils;
 import com.ruoyi.common.utils.security.ShiroUtils;
 import com.ruoyi.framework.web.service.ConfigService;
 import com.ruoyi.project.smt.bom.domain.SmtBom;
@@ -171,8 +172,11 @@ public class SmtProductShipController extends BaseController {
     public TableDataInfo fpcOnLineList(SmtDeliveryRecord record) {
         startPage();
         List<SmtDeliveryRecord> list = smtDeliveryRecordService.selectFpcOnLineListList(record);
-        List<SmtDeliveryRecord> newList = list.stream().filter(deliveryRecord -> deliveryRecord.getSumDeliveryQty().intValue() > 0).collect(Collectors.toList());
-        return getDataTable(newList);
+        if (StringUtils.isNotEmpty(list)){
+            List<SmtDeliveryRecord> newList = list.stream().filter(deliveryRecord -> deliveryRecord.getSumDeliveryQty().intValue() > 0).collect(Collectors.toList());
+            return getDataTable(newList);
+        }
+        return getDataTable(list);
     }
 
     /**
@@ -184,8 +188,11 @@ public class SmtProductShipController extends BaseController {
     public TableDataInfo dzlOnLineList(SmtDeliveryRecord record) {
         startPage();
         List<SmtDeliveryRecord> list = smtDeliveryRecordService.selectDzlOnLineListList(record);
-        List<SmtDeliveryRecord> newList = list.stream().filter(deliveryRecord -> deliveryRecord.getSumDeliveryQty().intValue() != 0).collect(Collectors.toList());
-        return getDataTable(newList);
+        if (StringUtils.isNotEmpty(list)) {
+            List<SmtDeliveryRecord> newList = list.stream().filter(deliveryRecord -> deliveryRecord.getSumDeliveryQty().intValue() != 0).collect(Collectors.toList());
+            return getDataTable(newList);
+        }
+        return getDataTable(list);
     }
 
 
