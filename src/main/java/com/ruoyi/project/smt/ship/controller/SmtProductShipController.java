@@ -1,19 +1,14 @@
 package com.ruoyi.project.smt.ship.controller;
 
-import java.math.BigDecimal;
-import java.math.RoundingMode;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
-
 import com.google.common.collect.Lists;
 import com.ruoyi.common.constant.Constants;
 import com.ruoyi.common.utils.StringUtils;
-import com.ruoyi.common.utils.security.ShiroUtils;
-import com.ruoyi.framework.web.service.ConfigService;
+import com.ruoyi.common.utils.poi.ExcelUtil;
+import com.ruoyi.framework.aspectj.lang.annotation.Log;
+import com.ruoyi.framework.aspectj.lang.enums.BusinessType;
+import com.ruoyi.framework.web.controller.BaseController;
+import com.ruoyi.framework.web.domain.AjaxResult;
+import com.ruoyi.framework.web.page.TableDataInfo;
 import com.ruoyi.project.smt.bom.domain.SmtBom;
 import com.ruoyi.project.smt.bom.service.ISmtBomService;
 import com.ruoyi.project.smt.bomLine.domain.SmtBomLine;
@@ -24,7 +19,8 @@ import com.ruoyi.project.smt.delivery.service.ISmtDeliveryRecordService;
 import com.ruoyi.project.smt.dzl.domain.SmtDzl;
 import com.ruoyi.project.smt.dzl.service.ISmtDzlService;
 import com.ruoyi.project.smt.ship.domain.ShipPrintVO;
-import com.ruoyi.project.system.config.domain.Config;
+import com.ruoyi.project.smt.ship.domain.SmtProductShip;
+import com.ruoyi.project.smt.ship.service.ISmtProductShipService;
 import com.ruoyi.project.system.config.service.IConfigService;
 import com.ruoyi.project.system.user.domain.User;
 import com.ruoyi.project.system.user.service.IUserService;
@@ -35,21 +31,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.ResponseBody;
-import com.ruoyi.framework.aspectj.lang.annotation.Log;
-import com.ruoyi.framework.aspectj.lang.enums.BusinessType;
-import com.ruoyi.project.smt.ship.domain.SmtProductShip;
-import com.ruoyi.project.smt.ship.service.ISmtProductShipService;
-import com.ruoyi.framework.web.controller.BaseController;
-import com.ruoyi.framework.web.domain.AjaxResult;
-import com.ruoyi.common.utils.poi.ExcelUtil;
-import com.ruoyi.framework.web.page.TableDataInfo;
+import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletResponse;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
+import java.text.SimpleDateFormat;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * 产品出货Controller
@@ -170,10 +159,11 @@ public class SmtProductShipController extends BaseController {
     @PostMapping("/fpcOnLineList")
     @ResponseBody
     public TableDataInfo fpcOnLineList(SmtDeliveryRecord record) {
-        startPage();
+//        startPage();
         List<SmtDeliveryRecord> list = smtDeliveryRecordService.selectFpcOnLineListList(record);
         if (StringUtils.isNotEmpty(list)){
-            List<SmtDeliveryRecord> newList = list.stream().filter(deliveryRecord -> deliveryRecord.getSumDeliveryQty().intValue() > 0).collect(Collectors.toList());
+            startPage();
+            List<SmtDeliveryRecord> newList = list.stream().filter(deliveryRecord -> deliveryRecord.getSumDeliveryQty().intValue() != 0).collect(Collectors.toList());
             return getDataTable(newList);
         }
         return getDataTable(list);
@@ -186,9 +176,9 @@ public class SmtProductShipController extends BaseController {
     @PostMapping("/dzlOnLineList")
     @ResponseBody
     public TableDataInfo dzlOnLineList(SmtDeliveryRecord record) {
-        startPage();
         List<SmtDeliveryRecord> list = smtDeliveryRecordService.selectDzlOnLineListList(record);
         if (StringUtils.isNotEmpty(list)) {
+            startPage();
             List<SmtDeliveryRecord> newList = list.stream().filter(deliveryRecord -> deliveryRecord.getSumDeliveryQty().intValue() != 0).collect(Collectors.toList());
             return getDataTable(newList);
         }

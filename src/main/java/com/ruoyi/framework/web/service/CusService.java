@@ -1,5 +1,6 @@
 package com.ruoyi.framework.web.service;
 
+import com.ruoyi.common.constant.Constants;
 import com.ruoyi.project.smt.cus.domain.SmtCus;
 import com.ruoyi.project.smt.cus.service.ISmtCusService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,6 +25,8 @@ public class CusService {
      * @return
      */
     public List<SmtCus> getCus(){
-        return smtCusService.selectSmtCusList(new SmtCus());
+        SmtCus cus = new SmtCus();
+        cus.setStatus(Constants.SUCCESS);
+        return smtCusService.selectSmtCusList(cus);
     }
 }

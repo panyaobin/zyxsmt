@@ -1,43 +1,29 @@
 package com.ruoyi.project.smt.entry.controller;
 
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import com.google.common.collect.Lists;
 import com.ruoyi.common.constant.Constants;
-import com.ruoyi.common.utils.security.ShiroUtils;
+import com.ruoyi.common.utils.poi.ExcelUtil;
+import com.ruoyi.framework.aspectj.lang.annotation.Log;
+import com.ruoyi.framework.aspectj.lang.enums.BusinessType;
+import com.ruoyi.framework.web.controller.BaseController;
+import com.ruoyi.framework.web.domain.AjaxResult;
+import com.ruoyi.framework.web.page.TableDataInfo;
 import com.ruoyi.project.smt.bom.domain.SmtBom;
 import com.ruoyi.project.smt.bom.service.ISmtBomService;
-import com.ruoyi.project.smt.bom.vo.SmtBomVO;
-import com.ruoyi.project.smt.bomLine.domain.SmtBomLine;
 import com.ruoyi.project.smt.dzl.domain.SmtDzl;
 import com.ruoyi.project.smt.dzl.service.ISmtDzlService;
+import com.ruoyi.project.smt.entry.domain.SmtOrderEntry;
+import com.ruoyi.project.smt.entry.service.ISmtOrderEntryService;
 import com.ruoyi.project.smt.entry.vo.SmtOrderEntryVO;
 import com.ruoyi.project.smt.entryLine.domain.SmtOrderEntryLine;
 import com.ruoyi.project.smt.entryLine.service.ISmtOrderEntryLineService;
-import com.ruoyi.project.smt.test.TestVO;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.ResponseBody;
-import com.ruoyi.framework.aspectj.lang.annotation.Log;
-import com.ruoyi.framework.aspectj.lang.enums.BusinessType;
-import com.ruoyi.project.smt.entry.domain.SmtOrderEntry;
-import com.ruoyi.project.smt.entry.service.ISmtOrderEntryService;
-import com.ruoyi.framework.web.controller.BaseController;
-import com.ruoyi.framework.web.domain.AjaxResult;
-import com.ruoyi.common.utils.poi.ExcelUtil;
-import com.ruoyi.framework.web.page.TableDataInfo;
+import org.springframework.web.bind.annotation.*;
 
-import javax.servlet.http.HttpServletResponse;
+import java.util.List;
+import java.util.Map;
 
 /**
  * 订单入库Controller

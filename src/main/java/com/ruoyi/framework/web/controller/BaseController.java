@@ -4,6 +4,7 @@ import java.beans.PropertyEditorSupport;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.OutputStream;
+import java.math.BigDecimal;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -15,6 +16,8 @@ import com.ruoyi.project.smt.cus.domain.SmtCus;
 import com.ruoyi.project.smt.cus.service.ISmtCusService;
 import com.ruoyi.project.smt.dzl.domain.SmtDzl;
 import com.ruoyi.project.smt.dzl.service.ISmtDzlService;
+import com.ruoyi.project.smt.paymentrecord.domain.SmtPaymentRecord;
+import com.ruoyi.project.smt.paymentrecord.service.ISmtPaymentRecordService;
 import com.ruoyi.project.system.config.domain.Config;
 import com.ruoyi.project.system.config.service.IConfigService;
 import net.sf.jasperreports.engine.JRDataSource;
@@ -58,6 +61,7 @@ public class BaseController {
 
     @Autowired
     private IConfigService iConfigService;
+
 
 
     /**
@@ -226,6 +230,8 @@ public class BaseController {
         List<SmtBom> bomList = iSmtBomService.selectSmtBomList(new SmtBom());
         return bomList.stream().collect(Collectors.toMap(SmtBom::getId, SmtBom::getBomName, (x, y) -> x));
     }
+
+
 
     /**
      * 生成PDF

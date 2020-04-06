@@ -1,7 +1,11 @@
 package com.ruoyi.project.smt.cus.service.impl;
 
 import java.util.List;
+
+import com.ruoyi.common.exception.BusinessException;
 import com.ruoyi.common.utils.DateUtils;
+import com.ruoyi.common.utils.StringUtils;
+import com.ruoyi.project.system.user.domain.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import com.ruoyi.project.smt.cus.mapper.SmtCusMapper;
@@ -103,5 +107,17 @@ public class SmtCusServiceImpl implements ISmtCusService
      */
     public int validateUniqueByCode(String code){
         return smtCusMapper.validateUniqueByCode(code);
+    }
+
+    /**
+     * 用户状态修改
+     *
+     * @param cus 客户信息
+     * @return 结果
+     */
+    @Override
+    public int changeStatus(SmtCus cus)
+    {
+        return smtCusMapper.updateSmtCus(cus);
     }
 }

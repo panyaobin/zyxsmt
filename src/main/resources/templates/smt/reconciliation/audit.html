@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="zh" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <th:block th:include="include :: header('审核')"/>
+    <th:block th:include="include :: datetimepicker-css"/>
+    <style>
+        .checkboxSize {
+            width: 20px;
+            height: 20px;
+        }
+    </style>
+</head>
+<body class="white-bg">
+<div class="wrapper wrapper-content animated fadeInRight ibox-content">
+    <form class="form-horizontal m" id="form-reconciliation-edit" th:object="${smtReconciliation}">
+        <input name="id" th:field="*{id}" type="hidden">
+        <input name="status" id="status" type="hidden">
+        <div class="form-group">
+            <label class="col-sm-3 control-label">对账单号：</label>
+            <div class="col-sm-8">
+                <input name="reconciliationNo" th:field="*{reconciliationNo}" class="form-control" readonly type="text">
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-3 control-label">客户代码：</label>
+            <div class="col-sm-8">
+                <select name="cusCode" disabled="disabled" id="cusCode" class="form-control select2-selection--multiple" th:with="cusList=${@cus.getCus()}" required>
+                    <option value="">===请选择===</option>
+                    <option th:each="c:${cusList}" th:value="${c.cusCode}" th:text="${c.cusName}" th:selected="${smtReconciliation.cusCode eq c.cusCode}"></option>
+                </select>
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-3 control-label">账单月份：</label>
+            <div class="col-sm-8">
+                <div class="input-group date">
+                    <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
+                    <input name="reconciliationTime" th:value="${#dates.format(smtReconciliation.reconciliationTime, 'yyyy-MM')}" class="form-control" placeholder="yyyy-MM-dd" type="text" readonly>
+                </div>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label class="col-sm-3 control-label">费用类型：</label>
+            <div class="col-sm-8">
+                <select name="feeType" disabled class="form-control" th:with="type=${@dict.getType('smt_fee_type')}">
+                    <option th:each="dict : ${type}" th:text="${dict.dictLabel}" th:value="${dict.dictValue}" th:selected="${smtReconciliation.feeType eq dict.dictValue}"></option>
+                </select>
+
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-3 control-label">对账金额：</label>
+            <div class="col-sm-8">
+                <input name="reconciliationAmount" readonly th:field="*{reconciliationAmount}" class="form-control" type="number">
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-3 control-label">附件：</label>
+            <div class="col-sm-8">
+                <input type="text">
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-3 control-label">对账单审核：</label>
+            <div class="col-sm-8">
+                <input type="checkbox" class="checkboxSize" id="zhangAudit" th:checked="${smtReconciliation.status == '1' ||smtReconciliation.status == '3'}">
+            </div>
+        </div>
+
+
+        <div class="form-group">
+            <label class="col-sm-3 control-label">回传：</label>
+            <div class="col-sm-8">
+                <input type="hidden" name="isBack" id="isBack">
+                <input type="checkbox" disabled class="checkboxSize" id="backValue" th:checked="${smtReconciliation.isBack == '1' ? true : false}">
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label class="col-sm-3 control-label">客户确认金额：</label>
+            <div class="col-sm-8">
+                <input name="confirmAmount" th:field="*{confirmAmount}" readonly class="form-control" type="number">
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-3 control-label">扣款金额：</label>
+            <div class="col-sm-8">
+                <input name="deductionAmount" th:field="*{deductionAmount}" readonly class="form-control" type="number">
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label class="col-sm-3 control-label">附件上传（对个）：</label>
+            <div class="col-sm-8">
+                <input type="text">
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label class="col-sm-3 control-label">备注：</label>
+            <div class="col-sm-8">
+                <textarea id="remark" th:field="*{remark}" readonly name="remark" class="form-control"></textarea>
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-3 control-label">回传审核：</label>
+            <div class="col-sm-8">
+                <input type="checkbox" class="checkboxSize" id="huiAudit" th:checked="${smtReconciliation.status == '2' ||smtReconciliation.status == '3'}">
+            </div>
+        </div>
+    </form>
+</div>
+<th:block th:include="include :: footer"/>
+<th:block th:include="include :: datetimepicker-js"/>
+<script type="text/javascript">
+    var prefix = ctx + "smt/reconciliation";
+    $("#form-reconciliation-edit").validate({
+        focusCleanup: true
+    });
+
+    function submitHandler() {
+        if ($.validate.form()) {
+            //判断是否回传显示勾选
+            let flag = $("#backValue").is(':checked');
+            if (flag) {
+                $("#isBack").val("1")
+            } else {
+                $("#isBack").val("0");
+            }
+
+            //判断审核状态
+            // 勾选对账单审核，状态为1
+            // 勾选回传审核，状态为2
+            // 2个都勾选，状态为3
+            let a = $("#zhangAudit").is(":checked");
+            let b = $("#huiAudit").is(":checked");
+            let val = "";
+            if (a && !b) {
+                val = "1";
+            } else if (b && !a) {
+                val = "2";
+            } else if (a && b) {
+                val = "3";
+            } else {
+                val = "0";
+            }
+            document.getElementById("status").value = val;
+            $.operate.save(prefix + "/edit", $('#form-reconciliation-edit').serialize());
+        }
+    }
+</script>
+</body>
+</html>

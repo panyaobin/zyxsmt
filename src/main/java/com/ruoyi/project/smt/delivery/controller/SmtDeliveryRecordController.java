@@ -110,7 +110,6 @@ public class SmtDeliveryRecordController extends BaseController {
     @PostMapping("/fpcList")
     @ResponseBody
     public TableDataInfo fpcList(SmtOrderEntry entry) {
-        startPage();
         entry.setOrderType(Constants.BOM_TYPE_FPC);
         List<SmtOrderEntryVO> list = smtOrderEntryService.selectSmtEntryAllList(entry);
         for (SmtOrderEntryVO vo : list) {
@@ -123,6 +122,7 @@ public class SmtDeliveryRecordController extends BaseController {
             int i = deliveryedQty == null ? 0 : deliveryedQty.intValue();
             vo.setOrderQty(vo.getOrderQty() - i);
         }
+        startPage();
         List<SmtOrderEntryVO> collect = list.stream().filter(entry1 -> entry1.getOrderQty().intValue() > 0).collect(Collectors.toList());
         return getDataTable(convertList(collect));
     }
@@ -171,7 +171,6 @@ public class SmtDeliveryRecordController extends BaseController {
     @PostMapping("/dzlList")
     @ResponseBody
     public TableDataInfo dzlList(SmtOrderEntry entry) {
-        startPage();
         entry.setOrderType(Constants.BOM_TYPE_DZL);
         List<SmtOrderEntryVO> list = smtOrderEntryService.selectSmtEntryAllDzlList(entry);
         for (SmtOrderEntryVO vo : list) {
@@ -183,6 +182,7 @@ public class SmtDeliveryRecordController extends BaseController {
             int i = deliveryedQty == null ? 0 : deliveryedQty.intValue();
             vo.setSumOrderQty(vo.getSumOrderQty() - i);
         }
+        startPage();
         List<SmtOrderEntryVO> collect = list.stream().filter(dzl -> dzl.getSumOrderQty().intValue() > 0).collect(Collectors.toList());
         return getDataTable(convertList(collect));
     }
@@ -451,7 +451,7 @@ public class SmtDeliveryRecordController extends BaseController {
                 printVO.setBomType(dzl.getTypeName());
             }
             printVO.setDeliveryQty(String.valueOf(record.getDeliveryQty()));
-            printVO.setRemark(record.getRemark());
+            printVO.setRemark(null == record.getRemark() ? "" : record.getRemark());
             printVOList.add(printVO);
         }
         //如果数据条数不足十条
@@ -475,9 +475,9 @@ public class SmtDeliveryRecordController extends BaseController {
         map.put("sendNo", String.valueOf(recordList.get(0).getDeliveryNo()));
         map.put("customerName", cusNameMap.get(recordList.get(0).getCusCode()));
         map.put("createDate", new SimpleDateFormat("yyyy-MM-dd").format(new Date()));
-        if (code == 1){
+        if (code == 1) {
             map.put("createUser", getSysUser().getUserName());
-        }else{
+        } else {
             String createBy = recordList.get(0).getCreateBy();
             User user = userService.selectUserByLoginName(createBy);
             map.put("createUser", user.getUserName());

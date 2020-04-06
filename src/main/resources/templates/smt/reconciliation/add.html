@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="zh" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <th:block th:include="include :: header('新增对账管理')"/>
+    <th:block th:include="include :: datetimepicker-css"/>
+    <th:block th:include="include :: bootstrap-fileinput-css"/>
+    <style>
+        .file-preview {
+            width: 88% !important;
+
+        }
+
+    </style>
+</head>
+<body class="white-bg">
+<div class="wrapper wrapper-content animated fadeInRight ibox-content">
+    <form class="form-horizontal m" id="form-reconciliation-add">
+        <div class="form-group">
+            <label class="col-sm-3 control-label">对账单号：</label>
+            <div class="col-sm-8">
+                <input name="reconciliationNo" id="autoReconciliationNo" class="form-control" type="text" readonly>
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-3 control-label">客户名称：</label>
+            <div class="col-sm-6" style="height: 35px;">
+                <select name="cusCode" style="margin-bottom: 0px!important;" onchange="changeCode(this)" id="cusCode" class="form-control select2-selection--multiple" th:with="cusList=${@cus.getCus()}" required>
+                    <option value="">请选择</option>
+                    <option th:each="c:${cusList}" th:value="${c.cusCode}" th:text="${c.cusName}"></option>
+                </select>
+            </div>
+            <div class="col-sm-2" style="height: 35px;">
+                <input class="form-control" type="text" id="code" readonly>
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-3 control-label">账单月份：</label>
+            <div class="col-sm-8">
+                <div class="input-group date">
+                    <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
+                    <input name="reconciliationTime" class="form-control" placeholder="yyyy-MM" type="text">
+                </div>
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-3 control-label">费用类型：</label>
+            <div class="col-sm-8">
+                <select name="feeType" class="form-control m-b" th:with="type=${@dict.getType('smt_fee_type')}">
+                    <option th:each="dict : ${type}" th:text="${dict.dictLabel}" th:value="${dict.dictValue}"></option>
+                </select>
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-3 control-label">对账金额：</label>
+            <div class="col-sm-8">
+                <input name="reconciliationAmount" class="form-control" type="number" required>
+            </div>
+        </div>
+        <!--<div class="form-group" style="margin-left: 145px">-->
+            <!--<label class="font-noraml">附件：</label>-->
+            <!--<div class="file-loading">-->
+                <!--<input id="fileinput-demo-1" type="file" multiple>-->
+            <!--</div>-->
+        <!--</div>-->
+        <div class="form-group">
+            <label class="col-sm-3 control-label">备注：</label>
+            <div class="col-sm-8">
+                <textarea id="remark" name="remark" class="form-control" style="height: 100px;"></textarea>
+            </div>
+        </div>
+    </form>
+</div>
+<th:block th:include="include :: footer"/>
+<th:block th:include="include :: datetimepicker-js"/>
+<th:block th:include="include :: bootstrap-fileinput-js"/>
+<script type="text/javascript">
+    var prefix = ctx + "smt/reconciliation"
+    $("#form-reconciliation-add").validate({
+        focusCleanup: true
+    });
+
+    function submitHandler() {
+        if ($.validate.form()) {
+            $.operate.save(prefix + "/add", $('#form-reconciliation-add').serialize());
+        }
+    }
+
+    $("input[name='reconciliationTime']").datetimepicker({
+        format: 'yyyy-MM',
+        weekStart: 1,
+        autoclose: true,
+        startView: 3,
+        minView: 3,
+        forceParse: false,
+    });
+
+    $("#fileinput-demo-1").fileinput({
+        'theme': 'explorer-fas',
+        'uploadUrl': '#',
+        overwriteInitial: false,
+        initialPreviewAsData: true,
+    });
+
+    //新增页面打开，自动生成对账单号，生成规则为系统当前时间（年月日时分秒）
+    var date = new Date();
+    this.year = date.getFullYear();
+    this.month = date.getMonth() + 1;
+    this.day = date.getDate()< 10 ? "0" + date.getDate() : date.getDate();;
+    this.hour = date.getHours() < 10 ? "0" + date.getHours() : date.getHours();
+    this.minute = date.getMinutes() < 10 ? "0" + date.getMinutes() : date.getMinutes();
+    this.second = date.getSeconds() < 10 ? "0" + date.getSeconds() : date.getSeconds();
+    this.milliSeconds = date.getMilliseconds();
+    var currentTime = this.year+''+this.month + '' + this.day + '' + this.hour + '' + this.minute + '' + this.second + '' + this.milliSeconds;
+    document.getElementById("autoReconciliationNo").value = currentTime;
+
+    //切换客户名称
+    function changeCode(obj) {
+        let code = obj.value;
+        document.getElementById("code").value = code;
+    }
+
+</script>
+</body>
+</html>

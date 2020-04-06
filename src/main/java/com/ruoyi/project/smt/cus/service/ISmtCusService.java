@@ -1,6 +1,8 @@
 package com.ruoyi.project.smt.cus.service;
 
 import com.ruoyi.project.smt.cus.domain.SmtCus;
+import com.ruoyi.project.system.user.domain.User;
+
 import java.util.List;
 
 /**
@@ -66,4 +68,12 @@ public interface ISmtCusService
      * @return 结果
      */
     public int validateUniqueByCode(String code);
+
+    /**
+     * 用户状态修改
+     *
+     * @param cus 客户信息
+     * @return 结果
+     */
+    public int changeStatus(SmtCus cus);
 }

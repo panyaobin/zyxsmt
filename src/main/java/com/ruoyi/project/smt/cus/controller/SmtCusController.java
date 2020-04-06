@@ -3,6 +3,7 @@ package com.ruoyi.project.smt.cus.controller;
 import java.util.List;
 
 import com.ruoyi.common.utils.security.ShiroUtils;
+import com.ruoyi.project.system.user.domain.User;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -135,5 +136,17 @@ public class SmtCusController extends BaseController
     public Integer validateUnique(String code)
     {
         return smtCusService.validateUniqueByCode(code);
+    }
+
+    /**
+     * 客户状态修改
+     */
+    @Log(title = "客户状态管理", businessType = BusinessType.UPDATE)
+    @RequiresPermissions("smt:cus:edit")
+    @PostMapping("/changeStatus")
+    @ResponseBody
+    public AjaxResult changeStatus(SmtCus cus)
+    {
+        return toAjax(smtCusService.changeStatus(cus));
     }
 }

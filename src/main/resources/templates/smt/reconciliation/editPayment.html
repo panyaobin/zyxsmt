@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="zh" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <th:block th:include="include :: header('新增客户付款')"/>
+    <th:block th:include="include :: datetimepicker-css"/>
+    <th:block th:include="include :: bootstrap-fileinput-css"/>
+</head>
+<body class="white-bg">
+<div class="wrapper wrapper-content animated fadeInRight ibox-content">
+    <form class="form-horizontal m" id="form-reconciliation-edit" th:object="${smtReconciliation}">
+        <div class="form-group">
+            <label class="col-sm-3 control-label">对账单号：</label>
+            <div class="col-sm-8">
+                <input name="reconciliationNo" id="autoReconciliationNo" th:field="*{reconciliationNo}" class="form-control" type="text" readonly>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label class="col-sm-3 control-label">付款日期：</label>
+            <div class="col-sm-8">
+                <div class="input-group date">
+                    <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
+                    <input name="paymentTime" class="form-control" placeholder="yyyy-MM-dd" type="text" required>
+                </div>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label class="col-sm-3 control-label">付款金额：</label>
+            <div class="col-sm-8">
+                <input name="paymentAmount" class="form-control" placeholder="请输入付款金额" type="number" required>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label class="col-sm-3 control-label">付款方式：</label>
+            <div class="col-sm-8">
+                <select name="paymentWay" class="form-control" th:with="type=${@dict.getType('smt_payment_way')}">
+                    <option th:each="dict : ${type}" th:text="${dict.dictLabel}" th:value="${dict.dictValue}"></option>
+                </select>
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-3 control-label">对方户名：</label>
+            <div class="col-sm-8">
+                <input name="paymentName" class="form-control" placeholder="请输入对方户名" type="text" required>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label class="col-sm-3 control-label">付款账号：</label>
+            <div class="col-sm-8">
+                <input  name="paymentNumber" class="form-control" placeholder="请输入付款账号" required>
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-3 control-label">备注：</label>
+            <div class="col-sm-8">
+                <textarea id="remark" name="remark" class="form-control"></textarea>
+            </div>
+        </div>
+    </form>
+</div>
+<th:block th:include="include :: footer"/>
+<th:block th:include="include :: datetimepicker-js"/>
+<th:block th:include="include :: bootstrap-fileinput-js"/>
+<script type="text/javascript">
+    var prefix = ctx + "smt/paymentRecord"
+    $("#form-reconciliation-add").validate({
+        focusCleanup: true
+    });
+
+    function submitHandler() {
+        if ($.validate.form()) {
+            $.operate.save(prefix + "/add", $('#form-reconciliation-edit').serialize());
+        }
+    }
+
+    $("input[name='paymentTime']").datetimepicker({
+        format: "yyyy-mm-dd",
+        minView: "month",
+        autoclose: true
+    });
+
+
+
+</script>
+</body>
+</html>

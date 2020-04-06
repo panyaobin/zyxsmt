@@ -22,6 +22,9 @@ PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
 		<typeAlias alias="SmtOrderEntryLine" type="com.ruoyi.project.smt.entryLine.domain.SmtOrderEntryLine" />
 		<typeAlias alias="SmtDeliveryRecord" type="com.ruoyi.project.smt.delivery.domain.SmtDeliveryRecord" />
 		<typeAlias alias="SmtProductShip" type="com.ruoyi.project.smt.ship.domain.SmtProductShip" />
-		<typeAlias alias="SmtPaymentInfo" type="com.ruoyi.project.smt.payment.domain.SmtPaymentInfo" />
+		<typeAlias alias="SmtReconciliation" type="com.ruoyi.project.smt.reconciliation.domain.SmtReconciliation" />
+		<typeAlias alias="SmtPaymentRecord" type="com.ruoyi.project.smt.paymentrecord.domain.SmtPaymentRecord" />
+		<typeAlias alias="SmtPaymentInfo" type="com.ruoyi.project.smt.paymentinfo.domain.SmtPaymentInfo" />
+		<typeAlias alias="SmtPaymentApply" type="com.ruoyi.project.smt.paymentapply.domain.SmtPaymentApply" />
 	</typeAliases>
 </configuration>

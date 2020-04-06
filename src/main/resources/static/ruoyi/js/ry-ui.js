@@ -1146,10 +1146,34 @@ var table = {
                     $.operate.submit(url, "post", "json", "");
                 });
             },
+            // 客户付款清账按钮功能
+            cleanPayment: function (id) {
+                $.modal.confirm("确定对此对账单进行清账操作吗？", function () {
+                    var url = table.options.cleanPaymentUrl+id;
+                    $.operate.submit(url, "get", "json", "");
+                });
+            },
 
             // 新增信息
             add: function (id) {
                 $.modal.open("新增" + table.options.modalName, $.operate.addUrl(id), "800", "600");
+            },
+
+            // 客户新增付款信息
+            addPayment: function (id) {
+                $.modal.open("新增" + table.options.modalName, $.operate.addUrl(id), "800", "600");
+            },
+            //新增对账管理
+            addReconciliation:function(id){
+                $.modal.open("新增" + table.options.modalName, $.operate.addUrl(id), "800", "600");
+            },
+            //回传对账管理
+            editReconciliation:function(id){
+                $.modal.open("回传", $.operate.editUrl(id), "800", "600");
+            },
+            //回传对账管理
+            auditReconciliation:function(id){
+                $.modal.open("审核", $.operate.auditUrl(id), "800", "600");
             },
 
             // 新增bom信息
@@ -1180,7 +1204,6 @@ var table = {
             },
             // 修改信息
             edit: function (id) {
-                debugger
                 table.set();
                 if ($.common.isEmpty(id) && table.options.type == table_type.bootstrapTreeTable) {
                     var row = $("#" + table.options.id).bootstrapTreeTable('getSelections')[0];
@@ -1194,13 +1217,22 @@ var table = {
                     $.modal.open("修改" + table.options.modalName, $.operate.editUrl(id));
                 }
             },
+            // 修改付款信息
+            editPaymentInfo: function (id) {
+                $.modal.open("修改" + table.options.modalName, $.operate.editUrl(id),"800","600");
+            },
+
+            // 修改付款记录信息
+            editPaymentRecord: function (id) {
+                $.modal.open("修改" + table.options.modalName, $.operate.editUrl(id),"800","600");
+            },
             // 修改电子料
             editDzl: function (id) {
                 $.modal.open("修改" + table.options.modalName, $.operate.editUrl(id),"800","600");
             },
             // 修改收款信息
             editPayment: function (id) {
-                $.modal.open("修改" + table.options.modalName, $.operate.editUrl(id),"800","600");
+                $.modal.open("新增客户付款", $.operate.editUrl(id),"800","600");
             },
 
 
@@ -1268,6 +1300,25 @@ var table = {
                 }
                 return url;
             },
+
+            // 审核访问地址
+            auditUrl: function (id) {
+                debugger
+                var url = "/404.html";
+                if ($.common.isNotEmpty(id)) {
+                    url = table.options.auditUrl.replace("{id}", id);
+                } else {
+                    var id = $.common.isEmpty(table.options.uniqueId) ? $.table.selectFirstColumns() : $.table.selectColumns(table.options.uniqueId);
+                    if (id.length == 0) {
+                        $.modal.alertWarning("请至少选择一条记录");
+                        return;
+                    }
+                    url = table.options.auditUrl.replace("{id}", id);
+                }
+                console.log("sadasadsasdsad"+url)
+                return url;
+            },
+
             // 保存信息 刷新表格
             save: function (url, data, callback) {
                 var config = {

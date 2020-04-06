@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="zh" xmlns:th="http://www.thymeleaf.org" >
+<head>
+    <th:block th:include="include :: header('修改付款申请')" />
+</head>
+<body class="white-bg">
+    <div class="wrapper wrapper-content animated fadeInRight ibox-content">
+        <form class="form-horizontal m" id="form-paymentApply-edit" th:object="${smtPaymentApply}">
+            <input name="id" th:field="*{id}" type="hidden">
+            <div class="form-group">    
+                <label class="col-sm-3 control-label">收款单位：</label>
+                <div class="col-sm-8">
+                    <input th:field="*{collectionUnit}" class="form-control" type="text" readonly>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="col-sm-3 control-label">户名：</label>
+                <div class="col-sm-8">
+                    <input th:field="*{accountName}" class="form-control" type="text" readonly>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="col-sm-3 control-label">卡号：</label>
+                <div class="col-sm-8">
+                    <input th:field="*{accountNumber}" class="form-control" type="text" readonly>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="col-sm-3 control-label">开户银行：</label>
+                <div class="col-sm-8">
+                    <input th:field="*{accountBank}" class="form-control" type="text" readonly>
+                </div>
+            </div>
+
+
+            <div class="form-group">
+                <label class="col-sm-3 control-label">付款类型：</label>
+                <div class="col-sm-8">
+                    <select name="paymentType" class="form-control m-b">
+                        <option value="">所有</option>
+                    </select>
+                    <span class="help-block m-b-none"><i class="fa fa-info-circle"></i> 代码生成请选择字典属性</span>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="col-sm-3 control-label">付款原因：</label>
+                <div class="col-sm-8">
+                    <input name="paymentReason" th:field="*{paymentReason}" class="form-control" type="text" readonly>
+                </div>
+            </div>
+
+            <div class="form-group">    
+                <label class="col-sm-3 control-label">金额：</label>
+                <div class="col-sm-8">
+                    <input name="applyAmount" th:field="*{applyAmount}" class="form-control" type="text" readonly>
+                </div>
+            </div>
+
+            <div class="form-group">    
+                <label class="col-sm-3 control-label">申请附件路径：</label>
+                <div class="col-sm-8">
+                    <input name="applyUrl" th:field="*{applyUrl}" class="form-control" type="text">
+                </div>
+            </div>
+            <div class="form-group">    
+                <label class="col-sm-3 control-label">付款金额：</label>
+                <div class="col-sm-8">
+                    <input name="paymentAmount" th:field="*{paymentAmount}" class="form-control" type="text">
+                </div>
+            </div>
+            <div class="form-group">    
+                <label class="col-sm-3 control-label">手续费：</label>
+                <div class="col-sm-8">
+                    <input name="handFee" th:field="*{handFee}" class="form-control" type="text">
+                </div>
+            </div>
+            <div class="form-group">    
+                <label class="col-sm-3 control-label">付款附件路径：</label>
+                <div class="col-sm-8">
+                    <input name="paymentUrl" th:field="*{paymentUrl}" class="form-control" type="text">
+                </div>
+            </div>
+            <div class="form-group">    
+                <label class="col-sm-3 control-label">是否结清(0未结清 1已结清)：</label>
+                <div class="col-sm-8">
+                    <select name="isSettle" class="form-control m-b" required>
+                        <option value="">所有</option>
+                    </select>
+                    <span class="help-block m-b-none"><i class="fa fa-info-circle"></i> 代码生成请选择字典属性</span>
+                </div>
+            </div>
+            <div class="form-group">    
+                <label class="col-sm-3 control-label">状态(0启用 1禁用)：</label>
+                <div class="col-sm-8">
+                    <select name="status" class="form-control m-b" required>
+                        <option value="">所有</option>
+                    </select>
+                    <span class="help-block m-b-none"><i class="fa fa-info-circle"></i> 代码生成请选择字典属性</span>
+                </div>
+            </div>
+        </form>
+    </div>
+    <th:block th:include="include :: footer" />
+    <script type="text/javascript">
+        var prefix = ctx + "smt/paymentApply";
+        $("#form-paymentApply-edit").validate({
+            focusCleanup: true
+        });
+
+        function submitHandler() {
+            if ($.validate.form()) {
+                $.operate.save(prefix + "/edit", $('#form-paymentApply-edit').serialize());
+            }
+        }
+    </script>
+</body>
+</html>

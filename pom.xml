@@ -64,11 +64,6 @@
 			<version>${spring.redis.version}</version>
 		</dependency>
 
-		<dependency>
-			<groupId>com.scloud.plugin</groupId>
-			<artifactId>scloud-plugin-cache</artifactId>
-			<version>${scloud-plugin-cache.version}</version>
-		</dependency>
 
 		<!-- https://mvnrepository.com/artifact/org.projectlombok/lombok -->
 		<dependency>

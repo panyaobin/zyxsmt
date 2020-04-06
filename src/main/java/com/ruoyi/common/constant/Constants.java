@@ -98,4 +98,5 @@ public class Constants
      * 出货单号首单号
      */
     public static final Integer SHIP_NO_START = 100000;
+
 }
