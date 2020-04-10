@@ -228,6 +228,7 @@ public class SmtReconciliationController extends BaseController {
             smtReconciliationFileService.insertSmtReconciliationFile(smtFile);
             return success();
         } catch (Exception e) {
+            e.printStackTrace();
             return error(e.getMessage());
         }
     }

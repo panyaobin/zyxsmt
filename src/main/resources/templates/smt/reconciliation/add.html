@@ -127,6 +127,7 @@
 
     //页面打开获取现在客户对账单号，如果没有初始化第一位，有则递增
     function GenerateReconciliationNo() {
+        console.log("我先生成单号");
         $.ajax({
             url: prefix + "/getMaxReconciliationNo",
             type: "post",
@@ -159,15 +160,18 @@
 
 <script>
     layui.use('upload', function () {
+        console.log("我先初始化");
         let upload = layui.upload;
         let demoListView = $('#demoList');
         //执行实例
         var uploadInst = upload.render({
             elem: '#testList' //绑定元素
-            , url: prefix + "/uploadFile?num="+$("#autoReconciliationNo").val()+"&type="+1 //上传接口
+            // , url: prefix + "/uploadFile?num="+document.getElementById("autoReconciliationNo").value+"&type="+1 //上传接口
+            , url: prefix + "/uploadFile"
             , accept: 'file'
             , multiple: true
             , auto: true
+            ,data:{"num":document.getElementById("autoReconciliationNo").value,"type":1}
             , bindAction: '#testListAction'
             , choose: function (obj) {
                 var files = this.files = obj.pushFile(); //将每次选择的文件追加到文件队列

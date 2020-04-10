@@ -252,10 +252,12 @@
         //执行实例
         var uploadInst = upload.render({
             elem: '#testList' //绑定元素
-            , url: prefix + "/uploadFile?num="+$("#reconciliationNo").val()+"&type="+2 //上传接口
+            // , url: prefix + "/uploadFile?num="+document.getElementById("reconciliationNo").value+"&type="+2 //上传接口
+            , url: prefix + "/uploadFile"
             , accept: 'file'
             , multiple: true
             , auto: true
+            ,data:{"num":document.getElementById("reconciliationNo").value,"type":2}
             , bindAction: '#testListAction'
             , choose: function (obj) {
                 var files = this.files = obj.pushFile(); //将每次选择的文件追加到文件队列
