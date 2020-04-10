@@ -207,7 +207,7 @@
                             //根据文件路径截取文件名称
                             let fileNme = x.fileUrl.substr(x.fileUrl.lastIndexOf("/") + 1);
                             let icon = chooseIcon(x.fileUrl);
-                            html += "<img src='" + icon + "' alt='' style='height: 20%;width: 10%;'>" + "<a href='" + x.fileUrl + "'>" + fileNme + "</a><br>";
+                            html += "<img src='" + icon + "' alt='' style='height: 20%;width: 10%;'>" + "<a target='_blank' href='" + x.fileUrl + "'>" + fileNme + "</a><br>";
                         }
                         $("#"+obj).html(html);
                     }
