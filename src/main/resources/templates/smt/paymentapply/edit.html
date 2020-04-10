@@ -2,27 +2,39 @@
 <html lang="zh" xmlns:th="http://www.thymeleaf.org" >
 <head>
     <th:block th:include="include :: header('修改付款申请')" />
+    <th:block th:include="include :: datetimepicker-css"/>
+    <link href="../../../layui/css/layui.css" type="text/css" rel="stylesheet"/>
 </head>
 <body class="white-bg">
     <div class="wrapper wrapper-content animated fadeInRight ibox-content">
         <form class="form-horizontal m" id="form-paymentApply-edit" th:object="${smtPaymentApply}">
             <input name="id" th:field="*{id}" type="hidden">
-            <div class="form-group">    
+
+            <div class="form-group">
+                <label class="col-sm-3 control-label">付款单号：</label>
+                <div class="col-sm-8">
+                    <input name="paymentNo" th:field="*{paymentNo}" id="paymentNo"  class="form-control" type="text" readonly>
+                </div>
+            </div>
+
+            <div class="form-group">
                 <label class="col-sm-3 control-label">收款单位：</label>
-                <div class="col-sm-8">
-                    <input th:field="*{collectionUnit}" class="form-control" type="text" readonly>
+                <div class="col-sm-5">
+                    <select  disabled class="form-control select2-selection--multiple" th:with="reciveList=${@receive.getPaymentInfo()}" required>
+                        <option value="">请选择</option>
+                        <option th:each="r:${reciveList}" th:value="${r.id}" th:text="${r.collectionUnit}" th:selected="${smtPaymentApply.receiveId eq r.id}"></option>
+                    </select>
+
+                </div>
+                <span style="float: left;margin-top: 7px;">户名：</span>
+                <div class="col-sm-2" style="padding-left: 0px!important;width: 20%!important;">
+                    <input th:field="*{accountName}" class="form-control" type="text"  readonly>
                 </div>
             </div>
 
-            <div class="form-group">
-                <label class="col-sm-3 control-label">户名：</label>
-                <div class="col-sm-8">
-                    <input th:field="*{accountName}" class="form-control" type="text" readonly>
-                </div>
-            </div>
 
             <div class="form-group">
-                <label class="col-sm-3 control-label">卡号：</label>
+                <label class="col-sm-3 control-label">卡<span style="margin-right: 26px;"></span>号：</label>
                 <div class="col-sm-8">
                     <input th:field="*{accountNumber}" class="form-control" type="text" readonly>
                 </div>
@@ -39,83 +51,250 @@
             <div class="form-group">
                 <label class="col-sm-3 control-label">付款类型：</label>
                 <div class="col-sm-8">
-                    <select name="paymentType" class="form-control m-b">
-                        <option value="">所有</option>
+                    <select  disabled class="form-control" th:with="type=${@dict.getType('smt_payment_type')}">
+                        <option th:each="dict : ${type}" th:text="${dict.dictLabel}" th:value="${dict.dictValue}" th:selected="${smtPaymentApply.paymentType eq dict.dictValue}"></option>
                     </select>
-                    <span class="help-block m-b-none"><i class="fa fa-info-circle"></i> 代码生成请选择字典属性</span>
+                </div>
+            </div>
+
+            <div class="form-group"  style="margin-bottom: 30px;">
+                <label class="col-sm-3 control-label">金<span style="margin-right: 26px;"></span>额：</label>
+                <div class="col-sm-3">
+                    <input th:field="*{applyAmount}" id="applyAmount" class="form-control" type="text" readonly>
+                </div>
+                <span class="col-sm-5" style="color: gold;font-size: 18px;height: 34px;line-height: 34px;" id="bigCapital"></span>
+            </div>
+
+            <div class="form-group">
+                <label class="col-sm-3 control-label">申请附件：</label>
+                <div class="col-sm-8" style="height: auto;padding-left: 10px;" id="fileDiv">
                 </div>
             </div>
 
             <div class="form-group">
-                <label class="col-sm-3 control-label">付款原因：</label>
+                <label class="col-sm-3 control-label"><span style="color: red; ">*</span>付款日期：</label>
                 <div class="col-sm-8">
-                    <input name="paymentReason" th:field="*{paymentReason}" class="form-control" type="text" readonly>
+                    <div class="input-group date">
+                        <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
+                        <input name="paymentTime" class="form-control" placeholder="yyyy-MM-dd" type="text" required>
+                    </div>
                 </div>
             </div>
 
-            <div class="form-group">    
-                <label class="col-sm-3 control-label">金额：</label>
+            <div class="form-group" style="margin-bottom: 30px;">
+                <label class="col-sm-3 control-label"><span style="color: red; ">*</span>付款金额：</label>
+                <div class="col-sm-3">
+                    <input name="paymentAmount" class="form-control" placeholder="请输入付款金额" type="number" required onkeyup="changeBigCapital(this)">
+                </div>
+                <span class="col-sm-5" style="color: gold;font-size: 18px;height: 34px;line-height: 34px;" id="bigCapitalPaymentAmount"></span>
+            </div>
+
+            <div class="form-group" style="margin-bottom: 30px;">
+                <label class="col-sm-3 control-label"><span style="color: red; ">*</span>手续费：</label>
+                <div class="col-sm-3">
+                    <input name="handFee" class="form-control" placeholder="请输入手续费" type="number" required onkeyup="changeBigCapital2(this)">
+                </div>
+                <span class="col-sm-5" style="color: gold;font-size: 18px;height: 34px;line-height: 34px;" id="bigCapitalHandFee"></span>
+            </div>
+
+            <div class="form-group">
+                <label class="col-sm-3 control-label"><span style="color: red; ">*</span>付款方式：</label>
                 <div class="col-sm-8">
-                    <input name="applyAmount" th:field="*{applyAmount}" class="form-control" type="text" readonly>
+                    <select name="paymentWay" class="form-control" th:with="type=${@dict.getType('smt_payment_way')}" required>
+                        <option value="">请选择</option>
+                        <option th:each="dict : ${type}" th:text="${dict.dictLabel}" th:value="${dict.dictValue}"></option>
+                    </select>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-3 control-label"><span style="color: red; ">*</span>对方户名：</label>
+                <div class="col-sm-8">
+                    <input name="paymentName" class="form-control" placeholder="请输入对方户名" type="text" required>
                 </div>
             </div>
 
-            <div class="form-group">    
-                <label class="col-sm-3 control-label">申请附件路径：</label>
+            <div class="form-group">
+                <label class="col-sm-3 control-label"><span style="color: red; ">*</span>付款账号：</label>
                 <div class="col-sm-8">
-                    <input name="applyUrl" th:field="*{applyUrl}" class="form-control" type="text">
+                    <input  name="paymentNumber" class="form-control" placeholder="请输入付款账号" required>
                 </div>
             </div>
-            <div class="form-group">    
-                <label class="col-sm-3 control-label">付款金额：</label>
+
+            <div class="form-group" style="margin-bottom: 0px!important;">
+                <label class="col-sm-3 control-label">附<span style="margin-right: 26px"></span>件：</label>
                 <div class="col-sm-8">
-                    <input name="paymentAmount" th:field="*{paymentAmount}" class="form-control" type="text">
+                    <button type="button" class="layui-btn layui-btn-normal col-sm-4" id="testList">选择文件</button>
                 </div>
             </div>
-            <div class="form-group">    
-                <label class="col-sm-3 control-label">手续费：</label>
-                <div class="col-sm-8">
-                    <input name="handFee" th:field="*{handFee}" class="form-control" type="text">
+
+            <div class="form-group">
+                <div class="layui-upload-list" style="width: 76%;margin-left: 14%">
+                    <table class="layui-table">
+                        <thead>
+                        <tr>
+                            <th style="width: 50%">文件名</th>
+                            <th>大小</th>
+                            <th>状态</th>
+                        </tr>
+                        </thead>
+                        <tbody id="demoList"></tbody>
+                    </table>
                 </div>
             </div>
-            <div class="form-group">    
-                <label class="col-sm-3 control-label">付款附件路径：</label>
+
+            <div class="form-group">
+                <label class="col-sm-3 control-label">备<span style="margin-right: 26px"></span>注：</label>
                 <div class="col-sm-8">
-                    <input name="paymentUrl" th:field="*{paymentUrl}" class="form-control" type="text">
-                </div>
-            </div>
-            <div class="form-group">    
-                <label class="col-sm-3 control-label">是否结清(0未结清 1已结清)：</label>
-                <div class="col-sm-8">
-                    <select name="isSettle" class="form-control m-b" required>
-                        <option value="">所有</option>
-                    </select>
-                    <span class="help-block m-b-none"><i class="fa fa-info-circle"></i> 代码生成请选择字典属性</span>
-                </div>
-            </div>
-            <div class="form-group">    
-                <label class="col-sm-3 control-label">状态(0启用 1禁用)：</label>
-                <div class="col-sm-8">
-                    <select name="status" class="form-control m-b" required>
-                        <option value="">所有</option>
-                    </select>
-                    <span class="help-block m-b-none"><i class="fa fa-info-circle"></i> 代码生成请选择字典属性</span>
+                    <textarea id="remark" th:field="*{remark}" name="remark" class="form-control"></textarea>
                 </div>
             </div>
         </form>
     </div>
     <th:block th:include="include :: footer" />
+    <th:block th:include="include :: datetimepicker-js"/>
     <script type="text/javascript">
         var prefix = ctx + "smt/paymentApply";
+        //页面回显金额
+        loadCapital();
+
+        //回显附件,3 付款申请
+        loadFile("fileDiv", 3);
         $("#form-paymentApply-edit").validate({
             focusCleanup: true
         });
 
         function submitHandler() {
             if ($.validate.form()) {
-                $.operate.save(prefix + "/edit", $('#form-paymentApply-edit').serialize());
+                $.operate.save(ctx + "smt/applyRecord/add", $('#form-paymentApply-edit').serialize());
             }
         }
+
+        $("input[name='paymentTime']").datetimepicker({
+            format: "yyyy-mm-dd",
+            minView: "month",
+            autoclose: true
+        });
+
+        //页面加载，如果确认金额和扣款金额有值，则提示
+        function loadCapital() {
+            let a = $("#applyAmount").val();
+            if (a > 0) {
+                $("#bigCapital").html(digitUppercase(a));
+            }
+        }
+
+        //页面加载，回显附件,code(1.对账单附件 2.回传附件)
+        function loadFile(obj, code) {
+            let num = $("#paymentNo").val();
+            $.ajax({
+                    url: ctx + "smt/reconciliation/getFileByNo",
+                    data: {
+                        reconciliationNo: num,
+                        fileType: code
+                    },
+                    type: "post",
+                    success: function (result) {
+                        $("#" + obj).html("");
+                        if (result.length > 0) {
+                            let html = "";
+                            for (let x of result) {
+                                //根据文件路径截取文件名称
+                                let fileNme = x.fileUrl.substr(x.fileUrl.lastIndexOf("/") + 1);
+                                let icon = chooseIcon(x.fileUrl);
+                                html += "<img src='" + icon + "' alt='' style='height: 20%;width: 10%;'>" + "<a  target='_blank' href='" + x.fileUrl + "'>" + fileNme + "</a><br>";
+                            }
+                            $("#" + obj).html(html);
+                        }
+                    }
+                }
+            )
+        }
+
+        //填写对账金额键盘弹起转换金额大写提示
+        function changeBigCapital(obj) {
+            let val = $(obj).val();
+            //如果金额有效并且金额大于0的时候转换
+            if (null != val && val > 0) {
+                let a = digitUppercase(val);
+                $("#bigCapitalPaymentAmount").html(a);
+            } else {
+                $("#bigCapitalPaymentAmount").html("");
+            }
+        }
+
+        //填写对账金额键盘弹起转换金额大写提示
+        function changeBigCapital2(obj) {
+            let val = $(obj).val();
+            //如果金额有效并且金额大于0的时候转换
+            if (null != val && val > 0) {
+                let a = digitUppercase(val);
+                $("#bigCapitalHandFee").html(a);
+            } else {
+                $("#bigCapitalHandFee").html("");
+            }
+        }
+    </script>
+
+
+    <script>
+        layui.use('upload', function () {
+            let upload = layui.upload;
+            let demoListView = $('#demoList');
+            //执行实例
+            var uploadInst = upload.render({
+                elem: '#testList' //绑定元素
+                , url: prefix + "/uploadFile?num="+$("#paymentNo").val()+"&type="+4 //上传接口
+                , accept: 'file'
+                , multiple: true
+                , auto: true
+                , bindAction: '#testListAction'
+                , choose: function (obj) {
+                    var files = this.files = obj.pushFile(); //将每次选择的文件追加到文件队列
+                    //读取本地文件
+                    obj.preview(function (index, file, result) {
+                        var tr = $(['<tr id="upload-' + index + '">'
+                            , '<td>' + file.name + '</td>'
+                            , '<td>' + (file.size / 1024).toFixed(1) + 'kb</td>'
+                            , '<td>等待上传</td>'
+                            // , '<td>'
+                            // , '<button class="layui-btn layui-btn-xs demo-reload layui-hide">重传</button>'
+                            // , '<button class="layui-btn layui-btn-xs layui-btn-danger demo-delete">删除</button>'
+                            // , '</td>'
+                            , '</tr>'].join(''));
+
+                        //单个重传
+                        tr.find('.demo-reload').on('click', function () {
+                            obj.upload(index, file);
+                        });
+
+                        //删除
+                        tr.find('.demo-delete').on('click', function () {
+                            delete files[index]; //删除对应的文件
+                            tr.remove();
+                            uploadListIns.config.elem.next()[0].value = ''; //清空 input file 值，以免删除后出现同名文件不可选
+                        });
+
+                        demoListView.append(tr);
+                    });
+                }
+                , done: function (res, index, upload) {
+                    if (res.code == "0") { //上传成功
+                        var tr = demoListView.find('tr#upload-' + index)
+                            , tds = tr.children();
+                        tds.eq(2).html('<span style="color: #5FB878;">上传成功</span>');
+                        // tds.eq(3).html(''); //清空操作
+                        return delete this.files[index]; //删除文件队列已经上传成功的文件
+                    }
+                    this.error(index, upload);
+                }
+                , error: function (index, upload) {
+                    var tr = demoListView.find('tr#upload-' + index)
+                        , tds = tr.children();
+                    tds.eq(2).html('<span style="color: #FF5722;">上传失败</span>');
+                    tds.eq(3).find('.demo-reload').removeClass('layui-hide'); //显示重传
+                }
+            });
+        });
     </script>
 </body>
 </html>

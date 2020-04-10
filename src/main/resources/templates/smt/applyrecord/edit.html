@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="zh" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <th:block th:include="include :: header('修改应付账目付款记录')"/>
+    <th:block th:include="include :: datetimepicker-css"/>
+</head>
+<body class="white-bg">
+<div class="wrapper wrapper-content animated fadeInRight ibox-content">
+    <form class="form-horizontal m" id="form-applyrecord-edit" th:object="${smtApplyRecord}">
+        <input name="id" th:field="*{id}" type="hidden">
+        <div class="form-group">
+            <label class="col-sm-3 control-label">付款单号：</label>
+            <div class="col-sm-8">
+                <input th:field="*{paymentNo}" id="paymentNo" class="form-control" type="text" readonly>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label class="col-sm-3 control-label"><span style="color: red; ">*</span>付款日期：</label>
+            <div class="col-sm-8">
+                <div class="input-group date">
+                    <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
+                    <input name="paymentTime" th:value="${#dates.format(smtApplyRecord.paymentTime, 'yyyy-MM-dd')}" required class="form-control" placeholder="yyyy-MM-dd" type="text">
+                </div>
+            </div>
+        </div>
+
+        <div class="form-group" style="margin-bottom: 30px;">
+            <label class="col-sm-3 control-label"><span style="color: red; ">*</span>付款金额：</label>
+            <div class="col-sm-3">
+                <input name="paymentAmount" id="paymentAmount" th:field="*{paymentAmount}" required class="form-control" type="text" onkeyup="changeBigCapital(this,'bigCapitalPaymentAmount')">
+            </div>
+            <span class="col-sm-5" style="color: gold;font-size: 18px;height: 34px;line-height: 34px;" id="bigCapitalPaymentAmount"></span>
+        </div>
+        <div class="form-group" style="margin-bottom: 30px;">
+            <label class="col-sm-3 control-label"><span style="color: red; ">*</span>手续费：</label>
+            <div class="col-sm-3">
+                <input name="handFee" id="handFee" th:field="*{handFee}" required class="form-control" type="text" onkeyup="changeBigCapital(this,'bigCapitalHandFee')">
+            </div>
+            <span class="col-sm-5" style="color: gold;font-size: 18px;height: 34px;line-height: 34px;" id="bigCapitalHandFee"></span>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-3 control-label"><span style="color: red; ">*</span>付款方式：</label>
+            <div class="col-sm-8">
+                <select name="paymentWay" class="form-control m-b" required th:with="type=${@dict.getType('smt_payment_way')}">
+                    <option th:each="dict : ${type}" th:text="${dict.dictLabel}" th:value="${dict.dictValue}" th:field="*{paymentWay}"></option>
+                </select>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label class="col-sm-3 control-label"><span style="color: red; ">*</span>对象户名：</label>
+            <div class="col-sm-8">
+                <input name="paymentName" required th:field="*{paymentName}" class="form-control" type="text">
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-3 control-label"><span style="color: red; ">*</span>付款账号：</label>
+            <div class="col-sm-8">
+                <input name="paymentNumber" required th:field="*{paymentNumber}" class="form-control" type="text">
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label class="col-sm-3 control-label">对账附件：</label>
+            <div class="col-sm-8" style="height: auto;padding-left: 10px;" id="fileDiv">
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label class="col-sm-3 control-label">备<span style="margin-right: 26px"></span>注：</label>
+            <div class="col-sm-8">
+                <textarea id="remark" th:field="*{remark}" name="remark" class="form-control"></textarea>
+            </div>
+        </div>
+    </form>
+</div>
+<th:block th:include="include :: footer"/>
+<th:block th:include="include :: datetimepicker-js"/>
+<script type="text/javascript">
+    var prefix = ctx + "smt/applyrecord";
+    //界面回显大写金额
+    loadCapital('paymentAmount','bigCapitalPaymentAmount');
+    loadCapital('handFee','bigCapitalHandFee');
+
+    //回显附件,4 付款申请付款附件
+    loadFile("fileDiv", 4);
+
+    $("#form-applyrecord-edit").validate({
+        focusCleanup: true
+    });
+
+    function submitHandler() {
+        if ($.validate.form()) {
+            $.operate.save(prefix + "/edit", $('#form-applyrecord-edit').serialize());
+        }
+    }
+
+    $("input[name='paymentTime']").datetimepicker({
+        format: "yyyy-mm-dd",
+        minView: "month",
+        autoclose: true
+    });
+
+    //填写金额键盘弹起转换金额大写提示
+    function changeBigCapital(em, obj) {
+        let val = $(em).val();
+        //如果金额有效并且金额大于0的时候转换
+        if (null != val && val > 0) {
+            let a = digitUppercase(val);
+            $("#" + obj).html(a);
+        } else {
+            $("#" + obj).html("");
+        }
+    }
+
+    //页面加载，如果确认金额和扣款金额有值，则提示
+    function loadCapital(em,obj) {
+        let a = $("#"+em).val();
+        if (a > 0) {
+            $("#"+obj).html(digitUppercase(a));
+        }
+    }
+
+    //页面加载，回显附件,code(1.对账单附件 2.回传附件，3付款申请附件 4付款申请付款附件)
+    function loadFile(obj, code) {
+        let num = $("#paymentNo").val();
+        $.ajax({
+            url: ctx + "smt/reconciliation/getFileByNo",
+                data: {
+                    reconciliationNo: num,
+                    fileType: code
+                },
+                type: "post",
+                success: function (result) {
+                    $("#" + obj).html("");
+                    if (result.length > 0) {
+                        let html = "";
+                        for (let x of result) {
+                            //根据文件路径截取文件名称
+                            let fileNme = x.fileUrl.substr(x.fileUrl.lastIndexOf("/") + 1);
+                            let icon = chooseIcon(x.fileUrl);
+                            html += "<img src='" + icon + "' alt='' style='height: 20%;width: 10%;'>" + "<a  target='_blank' href='" + x.fileUrl + "'>" + fileNme + "</a><br>";
+                        }
+                        $("#" + obj).html(html);
+                    }
+                }
+            }
+        )
+    }
+</script>
+</body>
+</html>

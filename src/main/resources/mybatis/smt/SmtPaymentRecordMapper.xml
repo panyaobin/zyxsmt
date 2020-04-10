@@ -21,6 +21,34 @@
         <result property="delFlag" column="del_flag"/>
     </resultMap>
 
+
+    <resultMap type="SmtPaymentRecordVO" id="SmtPaymentRecordVOResult">
+        <result property="id" column="id"/>
+        <result property="reconciliationNo" column="reconciliation_no"/>
+        <result property="paymentAmount" column="payment_amount"/>
+        <result property="paymentWay" column="payment_way"/>
+        <result property="paymentName" column="payment_name"/>
+        <result property="paymentNumber" column="payment_number"/>
+        <result property="paymentTime" column="payment_time"/>
+        <result property="status" column="status"/>
+
+        <result property="cusCode" column="cus_code"/>
+        <result property="reconciliationTime" column="reconciliation_time"/>
+        <result property="feeType" column="fee_type"/>
+        <result property="reconciliationAmount" column="reconciliation_amount"/>
+        <result property="isBack" column="is_back"/>
+        <result property="isSettle" column="is_settle"/>
+        <result property="confirmAmount" column="confirm_amount"/>
+        <result property="deductionAmount" column="deduction_amount"/>
+
+        <result property="createBy" column="create_by"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateBy" column="update_by"/>
+        <result property="updateTime" column="update_time"/>
+        <result property="remark" column="remark"/>
+        <result property="delFlag" column="del_flag"/>
+    </resultMap>
+
     <sql id="selectSmtPaymentRecordVo">
         select id, reconciliation_no, payment_amount, payment_way, payment_name, payment_number, payment_time, status, create_by, create_time, update_by, update_time, remark, del_flag from smt_payment_record
     </sql>
@@ -36,6 +64,41 @@
             <if test="status != null  and status != ''">and status = #{status}</if>
         </where>
     </select>
+
+    <!--查询付款记录表格列表-->
+    <select id="selectSmtPaymentRecordVOList" resultType="com.ruoyi.project.smt.paymentrecord.vo.SmtPaymentRecordVO" resultMap="SmtPaymentRecordVOResult">
+        SELECT
+        record.id,
+        record.reconciliation_no,
+        record.payment_amount,
+        record.payment_way,
+        record.payment_name,
+        record.payment_number,
+        record.payment_time,
+        sr.cus_code,
+        sr.reconciliation_time,
+        sr.fee_type,
+        sr.reconciliation_amount,
+        sr.STATUS,
+        sr.is_back,
+        sr.is_settle,
+        sr.confirm_amount,
+        sr.deduction_amount,
+        record.create_by,
+        record.create_time,
+        record.update_by,
+        record.update_time,
+        record.remark,
+        record.del_flag
+        FROM
+        `smt_payment_record` record
+        LEFT JOIN smt_reconciliation sr ON record.reconciliation_no = sr.reconciliation_no
+        <where>
+            <if test="reconciliationNo != null ">and record.reconciliation_no = #{reconciliationNo}</if>
+            <if test="cusCode != null ">and sr.cus_code = #{cusCode}</if>
+        </where>
+    </select>
+
 
     <select id="selectSmtPaymentRecordById" parameterType="Integer" resultMap="SmtPaymentRecordResult">
         <include refid="selectSmtPaymentRecordVo"/>
@@ -115,6 +178,14 @@
     <delete id="deleteSmtPaymentRecordByIds" parameterType="String">
         delete from smt_payment_record where id in
         <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+
+    <!--根据付款单号删除付款记录-->
+    <delete id="deleteSmtPaymentRecordByPaymentNos" parameterType="String">
+        delete from smt_payment_record where reconciliation_no in
+        <foreach item="id" collection="list" open="(" separator="," close=")">
             #{id}
         </foreach>
     </delete>

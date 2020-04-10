@@ -42,13 +42,22 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="confirmAmount != null "> and confirm_amount = #{confirmAmount}</if>
             <if test="deductionAmount != null "> and deduction_amount = #{deductionAmount}</if>
         </where>
+        order by create_time desc
     </select>
     
     <select id="selectSmtReconciliationById" parameterType="Integer" resultMap="SmtReconciliationResult">
         <include refid="selectSmtReconciliationVo"/>
         where id = #{id}
     </select>
-        
+
+    <!--根据对账单IDs查询对账单号-->
+    <select id="selectSmtReconciliationNoByIds" resultType="java.lang.String">
+        select reconciliation_no from smt_reconciliation where id in
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </select>
+
     <insert id="insertSmtReconciliation" parameterType="SmtReconciliation" useGeneratedKeys="true" keyProperty="id">
         insert into smt_reconciliation
         <trim prefix="(" suffix=")" suffixOverrides=",">

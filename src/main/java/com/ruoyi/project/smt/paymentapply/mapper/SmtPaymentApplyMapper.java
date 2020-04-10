@@ -66,4 +66,12 @@ public interface SmtPaymentApplyMapper
      * @return 结果
      */
     public int deleteSmtPaymentApplyByIds(String[] ids);
+
+    /**
+     * 根据对账单IDs查询对账单号
+     *
+     * @param ids 对账单IDs
+     * @return 结果
+     */
+    public List<String> selectSmtPaymentNoByIds(String[] ids);
 }

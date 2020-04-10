@@ -3,6 +3,16 @@
 <head>
     <th:block th:include="include :: header('付款申请列表')"/>
 </head>
+<style>
+    .selectHeight {
+        height: 34px !important;
+    }
+
+    .inputHeight {
+        line-height: 24px;
+        width: 80px !important;
+    }
+</style>
 <body class="gray-bg">
 <div class="container-div">
     <div class="row">
@@ -11,26 +21,23 @@
                 <div class="select-list">
                     <ul>
                         <li>
-                            <p>收款单位：</p>
-                            <input type="text" name="receiveId"/>
+                            <p class="inputHeight">收款单位：</p>
+                            <select name="receiveId" id="receiveId" class="form-control select2-selection--multiple selectHeight" th:with="reciveList=${@receive.getPaymentInfo()}" onchange="$.table.search()">
+                                <option value="">请选择</option>
+                                <option th:each="r:${reciveList}" th:value="${r.id}" th:text="${r.collectionUnit}"></option>
+                            </select>
                         </li>
+
                         <li>
-                            <p>付款类型：</p>
-                            <select name="paymentType" th:with="type=${@dict.getType('smt_payment_type')}" onchange="$.table.search()">
+                            <p class="inputHeight">付款类型：</p>
+                            <select name="paymentType" class="selectHeight" th:with="type=${@dict.getType('smt_payment_type')}" onchange="$.table.search()">
                                 <option value="">所有</option>
                                 <option th:each="dict : ${type}" th:text="${dict.dictLabel}" th:value="${dict.dictValue}"></option>
                             </select>
                         </li>
                         <li>
-                            <p>是否结清：</p>
-                            <select name="isSettle" th:with="type=${@dict.getType('smt_yes_no')}" onchange="$.table.search()">
-                                <option value="">所有</option>
-                                <option th:each="dict : ${type}" th:text="${dict.dictLabel}" th:value="${dict.dictValue}"></option>
-                            </select>
-                        </li>
-                        <li>
-                            <p>状态：</p>
-                            <select name="status" th:with="type=${@dict.getType('sys_normal_disable')}" onchange="$.table.search()">
+                            <p class="inputHeight">是否结清：</p>
+                            <select name="isSettle" class="selectHeight" th:with="type=${@dict.getType('smt_yes_no')}" onchange="$.table.search()">
                                 <option value="">所有</option>
                                 <option th:each="dict : ${type}" th:text="${dict.dictLabel}" th:value="${dict.dictValue}"></option>
                             </select>
@@ -96,7 +103,7 @@
                     visible: false
                 },
                 {
-                    field: '',
+                    field: 'paymentNo',
                     title: '付款单号'
                 },
 
@@ -113,27 +120,18 @@
                 },
                 {
                     field: 'applyAmount',
-                    title: '申请金额'
+                    title: '申请金额',
+                },
+                {
+                    field: 'paidAmount',
+                    title: '已付金额',
+                }, {
+                    field: 'arrears',
+                    title: '欠款',
                 },
                 {
                     field: 'paymentReason',
                     title: '付款原因'
-                },
-                {
-                    field: 'applyUrl',
-                    title: '申请附件路径'
-                },
-                {
-                    field: 'paymentAmount',
-                    title: '付款金额'
-                },
-                {
-                    field: 'handFee',
-                    title: '手续费'
-                },
-                {
-                    field: 'paymentUrl',
-                    title: '付款附件路径'
                 },
                 {
                     field: 'isSettle',
@@ -142,13 +140,6 @@
                         return value == "0" ? "否" : "是";
                     }
                 },
-                // {
-                //     field: 'status',
-                //     title: '状态',
-                //     formatter: function (value, row, index) {
-                //         return statusTools(row);
-                //     }
-                // },
                 {
                     field: 'createBy',
                     title: '创建者'
@@ -166,8 +157,15 @@
                     align: 'center',
                     formatter: function (value, row, index) {
                         var actions = [];
-                        actions.push('<a class="btn btn-success btn-xs ' + editFlag + '" href="javascript:void(0)" onclick="$.operate.edit(\'' + row.id + '\')"><i class="fa fa-edit"></i>付款</a> ');
-                        actions.push('<a class="btn btn-danger btn-xs ' + removeFlag + '" href="javascript:void(0)" onclick="$.operate.remove(\'' + row.id + '\')"><i class="fa fa-remove"></i>删除</a>');
+                        // actions.push('<a class="btn btn-success btn-xs ' + editFlag + '" href="javascript:void(0)" onclick="$.operate.edit(\'' + row.id + '\')"><i class="fa fa-edit"></i>付款</a> ');
+                        // actions.push('<a class="btn btn-danger btn-xs ' + removeFlag + '" href="javascript:void(0)" onclick="$.operate.remove(\'' + row.id + '\')"><i class="fa fa-remove"></i>删除</a>');
+                        if (row.isSettle == "0") {
+                            actions.push('<a class="btn btn-success btn-xs ' + editFlag + '" href="javascript:void(0)" onclick="$.operate.editApply(\'' + row.id + '\')"><i class="fa fa-plus"></i> 付款添加</a> ');
+                            actions.push('<a class="btn btn-success btn-xs ' + editFlag + '" href="javascript:void(0)" onclick="enable(\'' + row.id + '\')"><i class="fa fa-thumbs-o-up"></i> 清账</a>');
+                        } else {
+                            actions.push('<a class="btn btn-success btn-xs disabled' + editFlag + '" href="javascript:void(0)"><i class="fa fa-plus"></i> 账单已清</a> ');
+                            actions.push('<a class="btn btn-success btn-xs ' + editFlag + '" href="javascript:void(0)" onclick="disable(\'' + row.id + '\')"><i class="fa fa-thumbs-o-down"></i> 取消</a>');
+                        }
                         return actions.join('');
                     }
                 }]
@@ -195,6 +193,20 @@
     function enable(userId) {
         $.modal.confirm("确认要启用吗？", function () {
             $.operate.post(prefix + "/changeStatus", {"id": userId, "status": 0});
+        })
+    }
+
+    /* 付款申请取消结清 */
+    function disable(userId) {
+        $.modal.confirm("确认取消结清此付款申请单？", function () {
+            $.operate.post(prefix + "/changeStatus", {"id": userId, "isSettle": 0});
+        })
+    }
+
+    /* 付款申请结清对账单操作 */
+    function enable(userId) {
+        $.modal.confirm("确认结清此付款单吗？", function () {
+            $.operate.post(prefix + "/changeStatus", {"id": userId, "isSettle": 1});
         })
     }
 </script>

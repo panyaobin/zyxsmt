@@ -77,4 +77,5 @@ public interface ISmtPaymentApplyService
      * @return 结果
      */
     public int changeStatus(SmtPaymentApply apply);
+
 }

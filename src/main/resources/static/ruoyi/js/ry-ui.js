@@ -311,7 +311,6 @@ var table = {
             },
 
 
-
             // 获取实例ID，如存在多个返回#id1,#id2 delimeter分隔符
             getOptionsIds: function (separator) {
                 var _separator = $.common.isEmpty(separator) ? "," : separator;
@@ -502,7 +501,6 @@ var table = {
             search: function (formId, tableId, data) {
                 table.set(tableId);
                 var currentId = $.common.isEmpty(formId) ? $('form').attr('id') : formId;
-                debugger
                 var params = $.common.isEmpty(tableId) ? $("#" + table.options.id).bootstrapTable('getOptions') : $("#" + tableId).bootstrapTable('getOptions');
                 params.queryParams = function (params) {
                     var search = $.common.formToJSON(currentId);
@@ -769,7 +767,6 @@ var table = {
                 var currentId = $.common.isEmpty(formId) ? $('form').attr('id') : formId;
                 $("#" + currentId)[0].reset();
                 if (table.options.type == table_type.bootstrapTable) {
-                    debugger
                     if ($.common.isEmpty(tableId)) {
                         $("#" + table.options.id).bootstrapTable('refresh');
                     } else {
@@ -933,6 +930,51 @@ var table = {
                     }
                 });
             },
+
+            // 客户对账详情弹出层指定宽度
+            openReconciliation: function (title, url, width, height, callback) {
+                //如果是移动端，就使用自适应大小弹窗
+                if (navigator.userAgent.match(/(iPhone|iPod|Android|ios)/i)) {
+                    width = 'auto';
+                    height = 'auto';
+                }
+                if ($.common.isEmpty(title)) {
+                    title = false;
+                }
+                if ($.common.isEmpty(url)) {
+                    url = "/404.html";
+                }
+                if ($.common.isEmpty(width)) {
+                    width = 800;
+                }
+                if ($.common.isEmpty(height)) {
+                    height = ($(window).height() - 50);
+                }
+                if ($.common.isEmpty(callback)) {
+                    callback = function (index, layero) {
+                        var iframeWin = layero.find('iframe')[0];
+                        iframeWin.contentWindow.submitHandler(index, layero);
+                    }
+                }
+                layer.open({
+                    type: 2,
+                    area: [width + 'px', height + 'px'],
+                    fix: false,
+                    //不固定
+                    maxmin: true,
+                    shade: 0.3,
+                    title: title,
+                    content: url,
+                    // btn: ['确定', '关闭'],
+                    // 弹层外区域关闭
+                    shadeClose: true,
+                    yes: callback,
+                    cancel: function (index) {
+                        return true;
+                    }
+                });
+            },
+
             // 弹出层指定参数选项
             openOptions: function (options) {
                 var _url = $.common.isEmpty(options.url) ? "/404.html" : options.url;
@@ -1138,6 +1180,30 @@ var table = {
                     $.operate.submit(url, "post", "json", data);
                 });
             },
+
+            // 批量删除客户对账单信息，状态过滤提示
+            removeAllReconciliation: function () {
+                table.set();
+                var rows = $.common.isEmpty(table.options.uniqueId) ? $.table.selectFirstColumns() : $.table.selectColumns(table.options.uniqueId);
+                if (rows.length == 0) {
+                    $.modal.alertWarning("请至少选择一条记录");
+                    return;
+                }
+                var data = $("#bootstrap-table").bootstrapTable('getSelections');
+                let msg = "";
+                for (let x of data) {
+                    if (x.status == "3") {
+                        msg = "<span style='color: red'>(注意：所选数据中包含状态为3的对账单)</span>";
+                    }
+                }
+                $.modal.confirm("确认要删除选中的" + rows.length + "条数据吗?<br>" + msg, function () {
+                    var url = table.options.removeUrl;
+                    var data = {"ids": rows.join()};
+                    $.operate.submit(url, "post", "json", data);
+                });
+            },
+
+
             // 清空信息
             clean: function () {
                 table.set();
@@ -1146,13 +1212,13 @@ var table = {
                     $.operate.submit(url, "post", "json", "");
                 });
             },
-            // 客户付款清账按钮功能
-            cleanPayment: function (id) {
-                $.modal.confirm("确定对此对账单进行清账操作吗？", function () {
-                    var url = table.options.cleanPaymentUrl+id;
-                    $.operate.submit(url, "get", "json", "");
-                });
-            },
+            // // 客户付款清账按钮功能
+            // cleanPayment: function (id) {
+            //     $.modal.confirm("确定对此对账单进行清账操作吗？", function () {
+            //         var url = table.options.cleanPaymentUrl + id;
+            //         $.operate.submit(url, "get", "json", "");
+            //     });
+            // },
 
             // 新增信息
             add: function (id) {
@@ -1164,16 +1230,20 @@ var table = {
                 $.modal.open("新增" + table.options.modalName, $.operate.addUrl(id), "800", "600");
             },
             //新增对账管理
-            addReconciliation:function(id){
-                $.modal.open("新增" + table.options.modalName, $.operate.addUrl(id), "800", "600");
+            addReconciliation: function (id) {
+                $.modal.open("新增" + table.options.modalName, $.operate.addUrl(id), "800", "750");
             },
             //回传对账管理
-            editReconciliation:function(id){
-                $.modal.open("回传", $.operate.editUrl(id), "800", "600");
+            editReconciliation: function (id) {
+                $.modal.open("回传", $.operate.editUrl(id), "800", "750");
             },
             //回传对账管理
-            auditReconciliation:function(id){
-                $.modal.open("审核", $.operate.auditUrl(id), "800", "600");
+            auditReconciliation: function (id, obj) {
+                if (obj == "0") {
+                    $.modal.openReconciliation("查看", $.operate.auditUrl(id), "800", "600");
+                } else {
+                    $.modal.open("审核", $.operate.auditUrl(id), "800", "600");
+                }
             },
 
             // 新增bom信息
@@ -1217,22 +1287,32 @@ var table = {
                     $.modal.open("修改" + table.options.modalName, $.operate.editUrl(id));
                 }
             },
+
+            //修改应付收款记录
+            editApplyRecord: function (id) {
+                $.modal.open("修改" + table.options.modalName, $.operate.editUrl(id), "800", "600");
+            },
+
             // 修改付款信息
             editPaymentInfo: function (id) {
-                $.modal.open("修改" + table.options.modalName, $.operate.editUrl(id),"800","600");
+                $.modal.open("修改" + table.options.modalName, $.operate.editUrl(id), "800", "600");
             },
 
             // 修改付款记录信息
             editPaymentRecord: function (id) {
-                $.modal.open("修改" + table.options.modalName, $.operate.editUrl(id),"800","600");
+                $.modal.open("修改" + table.options.modalName, $.operate.editUrl(id), "800", "600");
             },
             // 修改电子料
             editDzl: function (id) {
-                $.modal.open("修改" + table.options.modalName, $.operate.editUrl(id),"800","600");
+                $.modal.open("修改" + table.options.modalName, $.operate.editUrl(id), "800", "600");
             },
             // 修改收款信息
             editPayment: function (id) {
-                $.modal.open("新增客户付款", $.operate.editUrl(id),"800","600");
+                $.modal.open("添加客户付款", $.operate.editUrl(id), "800", "600");
+            },
+            // 修改付款申请信息
+            editApply: function (id) {
+                $.modal.open("添加付款", $.operate.editUrl(id), "800", "750");
             },
 
 
@@ -1303,7 +1383,6 @@ var table = {
 
             // 审核访问地址
             auditUrl: function (id) {
-                debugger
                 var url = "/404.html";
                 if ($.common.isNotEmpty(id)) {
                     url = table.options.auditUrl.replace("{id}", id);
@@ -1315,7 +1394,6 @@ var table = {
                     }
                     url = table.options.auditUrl.replace("{id}", id);
                 }
-                console.log("sadasadsasdsad"+url)
                 return url;
             },
 
@@ -1796,3 +1874,62 @@ modal_status = {
     FAIL: "error",
     WARNING: "warning"
 };
+
+/**
+ * js金额转换大写
+ * @param price       需要转转的金额
+ * @returns {string} 返回大写字符串
+ */
+function digitUppercase(price) {
+    const fraction = ['角', '分'];
+    const digit = ['零', '壹', '贰', '叁', '肆', '伍', '陆', '柒', '捌', '玖'];
+    const unit = [
+        ['元', '万', '亿'],
+        ['', '拾', '佰', '仟'],
+    ];
+    let num = Math.abs(price);
+    let s = '';
+    fraction.forEach((item, index) => {
+        s += (digit[Math.floor(num * 10 * (10 ** index)) % 10] + item).replace(/零./, '');
+    });
+    s = s || '整';
+    num = Math.floor(num);
+    for (let i = 0; i < unit[0].length && num > 0; i += 1) {
+        let p = '';
+        for (let j = 0; j < unit[1].length && num > 0; j += 1) {
+            p = digit[num % 10] + unit[1][j] + p;
+            num = Math.floor(num / 10);
+        }
+        s = p.replace(/(零.)*零$/, '').replace(/^$/, '零') + unit[0][i] + s;
+    }
+
+    return s.replace(/(零.)*零元/, '元').replace(/(零.)+/g, '零').replace(/^整$/, '零元整');
+}
+
+/**
+ * 根据后缀选择图标
+ */
+function chooseIcon(obj) {
+    let icon = "";
+    //获取最后一个.的位置
+    let index = obj.lastIndexOf(".");
+    //获取后缀
+    let ext = obj.substr(index + 1);
+    if (ext == "xlsx" || ext == "xls") {
+        //如果是excel
+        icon = "../../../img/smt/excel.png";
+    } else if (ext == "doc" || ext == "docx") {
+        //如果是word
+        icon = "../../../img/smt/word.gif";
+    } else if (ext == "gif" || ext == "jpg" || ext == "jpeg" || ext == "png") {
+        //如果是图片
+        icon = "../../../img/smt/photo.gif";
+    } else if (ext == "pdf") {
+        //如果是pdf
+        icon = "../../../img/smt/pdf.gif";
+    } else {
+        //如果都不是以上几种，显示默认图
+        icon = "../../../img/smt/unknow.gif";
+    }
+    return icon;
+}

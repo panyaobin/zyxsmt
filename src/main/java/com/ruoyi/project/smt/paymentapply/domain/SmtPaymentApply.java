@@ -3,6 +3,9 @@ package com.ruoyi.project.smt.paymentapply.domain;
 import com.ruoyi.framework.aspectj.lang.annotation.Excel;
 import com.ruoyi.framework.web.domain.BaseEntity;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
+
+import java.math.BigDecimal;
 
 /**
  * 付款申请对象 smt_payment_apply
@@ -11,12 +14,17 @@ import lombok.Data;
  * @date 2020-04-06
  */
 @Data
+@EqualsAndHashCode(callSuper = false)
 public class SmtPaymentApply extends BaseEntity
 {
     private static final long serialVersionUID = 1L;
 
     /** 序号 */
     private Integer id;
+
+    /** 付款单号 */
+    @Excel(name = "付款单号")
+    private Integer paymentNo;
 
     /** 收款单位 */
     @Excel(name = "收款单位")
@@ -28,27 +36,11 @@ public class SmtPaymentApply extends BaseEntity
 
     /** 申请金额 */
     @Excel(name = "申请金额")
-    private Double applyAmount;
+    private BigDecimal applyAmount;
 
     /** 付款原因 */
     @Excel(name = "付款原因")
     private String paymentReason;
-
-    /** 申请附件路径 */
-    @Excel(name = "申请附件路径")
-    private String applyUrl;
-
-    /** 付款金额 */
-    @Excel(name = "付款金额")
-    private Double paymentAmount;
-
-    /** 手续费 */
-    @Excel(name = "手续费")
-    private Double handFee;
-
-    /** 付款附件路径 */
-    @Excel(name = "付款附件路径")
-    private String paymentUrl;
 
     /** 是否结清(0未结清 1已结清) */
     @Excel(name = "是否结清(0未结清 1已结清)")
@@ -77,5 +69,15 @@ public class SmtPaymentApply extends BaseEntity
      * 开户银行
      */
     private String accountBank;
+
+    /**
+     * 已付金额
+     */
+    private BigDecimal paidAmount;
+
+    /**
+     * 欠款
+     */
+    private BigDecimal arrears;
 
 }

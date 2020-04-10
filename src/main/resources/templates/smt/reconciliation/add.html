@@ -4,6 +4,8 @@
     <th:block th:include="include :: header('新增对账管理')"/>
     <th:block th:include="include :: datetimepicker-css"/>
     <th:block th:include="include :: bootstrap-fileinput-css"/>
+
+    <link href="../../../layui/css/layui.css" type="text/css" rel="stylesheet"/>
     <style>
         .file-preview {
             width: 88% !important;
@@ -16,13 +18,13 @@
 <div class="wrapper wrapper-content animated fadeInRight ibox-content">
     <form class="form-horizontal m" id="form-reconciliation-add">
         <div class="form-group">
-            <label class="col-sm-3 control-label">对账单号：</label>
+            <label class="col-sm-3 control-label"><span style="color: red; ">*</span>对账单号：</label>
             <div class="col-sm-8">
                 <input name="reconciliationNo" id="autoReconciliationNo" class="form-control" type="text" readonly>
             </div>
         </div>
         <div class="form-group">
-            <label class="col-sm-3 control-label">客户名称：</label>
+            <label class="col-sm-3 control-label"><span style="color: red; ">*</span>客户名称：</label>
             <div class="col-sm-6" style="height: 35px;">
                 <select name="cusCode" style="margin-bottom: 0px!important;" onchange="changeCode(this)" id="cusCode" class="form-control select2-selection--multiple" th:with="cusList=${@cus.getCus()}" required>
                     <option value="">请选择</option>
@@ -34,38 +36,57 @@
             </div>
         </div>
         <div class="form-group">
-            <label class="col-sm-3 control-label">账单月份：</label>
+            <label class="col-sm-3 control-label"><span style="color: red; ">*</span>账单月份：</label>
             <div class="col-sm-8">
                 <div class="input-group date">
                     <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
-                    <input name="reconciliationTime" class="form-control" placeholder="yyyy-MM" type="text">
+                    <input name="reconciliationTime" class="form-control" placeholder="yyyy-MM" type="text" required>
                 </div>
             </div>
         </div>
         <div class="form-group">
-            <label class="col-sm-3 control-label">费用类型：</label>
+            <label class="col-sm-3 control-label"><span style="color: red; ">*</span>费用类型：</label>
             <div class="col-sm-8">
-                <select name="feeType" class="form-control m-b" th:with="type=${@dict.getType('smt_fee_type')}">
+                <select name="feeType" required class="form-control m-b" th:with="type=${@dict.getType('smt_fee_type')}">
+                    <option value="">请选择</option>
                     <option th:each="dict : ${type}" th:text="${dict.dictLabel}" th:value="${dict.dictValue}"></option>
                 </select>
             </div>
         </div>
         <div class="form-group">
-            <label class="col-sm-3 control-label">对账金额：</label>
+            <label class="col-sm-3 control-label"><span style="color: red; ">*</span>对账金额：</label>
+            <div class="col-sm-3">
+                <input name="reconciliationAmount" class="form-control" type="number" required onkeyup="changeBigCapital(this)">
+            </div>
+            <span class="col-sm-5" style="color: gold;font-size: 18px;height: 34px;line-height: 34px;" id="bigCapital"></span>
+        </div>
+
+        <div class="form-group" style="margin-bottom: 0px!important;">
+            <label class="col-sm-3 control-label">附<span style="margin-right: 26px"></span>件：</label>
             <div class="col-sm-8">
-                <input name="reconciliationAmount" class="form-control" type="number" required>
+                <button type="button" class="layui-btn layui-btn-normal col-sm-4" id="testList">选择文件</button>
             </div>
         </div>
-        <!--<div class="form-group" style="margin-left: 145px">-->
-            <!--<label class="font-noraml">附件：</label>-->
-            <!--<div class="file-loading">-->
-                <!--<input id="fileinput-demo-1" type="file" multiple>-->
-            <!--</div>-->
-        <!--</div>-->
+
         <div class="form-group">
-            <label class="col-sm-3 control-label">备注：</label>
+            <div class="layui-upload-list" style="width: 76%;margin-left: 14%">
+                <table class="layui-table">
+                    <thead>
+                    <tr>
+                        <th style="width: 50%">文件名</th>
+                        <th>大小</th>
+                        <th>状态</th>
+                    </tr>
+                    </thead>
+                    <tbody id="demoList"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label class="col-sm-3 control-label">备<span style="margin-right: 26px"></span>注：</label>
             <div class="col-sm-8">
-                <textarea id="remark" name="remark" class="form-control" style="height: 100px;"></textarea>
+                <textarea id="remark" name="remark" class="form-control"></textarea>
             </div>
         </div>
     </form>
@@ -73,8 +94,11 @@
 <th:block th:include="include :: footer"/>
 <th:block th:include="include :: datetimepicker-js"/>
 <th:block th:include="include :: bootstrap-fileinput-js"/>
+
 <script type="text/javascript">
-    var prefix = ctx + "smt/reconciliation"
+    var prefix = ctx + "smt/reconciliation";
+    //生成对账单号
+    GenerateReconciliationNo();
     $("#form-reconciliation-add").validate({
         focusCleanup: true
     });
@@ -101,17 +125,17 @@
         initialPreviewAsData: true,
     });
 
-    //新增页面打开，自动生成对账单号，生成规则为系统当前时间（年月日时分秒）
-    var date = new Date();
-    this.year = date.getFullYear();
-    this.month = date.getMonth() + 1;
-    this.day = date.getDate()< 10 ? "0" + date.getDate() : date.getDate();;
-    this.hour = date.getHours() < 10 ? "0" + date.getHours() : date.getHours();
-    this.minute = date.getMinutes() < 10 ? "0" + date.getMinutes() : date.getMinutes();
-    this.second = date.getSeconds() < 10 ? "0" + date.getSeconds() : date.getSeconds();
-    this.milliSeconds = date.getMilliseconds();
-    var currentTime = this.year+''+this.month + '' + this.day + '' + this.hour + '' + this.minute + '' + this.second + '' + this.milliSeconds;
-    document.getElementById("autoReconciliationNo").value = currentTime;
+    //页面打开获取现在客户对账单号，如果没有初始化第一位，有则递增
+    function GenerateReconciliationNo() {
+        $.ajax({
+            url: prefix + "/getMaxReconciliationNo",
+            type: "post",
+            success: function (result) {
+                document.getElementById("autoReconciliationNo").value = result;
+            }
+        })
+    }
+
 
     //切换客户名称
     function changeCode(obj) {
@@ -119,6 +143,79 @@
         document.getElementById("code").value = code;
     }
 
+    //填写对账金额键盘弹起转换金额大写提示
+    function changeBigCapital(obj) {
+        let val = $(obj).val();
+        //如果金额有效并且金额大于0的时候转换
+        if (null != val && val > 0) {
+            let a = digitUppercase(val);
+            $("#bigCapital").html(a);
+        } else {
+            $("#bigCapital").html("");
+        }
+    }
+
+</script>
+
+<script>
+    layui.use('upload', function () {
+        let upload = layui.upload;
+        let demoListView = $('#demoList');
+        //执行实例
+        var uploadInst = upload.render({
+            elem: '#testList' //绑定元素
+            , url: prefix + "/uploadFile?num="+$("#autoReconciliationNo").val()+"&type="+1 //上传接口
+            , accept: 'file'
+            , multiple: true
+            , auto: true
+            , bindAction: '#testListAction'
+            , choose: function (obj) {
+                var files = this.files = obj.pushFile(); //将每次选择的文件追加到文件队列
+                //读取本地文件
+                obj.preview(function (index, file, result) {
+                    var tr = $(['<tr id="upload-' + index + '">'
+                        , '<td>' + file.name + '</td>'
+                        , '<td>' + (file.size / 1024).toFixed(1) + 'kb</td>'
+                        , '<td>等待上传</td>'
+                        // , '<td>'
+                        // , '<button class="layui-btn layui-btn-xs demo-reload layui-hide">重传</button>'
+                        // , '<button class="layui-btn layui-btn-xs layui-btn-danger demo-delete">删除</button>'
+                        // , '</td>'
+                        , '</tr>'].join(''));
+
+                    //单个重传
+                    tr.find('.demo-reload').on('click', function () {
+                        obj.upload(index, file);
+                    });
+
+                    //删除
+                    tr.find('.demo-delete').on('click', function () {
+                        delete files[index]; //删除对应的文件
+                        tr.remove();
+                        uploadListIns.config.elem.next()[0].value = ''; //清空 input file 值，以免删除后出现同名文件不可选
+                    });
+
+                    demoListView.append(tr);
+                });
+            }
+            , done: function (res, index, upload) {
+                if (res.code == "0") { //上传成功
+                    var tr = demoListView.find('tr#upload-' + index)
+                        , tds = tr.children();
+                    tds.eq(2).html('<span style="color: #5FB878;">上传成功</span>');
+                    // tds.eq(3).html(''); //清空操作
+                    return delete this.files[index]; //删除文件队列已经上传成功的文件
+                }
+                this.error(index, upload);
+            }
+            , error: function (index, upload) {
+                var tr = demoListView.find('tr#upload-' + index)
+                    , tds = tr.children();
+                tds.eq(2).html('<span style="color: #FF5722;">上传失败</span>');
+                tds.eq(3).find('.demo-reload').removeClass('layui-hide'); //显示重传
+            }
+        });
+    });
 </script>
 </body>
 </html>

@@ -5,6 +5,7 @@ import java.util.List;
 
 import com.ruoyi.common.utils.StringUtils;
 import com.ruoyi.common.utils.security.ShiroUtils;
+import com.ruoyi.project.smt.paymentrecord.vo.SmtPaymentRecordVO;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -49,9 +50,9 @@ public class SmtPaymentRecordController extends BaseController {
     @RequiresPermissions("smt:paymentRecord:list")
     @PostMapping("/list")
     @ResponseBody
-    public TableDataInfo list(SmtPaymentRecord smtPaymentRecord) {
+    public TableDataInfo list(SmtPaymentRecordVO vo) {
         startPage();
-        List<SmtPaymentRecord> list = smtPaymentRecordService.selectSmtPaymentRecordList(smtPaymentRecord);
+        List<SmtPaymentRecordVO> list = smtPaymentRecordService.selectSmtPaymentRecordVOList(vo);
         return getDataTable(list);
     }
 

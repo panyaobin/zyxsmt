@@ -2,10 +2,19 @@
 <html lang="zh" xmlns:th="http://www.thymeleaf.org">
 <head>
     <th:block th:include="include :: header('新增付款申请')"/>
+    <link href="../../../layui/css/layui.css" type="text/css" rel="stylesheet"/>
 </head>
 <body class="white-bg">
 <div class="wrapper wrapper-content animated fadeInRight ibox-content">
     <form class="form-horizontal m" id="form-paymentApply-add">
+
+        <div class="form-group">
+            <label class="col-sm-3 control-label"><span style="color: red; ">*</span>付款单号：</label>
+            <div class="col-sm-8">
+                <input name="paymentNo" id="autoPaymentNo" class="form-control" type="text" readonly>
+            </div>
+        </div>
+
         <div class="form-group">
             <label class="col-sm-3 control-label"><span style="color: red; ">*</span>收款单位：</label>
             <div class="col-sm-5">
@@ -45,11 +54,12 @@
                 </select>
             </div>
         </div>
-        <div class="form-group">
+        <div class="form-group" style="margin-bottom: 30px;">
             <label class="col-sm-3 control-label"><span style="color: red; ">*</span>金<span style="margin-right: 26px"></span>额：</label>
-            <div class="col-sm-8">
-                <input name="applyAmount" class="form-control" type="number" required>
+            <div class="col-sm-3">
+                <input name="applyAmount" class="form-control" type="number" required onkeyup="changeBigCapital(this)">
             </div>
+            <span class="col-sm-5" style="color: gold;font-size: 18px;height: 34px;line-height: 34px;" id="bigCapital"></span>
         </div>
         <div class="form-group">
             <label class="col-sm-3 control-label">付款原因：</label>
@@ -57,12 +67,29 @@
                 <input name="paymentReason" class="form-control" type="text">
             </div>
         </div>
-        <div class="form-group">
-            <label class="col-sm-3 control-label">附件回执：</label>
+
+        <div class="form-group" style="margin-bottom: 0px!important;">
+            <label class="col-sm-3 control-label">附<span style="margin-right: 26px"></span>件：</label>
             <div class="col-sm-8">
-                <input name="" class="form-control" type="text">
+                <button type="button" class="layui-btn layui-btn-normal col-sm-4" id="testList">选择文件</button>
             </div>
         </div>
+
+        <div class="form-group">
+            <div class="layui-upload-list" style="width: 76%;margin-left: 14%">
+                <table class="layui-table">
+                    <thead>
+                    <tr>
+                        <th style="width: 50%">文件名</th>
+                        <th>大小</th>
+                        <th>状态</th>
+                    </tr>
+                    </thead>
+                    <tbody id="demoList"></tbody>
+                </table>
+            </div>
+        </div>
+
         <div class="form-group">
             <label class="col-sm-3 control-label">备<span style="margin-right: 26px"></span>注：</label>
             <div class="col-sm-8">
@@ -74,7 +101,9 @@
 </div>
 <th:block th:include="include :: footer"/>
 <script type="text/javascript">
-    var prefix = ctx + "smt/paymentApply"
+    var prefix = ctx + "smt/paymentApply";
+    //自动生成付款申请单号
+    GeneratePaymentNo();
     $("#form-paymentApply-add").validate({
         focusCleanup: true
     });
@@ -107,6 +136,92 @@
             $("#accountBank").val("");
         }
     }
+
+    //页面打开获取现在客户对账单号，如果没有初始化第一位，有则递增
+    function GeneratePaymentNo() {
+        $.ajax({
+            url: prefix + "/getMaxPaymentNo",
+            type: "post",
+            success: function (result) {
+                document.getElementById("autoPaymentNo").value = result;
+            }
+        })
+    }
+
+    //填写对账金额键盘弹起转换金额大写提示
+    function changeBigCapital(obj) {
+        let val = $(obj).val();
+        //如果金额有效并且金额大于0的时候转换
+        if (null != val && val > 0) {
+            let a = digitUppercase(val);
+            $("#bigCapital").html(a);
+        } else {
+            $("#bigCapital").html("");
+        }
+    }
+</script>
+
+<script>
+    layui.use('upload', function () {
+        let upload = layui.upload;
+        let demoListView = $('#demoList');
+        //执行实例
+        var uploadInst = upload.render({
+            elem: '#testList' //绑定元素
+            , url: prefix + "/uploadFile?num="+document.getElementById("autoPaymentNo").value+"&type="+3 //上传接口
+            , accept: 'file'
+            , multiple: true
+            , auto: true
+            , bindAction: '#testListAction'
+            , choose: function (obj) {
+                var files = this.files = obj.pushFile(); //将每次选择的文件追加到文件队列
+                //读取本地文件
+                obj.preview(function (index, file, result) {
+                    var tr = $(['<tr id="upload-' + index + '">'
+                        , '<td>' + file.name + '</td>'
+                        , '<td>' + (file.size / 1024).toFixed(1) + 'kb</td>'
+                        , '<td>等待上传</td>'
+                        // , '<td>'
+                        // , '<button class="layui-btn layui-btn-xs demo-reload layui-hide">重传</button>'
+                        // , '<button class="layui-btn layui-btn-xs layui-btn-danger demo-delete">删除</button>'
+                        // , '</td>'
+                        , '</tr>'].join(''));
+
+                    //单个重传
+                    tr.find('.demo-reload').on('click', function () {
+                        obj.upload(index, file);
+                    });
+
+                    //删除
+                    tr.find('.demo-delete').on('click', function () {
+                        delete files[index]; //删除对应的文件
+                        tr.remove();
+                        uploadListIns.config.elem.next()[0].value = ''; //清空 input file 值，以免删除后出现同名文件不可选
+                    });
+
+                    demoListView.append(tr);
+                });
+            }
+            , done: function (res, index, upload) {
+                debugger
+                console.log("文件上传返回信息："+res)
+                if (res.code == "0") { //上传成功
+                    var tr = demoListView.find('tr#upload-' + index)
+                        , tds = tr.children();
+                    tds.eq(2).html('<span style="color: #5FB878;">上传成功</span>');
+                    // tds.eq(3).html(''); //清空操作
+                    return delete this.files[index]; //删除文件队列已经上传成功的文件
+                }
+                this.error(index, upload);
+            }
+            , error: function (index, upload) {
+                var tr = demoListView.find('tr#upload-' + index)
+                    , tds = tr.children();
+                tds.eq(2).html('<span style="color: #FF5722;">上传失败</span>');
+                tds.eq(3).find('.demo-reload').removeClass('layui-hide'); //显示重传
+            }
+        });
+    });
 </script>
 </body>
 </html>

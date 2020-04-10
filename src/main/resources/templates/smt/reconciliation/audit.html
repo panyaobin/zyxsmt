@@ -23,11 +23,14 @@
         </div>
         <div class="form-group">
             <label class="col-sm-3 control-label">客户代码：</label>
-            <div class="col-sm-8">
+            <div class="col-sm-6">
                 <select name="cusCode" disabled="disabled" id="cusCode" class="form-control select2-selection--multiple" th:with="cusList=${@cus.getCus()}" required>
                     <option value="">===请选择===</option>
                     <option th:each="c:${cusList}" th:value="${c.cusCode}" th:text="${c.cusName}" th:selected="${smtReconciliation.cusCode eq c.cusCode}"></option>
                 </select>
+            </div>
+            <div class="col-sm-2" style="height: 35px;">
+                <input class="form-control" th:field="*{cusCode}" type="text" id="code" readonly>
             </div>
         </div>
         <div class="form-group">
@@ -51,18 +54,18 @@
         </div>
         <div class="form-group">
             <label class="col-sm-3 control-label">对账金额：</label>
-            <div class="col-sm-8">
-                <input name="reconciliationAmount" readonly th:field="*{reconciliationAmount}" class="form-control" type="number">
+            <div class="col-sm-3">
+                <input name="reconciliationAmount" id="reconciliationAmount" readonly th:field="*{reconciliationAmount}" class="form-control" type="number">
+            </div>
+            <span class="col-sm-5" style="color: gold;font-size: 18px;height: 34px;line-height: 34px;" id="bigCapital3"></span>
+        </div>
+        <div class="form-group">
+            <label class="col-sm-3 control-label">对账附件：</label>
+            <div class="col-sm-8" style="height: auto;padding-left: 10px;" id="fileDiv">
             </div>
         </div>
         <div class="form-group">
-            <label class="col-sm-3 control-label">附件：</label>
-            <div class="col-sm-8">
-                <input type="text">
-            </div>
-        </div>
-        <div class="form-group">
-            <label class="col-sm-3 control-label">对账单审核：</label>
+            <label class="col-sm-3 control-label">对账审核：</label>
             <div class="col-sm-8">
                 <input type="checkbox" class="checkboxSize" id="zhangAudit" th:checked="${smtReconciliation.status == '1' ||smtReconciliation.status == '3'}">
             </div>
@@ -70,7 +73,7 @@
 
 
         <div class="form-group">
-            <label class="col-sm-3 control-label">回传：</label>
+            <label class="col-sm-3 control-label">是否回传：</label>
             <div class="col-sm-8">
                 <input type="hidden" name="isBack" id="isBack">
                 <input type="checkbox" disabled class="checkboxSize" id="backValue" th:checked="${smtReconciliation.isBack == '1' ? true : false}">
@@ -78,27 +81,28 @@
         </div>
 
         <div class="form-group">
-            <label class="col-sm-3 control-label">客户确认金额：</label>
-            <div class="col-sm-8">
-                <input name="confirmAmount" th:field="*{confirmAmount}" readonly class="form-control" type="number">
+            <label class="col-sm-3 control-label">确认金额：</label>
+            <div class="col-sm-3">
+                <input name="confirmAmount" id="confirmAmount" th:field="*{confirmAmount}" readonly class="form-control" type="number">
             </div>
+            <span class="col-sm-5" style="color: gold;font-size: 18px;height: 34px;line-height: 34px;" id="bigCapital"></span>
         </div>
         <div class="form-group">
             <label class="col-sm-3 control-label">扣款金额：</label>
-            <div class="col-sm-8">
-                <input name="deductionAmount" th:field="*{deductionAmount}" readonly class="form-control" type="number">
+            <div class="col-sm-3">
+                <input name="deductionAmount" id="deductionAmount" th:field="*{deductionAmount}" readonly class="form-control" type="number">
+            </div>
+            <span class="col-sm-5" style="color: gold;font-size: 18px;height: 34px;line-height: 34px;" id="bigCapital2"></span>
+        </div>
+
+        <div class="form-group">
+            <label class="col-sm-3 control-label">回传附件：</label>
+            <div class="col-sm-8" style="height: auto;padding-left: 10px;" id="fileDiv2">
             </div>
         </div>
 
         <div class="form-group">
-            <label class="col-sm-3 control-label">附件上传（对个）：</label>
-            <div class="col-sm-8">
-                <input type="text">
-            </div>
-        </div>
-
-        <div class="form-group">
-            <label class="col-sm-3 control-label">备注：</label>
+            <label class="col-sm-3 control-label">备<span style="margin-right: 26px"></span>注：</label>
             <div class="col-sm-8">
                 <textarea id="remark" th:field="*{remark}" readonly name="remark" class="form-control"></textarea>
             </div>
@@ -115,6 +119,15 @@
 <th:block th:include="include :: datetimepicker-js"/>
 <script type="text/javascript">
     var prefix = ctx + "smt/reconciliation";
+    //回显金额大写
+    loadCapital();
+
+    //回显附件,1.对账单 2.回传
+    loadFile("fileDiv", 1);
+    loadFile("fileDiv2", 2);
+
+
+
     $("#form-reconciliation-edit").validate({
         focusCleanup: true
     });
@@ -149,6 +162,50 @@
             $.operate.save(prefix + "/edit", $('#form-reconciliation-edit').serialize());
         }
     }
+
+    //页面加载，如果确认金额和扣款金额有值，则提示
+    function loadCapital() {
+        let a = $("#confirmAmount").val();
+        let b = $("#deductionAmount").val();
+        let c = $("#reconciliationAmount").val();
+        if (a > 0) {
+            $("#bigCapital").html(digitUppercase(a));
+        }
+        if (b > 0) {
+            $("#bigCapital2").html(digitUppercase(b));
+        }
+        if (c > 0) {
+            $("#bigCapital3").html(digitUppercase(c));
+        }
+    }
+
+    //页面加载，回显附件,code(1.对账单附件 2.回传附件)
+    function loadFile(obj, code) {
+        let num = $("#reconciliationNo").val();
+        $.ajax({
+                url: prefix + "/getFileByNo",
+                data: {
+                    reconciliationNo: num,
+                    fileType: code
+                },
+                type: "post",
+                success: function (result) {
+                    $("#" + obj).html("");
+                    if (result.length > 0) {
+                        let html = "";
+                        for (let x of result) {
+                            //根据文件路径截取文件名称
+                            let fileNme = x.fileUrl.substr(x.fileUrl.lastIndexOf("/") + 1);
+                            let icon = chooseIcon(x.fileUrl);
+                            html += "<img src='" + icon + "' alt='' style='height: 20%;width: 10%;'>" + "<a  target='_blank' href='" + x.fileUrl + "'>" + fileNme + "</a><br>";
+                        }
+                        $("#" + obj).html(html);
+                    }
+                }
+            }
+        )
+    }
+
 </script>
 </body>
 </html>

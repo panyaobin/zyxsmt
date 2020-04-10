@@ -10,6 +10,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import com.ruoyi.common.utils.file.FileUploadUtils;
+import com.ruoyi.framework.config.RuoYiConfig;
 import com.ruoyi.project.smt.bom.domain.SmtBom;
 import com.ruoyi.project.smt.bom.service.ISmtBomService;
 import com.ruoyi.project.smt.cus.domain.SmtCus;
@@ -18,6 +20,8 @@ import com.ruoyi.project.smt.dzl.domain.SmtDzl;
 import com.ruoyi.project.smt.dzl.service.ISmtDzlService;
 import com.ruoyi.project.smt.paymentrecord.domain.SmtPaymentRecord;
 import com.ruoyi.project.smt.paymentrecord.service.ISmtPaymentRecordService;
+import com.ruoyi.project.smt.reconciliationfile.domain.SmtReconciliationFile;
+import com.ruoyi.project.smt.reconciliationfile.service.ISmtReconciliationFileService;
 import com.ruoyi.project.system.config.domain.Config;
 import com.ruoyi.project.system.config.service.IConfigService;
 import net.sf.jasperreports.engine.JRDataSource;
@@ -27,7 +31,7 @@ import org.apache.poi.ss.formula.functions.T;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.WebDataBinder;
-import org.springframework.web.bind.annotation.InitBinder;
+import org.springframework.web.bind.annotation.*;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import com.ruoyi.common.utils.DateUtils;
@@ -40,6 +44,7 @@ import com.ruoyi.framework.web.page.PageDomain;
 import com.ruoyi.framework.web.page.TableDataInfo;
 import com.ruoyi.framework.web.page.TableSupport;
 import com.ruoyi.project.system.user.domain.User;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletResponse;
 
@@ -61,6 +66,9 @@ public class BaseController {
 
     @Autowired
     private IConfigService iConfigService;
+
+    @Autowired
+    private ISmtReconciliationFileService smtReconciliationFileService;
 
 
 
@@ -260,4 +268,5 @@ public class BaseController {
             e.printStackTrace();
         }
     }
+
 }

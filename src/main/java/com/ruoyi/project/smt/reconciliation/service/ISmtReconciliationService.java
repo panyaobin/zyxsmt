@@ -58,4 +58,12 @@ public interface ISmtReconciliationService
      * @return 结果
      */
     public int deleteSmtReconciliationById(Integer id);
+
+    /**
+     * 客户对账单结清操作
+     *
+     * @param reconciliation 客户对账单
+     * @return 结果
+     */
+    public int changeStatus(SmtReconciliation reconciliation);
 }

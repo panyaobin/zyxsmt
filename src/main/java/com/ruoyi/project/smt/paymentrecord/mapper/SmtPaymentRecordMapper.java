@@ -1,6 +1,7 @@
 package com.ruoyi.project.smt.paymentrecord.mapper;
 
 import com.ruoyi.project.smt.paymentrecord.domain.SmtPaymentRecord;
+import com.ruoyi.project.smt.paymentrecord.vo.SmtPaymentRecordVO;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -29,6 +30,14 @@ public interface SmtPaymentRecordMapper
      * @return 付款记录集合
      */
     public List<SmtPaymentRecord> selectSmtPaymentRecordList(SmtPaymentRecord smtPaymentRecord);
+
+    /**
+     * 查询付款记录表格列表
+     *
+     * @param vo 付款记录
+     * @return 付款记录集合
+     */
+    public List<SmtPaymentRecordVO> selectSmtPaymentRecordVOList(SmtPaymentRecordVO vo);
 
     /**
      * 新增付款记录
@@ -66,5 +75,13 @@ public interface SmtPaymentRecordMapper
      * 对账单号查询所有客户付款汇总付款金额
      * @return
      */
-    BigDecimal selectSumPaymentAmount(Long id);
+    BigDecimal selectSumPaymentAmount(Integer id);
+
+    /**
+     * 根据付款单号删除付款记录
+     *
+     * @param ids 需要删除的数据ID
+     * @return 结果
+     */
+    public int deleteSmtPaymentRecordByPaymentNos(List<String> ids);
 }

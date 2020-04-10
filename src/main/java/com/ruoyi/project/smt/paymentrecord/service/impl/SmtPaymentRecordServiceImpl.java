@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Map;
 
 import com.ruoyi.common.utils.DateUtils;
+import com.ruoyi.project.smt.paymentrecord.vo.SmtPaymentRecordVO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import com.ruoyi.project.smt.paymentrecord.mapper.SmtPaymentRecordMapper;
@@ -46,6 +47,11 @@ public class SmtPaymentRecordServiceImpl implements ISmtPaymentRecordService
     public List<SmtPaymentRecord> selectSmtPaymentRecordList(SmtPaymentRecord smtPaymentRecord)
     {
         return smtPaymentRecordMapper.selectSmtPaymentRecordList(smtPaymentRecord);
+    }
+
+    @Override
+    public List<SmtPaymentRecordVO> selectSmtPaymentRecordVOList(SmtPaymentRecordVO vo) {
+        return smtPaymentRecordMapper.selectSmtPaymentRecordVOList(vo);
     }
 
     /**
@@ -99,7 +105,7 @@ public class SmtPaymentRecordServiceImpl implements ISmtPaymentRecordService
     }
 
     @Override
-    public BigDecimal selectSumPaymentAmount(Long id) {
+    public BigDecimal selectSumPaymentAmount(Integer id) {
         return smtPaymentRecordMapper.selectSumPaymentAmount(id);
     }
 }

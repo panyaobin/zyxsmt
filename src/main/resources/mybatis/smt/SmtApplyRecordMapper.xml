@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.project.smt.applyrecord.mapper.SmtApplyRecordMapper">
+
+    <resultMap type="SmtApplyRecord" id="SmtApplyRecordResult">
+        <result property="id" column="id"/>
+        <result property="paymentNo" column="payment_no"/>
+        <result property="paymentAmount" column="payment_amount"/>
+        <result property="handFee" column="hand_fee"/>
+        <result property="paymentWay" column="payment_way"/>
+        <result property="paymentName" column="payment_name"/>
+        <result property="paymentNumber" column="payment_number"/>
+        <result property="paymentTime" column="payment_time"/>
+        <result property="status" column="status"/>
+        <result property="createBy" column="create_by"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateBy" column="update_by"/>
+        <result property="updateTime" column="update_time"/>
+        <result property="remark" column="remark"/>
+        <result property="delFlag" column="del_flag"/>
+    </resultMap>
+
+    <sql id="selectSmtApplyRecordVo">
+        select id, payment_no, payment_amount, hand_fee, payment_way, payment_name, payment_number, payment_time, status, create_by, create_time, update_by, update_time, remark, del_flag from smt_apply_record
+    </sql>
+
+    <select id="selectSmtApplyRecordList" parameterType="SmtApplyRecord" resultMap="SmtApplyRecordResult">
+        <include refid="selectSmtApplyRecordVo"/>
+        <where>
+            <if test="paymentNo != null ">and payment_no = #{paymentNo}</if>
+            <if test="paymentWay != null  and paymentWay != ''">and payment_way = #{paymentWay}</if>
+            <if test="paymentTime != null ">and payment_time = #{paymentTime}</if>
+        </where>
+    </select>
+
+    <select id="selectSmtApplyRecordById" parameterType="Integer" resultMap="SmtApplyRecordResult">
+        <include refid="selectSmtApplyRecordVo"/>
+        where id = #{id}
+    </select>
+
+    <insert id="insertSmtApplyRecord" parameterType="SmtApplyRecord" useGeneratedKeys="true" keyProperty="id">
+        insert into smt_apply_record
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="paymentNo != null ">payment_no,</if>
+            <if test="paymentAmount != null ">payment_amount,</if>
+            <if test="handFee != null ">hand_fee,</if>
+            <if test="paymentWay != null  and paymentWay != ''">payment_way,</if>
+            <if test="paymentName != null  and paymentName != ''">payment_name,</if>
+            <if test="paymentNumber != null  and paymentNumber != ''">payment_number,</if>
+            <if test="paymentTime != null ">payment_time,</if>
+            <if test="status != null  and status != ''">status,</if>
+            <if test="createBy != null  and createBy != ''">create_by,</if>
+            <if test="createTime != null ">create_time,</if>
+            <if test="updateBy != null  and updateBy != ''">update_by,</if>
+            <if test="updateTime != null ">update_time,</if>
+            <if test="remark != null  and remark != ''">remark,</if>
+            <if test="delFlag != null  and delFlag != ''">del_flag,</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="paymentNo != null ">#{paymentNo},</if>
+            <if test="paymentAmount != null ">#{paymentAmount},</if>
+            <if test="handFee != null ">#{handFee},</if>
+            <if test="paymentWay != null  and paymentWay != ''">#{paymentWay},</if>
+            <if test="paymentName != null  and paymentName != ''">#{paymentName},</if>
+            <if test="paymentNumber != null  and paymentNumber != ''">#{paymentNumber},</if>
+            <if test="paymentTime != null ">#{paymentTime},</if>
+            <if test="status != null  and status != ''">#{status},</if>
+            <if test="createBy != null  and createBy != ''">#{createBy},</if>
+            <if test="createTime != null ">#{createTime},</if>
+            <if test="updateBy != null  and updateBy != ''">#{updateBy},</if>
+            <if test="updateTime != null ">#{updateTime},</if>
+            <if test="remark != null  and remark != ''">#{remark},</if>
+            <if test="delFlag != null  and delFlag != ''">#{delFlag},</if>
+        </trim>
+    </insert>
+
+    <update id="updateSmtApplyRecord" parameterType="SmtApplyRecord">
+        update smt_apply_record
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="paymentNo != null ">payment_no = #{paymentNo},</if>
+            <if test="paymentAmount != null ">payment_amount = #{paymentAmount},</if>
+            <if test="handFee != null ">hand_fee = #{handFee},</if>
+            <if test="paymentWay != null  and paymentWay != ''">payment_way = #{paymentWay},</if>
+            <if test="paymentName != null  and paymentName != ''">payment_name = #{paymentName},</if>
+            <if test="paymentNumber != null  and paymentNumber != ''">payment_number = #{paymentNumber},</if>
+            <if test="paymentTime != null ">payment_time = #{paymentTime},</if>
+            <if test="status != null  and status != ''">status = #{status},</if>
+            <if test="createBy != null  and createBy != ''">create_by = #{createBy},</if>
+            <if test="createTime != null ">create_time = #{createTime},</if>
+            <if test="updateBy != null  and updateBy != ''">update_by = #{updateBy},</if>
+            <if test="updateTime != null ">update_time = #{updateTime},</if>
+            <if test="remark != null  and remark != ''">remark = #{remark},</if>
+            <if test="delFlag != null  and delFlag != ''">del_flag = #{delFlag},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteSmtApplyRecordById" parameterType="Integer">
+        delete from smt_apply_record where id = #{id}
+    </delete>
+
+    <!--批量删除付款记录-->
+    <delete id="deleteSmtApplyRecordByIds" parameterType="String">
+        delete from smt_apply_record where id in
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+
+    <!--根据付款单号删除付款明细-->
+    <delete id="deleteSmtApplyRecordByPaymentIds" parameterType="String">
+        delete from smt_apply_record where payment_no in
+        <foreach item="id" collection="list" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+
+    <!--根据付款单号查询付款金额总和-->
+    <select id="selectSumApplyAmount" resultType="java.math.BigDecimal">
+        SELECT
+	      sum( payment_amount )
+        FROM
+	      `smt_apply_record`
+        WHERE
+	      `status` = '0'
+	      and payment_no = #{id}
+        GROUP BY payment_no
+    </select>
+
+
+</mapper>

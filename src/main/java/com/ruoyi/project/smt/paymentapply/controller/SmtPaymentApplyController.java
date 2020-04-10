@@ -1,20 +1,27 @@
 package com.ruoyi.project.smt.paymentapply.controller;
 
+import java.math.BigDecimal;
+import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
+import com.ruoyi.common.constant.Constants;
+import com.ruoyi.common.utils.StringUtils;
+import com.ruoyi.common.utils.file.FileUploadUtils;
 import com.ruoyi.common.utils.security.ShiroUtils;
+import com.ruoyi.framework.config.RuoYiConfig;
+import com.ruoyi.project.smt.applyrecord.service.ISmtApplyRecordService;
 import com.ruoyi.project.smt.cus.domain.SmtCus;
 import com.ruoyi.project.smt.paymentinfo.domain.SmtPaymentInfo;
 import com.ruoyi.project.smt.paymentinfo.service.ISmtPaymentInfoService;
+import com.ruoyi.project.smt.reconciliation.domain.SmtReconciliation;
+import com.ruoyi.project.smt.reconciliationfile.domain.SmtReconciliationFile;
+import com.ruoyi.project.smt.reconciliationfile.service.ISmtReconciliationFileService;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.*;
 import com.ruoyi.framework.aspectj.lang.annotation.Log;
 import com.ruoyi.framework.aspectj.lang.enums.BusinessType;
 import com.ruoyi.project.smt.paymentapply.domain.SmtPaymentApply;
@@ -23,6 +30,7 @@ import com.ruoyi.framework.web.controller.BaseController;
 import com.ruoyi.framework.web.domain.AjaxResult;
 import com.ruoyi.common.utils.poi.ExcelUtil;
 import com.ruoyi.framework.web.page.TableDataInfo;
+import org.springframework.web.multipart.MultipartFile;
 
 /**
  * 付款申请Controller
@@ -41,6 +49,12 @@ public class SmtPaymentApplyController extends BaseController {
     @Autowired
     private ISmtPaymentInfoService smtPaymentInfoService;
 
+    @Autowired
+    private ISmtReconciliationFileService smtReconciliationFileService;
+
+    @Autowired
+    private ISmtApplyRecordService smtApplyRecordService;
+
     @RequiresPermissions("smt:paymentApply:view")
     @GetMapping()
     public String paymentApply() {
@@ -56,6 +70,11 @@ public class SmtPaymentApplyController extends BaseController {
     public TableDataInfo list(SmtPaymentApply smtPaymentApply) {
         startPage();
         List<SmtPaymentApply> list = smtPaymentApplyService.selectSmtPaymentApplyTableList(smtPaymentApply);
+        for (SmtPaymentApply apply : list) {
+            BigDecimal decimal = smtApplyRecordService.selectSumApplyAmount(apply.getPaymentNo());
+            apply.setPaidAmount(null == decimal ? new BigDecimal(0) : decimal);
+            apply.setArrears(apply.getApplyAmount().subtract(null == decimal ? new BigDecimal(0) : decimal));
+        }
         return getDataTable(list);
     }
 
@@ -128,6 +147,7 @@ public class SmtPaymentApplyController extends BaseController {
 
     /**
      * 根据ID查询付款信息
+     *
      * @param id
      * @return
      */
@@ -146,8 +166,47 @@ public class SmtPaymentApplyController extends BaseController {
     @RequiresPermissions("smt:paymentApply:edit")
     @PostMapping("/changeStatus")
     @ResponseBody
-    public AjaxResult changeStatus(SmtPaymentApply apply)
-    {
-       return toAjax(smtPaymentApplyService.changeStatus(apply));
+    public AjaxResult changeStatus(SmtPaymentApply apply) {
+        return toAjax(smtPaymentApplyService.changeStatus(apply));
     }
+
+
+    /**
+     * 获取现在付款申请单号，如果没有初始化第一位，有则递增
+     *
+     * @return
+     */
+    @RequestMapping("/getMaxPaymentNo")
+    @ResponseBody
+    public Integer getMaxPaymentNo() {
+        List<SmtPaymentApply> list = smtPaymentApplyService.selectSmtPaymentApplyList(new SmtPaymentApply());
+        if (!StringUtils.isEmpty(list)) {
+            //获取num列表取最大值
+            List<Integer> numList = list.stream().map(SmtPaymentApply::getPaymentNo).collect(Collectors.toList());
+            int no = Collections.max(numList);
+            return no + 1;
+        }
+        return Constants.PAYMENT_APPLY_NO + 1;
+    }
+
+    /**
+     * 客户对账新增上传文件
+     */
+    @PostMapping("/uploadFile")
+    @ResponseBody
+    public AjaxResult uploadFile(MultipartFile file, @RequestParam("num") Integer num, @RequestParam("type") Integer type) {
+        try {
+            String avatar = FileUploadUtils.upload(RuoYiConfig.getAvatarPath(), file);
+            SmtReconciliationFile smtFile = new SmtReconciliationFile();
+            smtFile.setReconciliationNo(num);
+            smtFile.setFileType(type);
+            smtFile.setFileUrl(avatar);
+            smtFile.setCreateBy(ShiroUtils.getSysUser().getUserName());
+            smtReconciliationFileService.insertSmtReconciliationFile(smtFile);
+            return success();
+        } catch (Exception e) {
+            return error(e.getMessage());
+        }
+    }
+
 }

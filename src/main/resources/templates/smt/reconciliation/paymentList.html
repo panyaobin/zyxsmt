@@ -3,6 +3,16 @@
 <head>
     <th:block th:include="include :: header('客户付款列表')"/>
 </head>
+<style>
+    .selectHeight {
+        height: 34px !important;
+    }
+
+    .inputHeight {
+        line-height: 24px;
+        width: 80px !important;
+    }
+</style>
 <body class="gray-bg">
 <div class="container-div">
     <div class="row">
@@ -11,24 +21,15 @@
                 <div class="select-list">
                     <ul>
                         <li>
-                            <p>客户名称：</p>
-                            <input type="text" name="cusCode"/>
+                            <p class="inputHeight">对账单号：</p>
+                            <input type="text" class="selectHeight" name="reconciliationNo"/>
                         </li>
                         <li>
-                            <p>对账单号：</p>
-                            <input type="text" name="reconciliationNo"/>
-                        </li>
-                        <li>
-                            <p>对账年月：</p>
-                            <input type="text" name="reconciliationNo"/>
-                        </li>
-                        <li>
-                            <p>是否回传：</p>
-                            <input type="text" name="reconciliationNo"/>
-                        </li>
-                        <li>
-                            <p>是否结清：</p>
-                            <input type="text" name="reconciliationNo"/>
+                            <p class="inputHeight">客户名称：</p>
+                            <select name="cusCode" class="form-control col-sm-12 select2-selection--multiple selectHeight" th:with="cusList=${@cus.getCus()}" onchange="$.table.search()">
+                                <option value="">请选择</option>
+                                <option th:each="c:${cusList}" th:value="${c.cusCode}" th:text="${c.cusName}"></option>
+                            </select>
                         </li>
 
                         <li>
@@ -132,14 +133,35 @@
                     align: 'center',
                     formatter: function (value, row, index) {
                         var actions = [];
-                        actions.push('<a class="btn btn-success btn-xs ' + editFlag + '" href="javascript:void(0)" onclick="$.operate.editPayment(\'' + row.id + '\')"><i class="fa fa-plus"></i>付款添加</a> ');
-                        actions.push('<a class="btn btn-success btn-xs ' + auditFlag + '" href="javascript:void(0)" onclick="$.operate.cleanPayment(\'' + row.id + '\')"><i class="fa fa-money"></i>清账</a>');
+                        if (row.isSettle=="0"){
+                            actions.push('<a class="btn btn-success btn-xs ' + editFlag + '" href="javascript:void(0)" onclick="$.operate.editPayment(\'' + row.id + '\')"><i class="fa fa-plus"></i> 付款添加</a> ');
+                            actions.push('<a class="btn btn-success btn-xs ' + auditFlag + '" href="javascript:void(0)" onclick="enable(\'' + row.id + '\')"><i class="fa fa-thumbs-o-up"></i> 清账</a>');
+                        }else{
+                            actions.push('<a class="btn btn-success btn-xs disabled' + editFlag + '" href="javascript:void(0)"><i class="fa fa-plus"></i> 账单已清</a> ');
+                            actions.push('<a class="btn btn-success btn-xs ' + auditFlag + '" href="javascript:void(0)" onclick="disable(\'' + row.id + '\')"><i class="fa fa-thumbs-o-down"></i> 取消</a>');
+                        }
                         return actions.join('');
                     }
                 }]
         };
         $.table.init(options);
     });
+
+
+    /* 对账单取消结清 */
+    function disable(userId) {
+        $.modal.confirm("确认取消结清对账单？", function () {
+            $.operate.post(prefix + "/changeStatus", {"id": userId, "isSettle": 0});
+        })
+    }
+
+    /* 结清对账单操作 */
+    function enable(userId) {
+        $.modal.confirm("确认结清此对账单吗？", function () {
+            $.operate.post(prefix + "/changeStatus", {"id": userId, "isSettle": 1});
+        })
+    }
+
 </script>
 </body>
 </html>

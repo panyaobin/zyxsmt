@@ -2,11 +2,10 @@ package com.ruoyi.common.constant;
 
 /**
  * 通用常量信息
- * 
+ *
  * @author ruoyi
  */
-public class Constants
-{
+public class Constants {
     /**
      * UTF-8 字符集
      */
@@ -98,5 +97,16 @@ public class Constants
      * 出货单号首单号
      */
     public static final Integer SHIP_NO_START = 100000;
+
+
+    /**
+     * 客户对账单号
+     */
+    public static final Integer CUS_RECONCILIATION_NO = 800000;
+
+    /**
+     * 付款申请单号
+     */
+    public static final Integer PAYMENT_APPLY_NO = 810000;
 
 }

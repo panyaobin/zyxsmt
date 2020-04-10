@@ -3,6 +3,9 @@ package com.ruoyi.project.smt.paymentapply.service.impl;
 import java.util.List;
 
 import com.ruoyi.common.utils.DateUtils;
+import com.ruoyi.project.smt.applyrecord.domain.SmtApplyRecord;
+import com.ruoyi.project.smt.applyrecord.mapper.SmtApplyRecordMapper;
+import com.ruoyi.project.smt.reconciliationfile.mapper.SmtReconciliationFileMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import com.ruoyi.project.smt.paymentapply.mapper.SmtPaymentApplyMapper;
@@ -20,6 +23,12 @@ import com.ruoyi.common.utils.text.Convert;
 public class SmtPaymentApplyServiceImpl implements ISmtPaymentApplyService {
     @Autowired
     private SmtPaymentApplyMapper smtPaymentApplyMapper;
+
+    @Autowired
+    private SmtReconciliationFileMapper smtReconciliationFileMapper;
+
+    @Autowired
+    private SmtApplyRecordMapper smtApplyRecordMapper;
 
     /**
      * 查询付款申请
@@ -86,7 +95,13 @@ public class SmtPaymentApplyServiceImpl implements ISmtPaymentApplyService {
      */
     @Override
     public int deleteSmtPaymentApplyByIds(String ids) {
-        return smtPaymentApplyMapper.deleteSmtPaymentApplyByIds(Convert.toStrArray(ids));
+        String[] array = Convert.toStrArray(ids);
+        //删除应付账目付款申请记录，需要同步删除对账单附件
+        List<String> paymentNos = smtPaymentApplyMapper.selectSmtPaymentNoByIds(array);
+        smtReconciliationFileMapper.deleteSmtReconciliationFileByReconciliationNos(paymentNos);
+        //删除应付账目付款申请记录，需要同步删除付款记录
+        smtApplyRecordMapper.deleteSmtApplyRecordByPaymentIds(paymentNos);
+        return smtPaymentApplyMapper.deleteSmtPaymentApplyByIds(array);
     }
 
     /**

@@ -39,7 +39,7 @@ public class StartConfig implements CommandLineRunner {
 
     @Override
     public void run(String... args) throws Exception {
-        log.info("------------------------------------启动完成，开始执行缓存操作------------------------------------");
+        //log.info("------------------------------------启动完成，开始执行缓存操作------------------------------------");
        // initDzl();
        // getDzl();
     }
