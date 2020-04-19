@@ -112,7 +112,7 @@ public class FileUploadUtils {
         String fileName = file.getOriginalFilename();
         //String extension = getExtension(file);
         //fileName = DateUtils.datePath() + "/" + encodingFilename(fileName) + "." + extension;
-        fileName = DateUtils.datePath() + "/" + fileName;
+        fileName = DateUtils.datePath() + "/" + DateUtils.dateNowTimeNow() + fileName;
         return fileName;
     }
 

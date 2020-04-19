@@ -1,5 +1,6 @@
 package com.ruoyi.project.smt.entry.vo;
 
+import com.ruoyi.framework.aspectj.lang.annotation.Excel;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
@@ -22,6 +23,7 @@ public class SmtOrderEntryVO {
     /**
      * 客户名称
      */
+    @Excel(name = "客户名称")
     private String cusName;
     /**
      * 订单编号
@@ -66,6 +68,7 @@ public class SmtOrderEntryVO {
     /**
      * 电子料名称
      */
+    @Excel(name = "产品型号")
     private String dzlName;
 
     /**
@@ -73,6 +76,7 @@ public class SmtOrderEntryVO {
      * orderType为1时，FPC
      * orderType为2时，物料类型
      */
+    @Excel(name = "类型")
     private String typeName;
 
     /**
@@ -90,7 +94,9 @@ public class SmtOrderEntryVO {
     /**
      * 总数量
      */
+    @Excel(name = "数量")
     private Integer sumOrderQty;
+
     /**
      * 说明
      */

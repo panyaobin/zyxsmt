@@ -67,4 +67,10 @@ public interface ISmtApplyRecordService
      * @return
      */
     BigDecimal selectSumApplyAmount(Integer id);
+
+    /**
+     * 查询应付账目付款记录
+     * @return
+     */
+    List<SmtApplyRecord> getApplyRecordList();
 }

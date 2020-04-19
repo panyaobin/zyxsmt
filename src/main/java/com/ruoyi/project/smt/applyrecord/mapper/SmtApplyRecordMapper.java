@@ -73,4 +73,10 @@ public interface SmtApplyRecordMapper
      * @return
      */
     public BigDecimal selectSumApplyAmount(Integer id);
+
+    /**
+     * 查询应付账目付款信息集合
+     * @return
+     */
+    List<SmtApplyRecord> getApplyRecordList();
 }

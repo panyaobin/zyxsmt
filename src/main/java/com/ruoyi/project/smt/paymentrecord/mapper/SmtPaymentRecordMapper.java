@@ -84,4 +84,10 @@ public interface SmtPaymentRecordMapper
      * @return 结果
      */
     public int deleteSmtPaymentRecordByPaymentNos(List<String> ids);
+
+    /**
+     * 查询客户付款记录信息集合
+     * @return
+     */
+    List<SmtPaymentRecord> getPaymentRecordList();
 }

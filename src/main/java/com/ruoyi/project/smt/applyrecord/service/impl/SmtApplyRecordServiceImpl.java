@@ -100,4 +100,9 @@ public class SmtApplyRecordServiceImpl implements ISmtApplyRecordService
     public BigDecimal selectSumApplyAmount(Integer id) {
         return smtApplyRecordMapper.selectSumApplyAmount(id);
     }
+
+    @Override
+    public List<SmtApplyRecord> getApplyRecordList() {
+        return smtApplyRecordMapper.getApplyRecordList();
+    }
 }

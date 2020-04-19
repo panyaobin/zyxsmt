@@ -10,8 +10,13 @@
     <form class="form-horizontal m" id="form-reconciliation-edit" th:object="${smtReconciliation}">
         <div class="form-group">
             <label class="col-sm-3 control-label">对账单号：</label>
-            <div class="col-sm-8">
+            <div class="col-sm-3">
                 <input name="reconciliationNo" id="autoReconciliationNo" th:field="*{reconciliationNo}" class="form-control" type="text" readonly>
+            </div>
+            <label class="" style="float: left"><span style="color: red; ">*</span><span style="line-height: 30px">账单月份：</span></label>
+            <div class="input-group date" style="width: 30%">
+                <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
+                <input name="reconciliationTime" th:value="${#dates.format(smtReconciliation.reconciliationTime, 'yyyy-MM')}" class="form-control" placeholder="yyyy-MM" type="text" readonly>
             </div>
         </div>
 

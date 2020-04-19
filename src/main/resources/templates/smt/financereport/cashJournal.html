@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="zh" xmlns:th="http://www.thymeleaf.org" xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
+<head>
+    <th:block th:include="include :: header('现金日记账')"/>
+</head>
+<style>
+    .selectHeight {
+        height: 34px !important;
+    }
+
+    .inputHeight {
+        line-height: 24px;
+        width: 80px !important;
+    }
+</style>
+<body class="gray-bg">
+<div class="container-div">
+    <div class="row">
+        <div class="col-sm-12 search-collapse">
+            <form id="formId">
+                <div class="select-list">
+                    <ul>
+                        <li>
+                            <p class="inputHeight">单号：</p>
+                            <input type="text" class="selectHeight" name="orderNo"/>
+                        </li>
+
+                        <li>
+                            <p class="inputHeight">账单月份：</p>
+                            <input type="text" class="selectHeight" name="orderNo"/>
+                        </li>
+
+                        <li>
+                            <p class="inputHeight">收款类型：</p>
+                            <select name="feeType" required class="form-control m-b selectHeight" th:with="type=${@dict.getType('smt_fee_type')}">
+                                <option value="">请选择</option>
+                                <option th:each="dict : ${type}" th:text="${dict.dictLabel}" th:value="${dict.dictValue}"></option>
+                            </select>
+                        </li>
+                        <li>
+                            <p class="inputHeight">付款类型：</p>
+                            <select name="feeType" required class="form-control m-b selectHeight" th:with="type=${@dict.getType('smt_payment_type')}">
+                                <option value="">请选择</option>
+                                <option th:each="dict : ${type}" th:text="${dict.dictLabel}" th:value="${dict.dictValue}"></option>
+                            </select>
+                        </li>
+
+                        <li>
+                            <a class="btn btn-primary btn-rounded btn-sm" onclick="$.table.search()"><i class="fa fa-search"></i>&nbsp;搜索</a>
+                            <a class="btn btn-warning btn-rounded btn-sm" onclick="$.form.reset()"><i class="fa fa-refresh"></i>&nbsp;重置</a>
+                        </li>
+                    </ul>
+                </div>
+            </form>
+        </div>
+
+        <div class="btn-group-sm" id="toolbar" role="group">
+            <a class="btn btn-warning" onclick="$.table.exportExcel()" shiro:hasPermission="smt:bom:export">
+                <i class="fa fa-download"></i> 导出
+            </a>
+        </div>
+        <div class="col-sm-12 select-table table-striped">
+            <table id="bootstrap-table"></table>
+        </div>
+    </div>
+</div>
+<th:block th:include="include :: footer"/>
+<script th:inline="javascript">
+    var editFlag = [[${@permission.hasPermi('smt:bom:edit')}]];
+    var removeFlag = [[${@permission.hasPermi('smt:bom:remove')}]];
+    var prefix = ctx + "smt/cashJournal";
+
+    $(function () {
+        var options = {
+            url: prefix + "/getAllList",
+            modalName: "现金日记账",
+            columns: [{
+                checkbox: true
+            },
+                {
+                    title: '序号',
+                    formatter: function (a, b, c) {
+                        return ++c;
+                    }
+                },
+                {
+                    field: 'reconciliationNo',
+                    title: '单号'
+                },
+                {
+                    field: 'reconciliationTime',
+                    title: '账单月份',
+                    formatter: function (value, row, index) {
+                        return value.substring(0, 7);
+                    }
+                },
+                {
+                    field: 'feeType',
+                    title: '类型'
+                },
+                {
+                    field: 'createTime',
+                    title: '创建日期'
+                },
+                {
+                    field: 'receiveFee',
+                    title: '收款',
+                    formatter: function (value, row, index) {
+                        if (null == value || value == "0") {
+                            return "-"
+                        } else {
+                            return "<span class='fa fa-cny' style='color: gold'></span> <span style='color: red'>"+value+"</span>"
+                        }
+                    }
+                },
+                {
+                    field: 'paymentFee',
+                    title: '付款',
+                    formatter: function (value, row, index) {
+                        if (null == value || value == "0") {
+                            return "-"
+                        } else {
+                            return "<span class='fa fa-cny' style='color: gold'></span> <span style='color: blue'>" + value + "</span>"
+                        }
+                    }
+                },
+                {
+                    field: 'handFee',
+                    title: '手续费',
+                    formatter: function (value, row, index) {
+                        if (null == value || value == "0") {
+                            return "-"
+                        } else {
+                            return "<span class='fa fa-cny' style='color: gold'></span> <span style='color: blue'>" + value + "</span>"
+                        }
+                    }
+                },
+                {
+                    field: 'remark',
+                    title: '备注'
+                }
+            ]
+        };
+        $.table.init(options);
+    });
+
+</script>
+</body>
+</html>

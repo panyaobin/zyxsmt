@@ -44,6 +44,9 @@
             <a class="btn btn-danger multiple disabled" onclick="batchDelivery()" shiro:hasPermission="smt:delivery:add">
                 <i class="fa fa-edit"></i> 发料
             </a>
+            <a class="btn btn-warning" onclick="$.table.exportExcel()">
+                <i class="fa fa-download"></i> 导出
+            </a>
         </div>
         <div class="col-sm-12 select-table table-striped">
             <table id="bootstrap-table"></table>
@@ -66,7 +69,7 @@
             updateUrl: prefix + "/edit/{id}",
             removeUrl: prefix + "/remove",
             exportUrl: prefix + "/export",
-            modalName: "发料记录",
+            modalName: "电子料仓",
             columns: [{
                 checkbox: true
             },

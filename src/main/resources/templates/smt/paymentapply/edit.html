@@ -12,8 +12,13 @@
 
             <div class="form-group">
                 <label class="col-sm-3 control-label">付款单号：</label>
-                <div class="col-sm-8">
+                <div class="col-sm-3">
                     <input name="paymentNo" th:field="*{paymentNo}" id="paymentNo"  class="form-control" type="text" readonly>
+                </div>
+                <label class="" style="float: left"><span style="line-height: 30px">账单月份：</span></label>
+                <div class="input-group date" style="width: 30.3%">
+                    <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
+                    <input name="reconciliationTime" th:value="${#dates.format(smtPaymentApply.reconciliationTime, 'yyyy-MM')}" class="form-control" placeholder="yyyy-MM" type="text" readonly>
                 </div>
             </div>
 

@@ -19,8 +19,13 @@
     <form class="form-horizontal m" id="form-reconciliation-add">
         <div class="form-group">
             <label class="col-sm-3 control-label"><span style="color: red; ">*</span>对账单号：</label>
-            <div class="col-sm-8">
-                <input name="reconciliationNo" id="autoReconciliationNo" class="form-control" type="text" readonly>
+            <div class="col-sm-3">
+                <input name="reconciliationNo" th:value="*{no}" id="autoReconciliationNo" class="form-control" type="text" readonly required>
+            </div>
+            <label class="" style="float: left"><span style="color: red; ">*</span><span style="line-height: 30px">账单月份：</span></label>
+            <div class="input-group date" style="width: 30%">
+                <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
+                <input name="reconciliationTime" class="form-control" placeholder="yyyy-MM" type="text" required>
             </div>
         </div>
         <div class="form-group">
@@ -35,15 +40,7 @@
                 <input class="form-control" type="text" id="code" readonly>
             </div>
         </div>
-        <div class="form-group">
-            <label class="col-sm-3 control-label"><span style="color: red; ">*</span>账单月份：</label>
-            <div class="col-sm-8">
-                <div class="input-group date">
-                    <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
-                    <input name="reconciliationTime" class="form-control" placeholder="yyyy-MM" type="text" required>
-                </div>
-            </div>
-        </div>
+
         <div class="form-group">
             <label class="col-sm-3 control-label"><span style="color: red; ">*</span>费用类型：</label>
             <div class="col-sm-8">
@@ -97,8 +94,6 @@
 
 <script type="text/javascript">
     var prefix = ctx + "smt/reconciliation";
-    //生成对账单号
-    GenerateReconciliationNo();
     $("#form-reconciliation-add").validate({
         focusCleanup: true
     });
@@ -124,18 +119,6 @@
         overwriteInitial: false,
         initialPreviewAsData: true,
     });
-
-    //页面打开获取现在客户对账单号，如果没有初始化第一位，有则递增
-    function GenerateReconciliationNo() {
-        console.log("我先生成单号");
-        $.ajax({
-            url: prefix + "/getMaxReconciliationNo",
-            type: "post",
-            success: function (result) {
-                document.getElementById("autoReconciliationNo").value = result;
-            }
-        })
-    }
 
 
     //切换客户名称
@@ -171,7 +154,7 @@
             , accept: 'file'
             , multiple: true
             , auto: true
-            ,data:{"num":document.getElementById("autoReconciliationNo").value,"type":1}
+            , data: {"num": document.getElementById("autoReconciliationNo").value, "type": 1}
             , bindAction: '#testListAction'
             , choose: function (obj) {
                 var files = this.files = obj.pushFile(); //将每次选择的文件追加到文件队列

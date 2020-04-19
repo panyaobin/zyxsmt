@@ -1,5 +1,7 @@
 package com.ruoyi.project.smt.paymentrecord.domain;
 
+import lombok.Data;
+import lombok.EqualsAndHashCode;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 import com.ruoyi.framework.aspectj.lang.annotation.Excel;
@@ -13,6 +15,8 @@ import java.util.Date;
  * @author popo
  * @date 2020-04-05
  */
+@Data
+@EqualsAndHashCode(callSuper = false)
 public class SmtPaymentRecord extends BaseEntity
 {
     private static final long serialVersionUID = 1L;
@@ -51,105 +55,9 @@ public class SmtPaymentRecord extends BaseEntity
     /** 删除标志（0代表存在1代表删除） */
     private String delFlag;
 
-    public void setId(Integer id) 
-    {
-        this.id = id;
-    }
+    //费用类型
+    private String feeType;
 
-    public Integer getId() 
-    {
-        return id;
-    }
-    public void setReconciliationNo(Long reconciliationNo) 
-    {
-        this.reconciliationNo = reconciliationNo;
-    }
-
-    public Long getReconciliationNo() 
-    {
-        return reconciliationNo;
-    }
-    public void setPaymentAmount(BigDecimal paymentAmount) 
-    {
-        this.paymentAmount = paymentAmount;
-    }
-
-    public BigDecimal getPaymentAmount() 
-    {
-        return paymentAmount;
-    }
-    public void setPaymentWay(String paymentWay) 
-    {
-        this.paymentWay = paymentWay;
-    }
-
-    public String getPaymentWay() 
-    {
-        return paymentWay;
-    }
-    public void setPaymentName(String paymentName) 
-    {
-        this.paymentName = paymentName;
-    }
-
-    public String getPaymentName() 
-    {
-        return paymentName;
-    }
-    public void setPaymentNumber(String paymentNumber) 
-    {
-        this.paymentNumber = paymentNumber;
-    }
-
-    public String getPaymentNumber() 
-    {
-        return paymentNumber;
-    }
-    public void setPaymentTime(Date paymentTime) 
-    {
-        this.paymentTime = paymentTime;
-    }
-
-    public Date getPaymentTime() 
-    {
-        return paymentTime;
-    }
-    public void setStatus(String status) 
-    {
-        this.status = status;
-    }
-
-    public String getStatus() 
-    {
-        return status;
-    }
-    public void setDelFlag(String delFlag) 
-    {
-        this.delFlag = delFlag;
-    }
-
-    public String getDelFlag() 
-    {
-        return delFlag;
-    }
-
-    @Override
-    public String toString() {
-        return new ToStringBuilder(this,ToStringStyle.MULTI_LINE_STYLE)
-            .append("id", getId())
-            .append("reconciliationNo", getReconciliationNo())
-            .append("paymentAmount", getPaymentAmount())
-            .append("paymentWay", getPaymentWay())
-            .append("paymentName", getPaymentName())
-            .append("paymentNumber", getPaymentNumber())
-            .append("paymentTime", getPaymentTime())
-            .append("status", getStatus())
-            .append("createBy", getCreateBy())
-            .append("createTime", getCreateTime())
-            .append("updateBy", getUpdateBy())
-            .append("updateTime", getUpdateTime())
-            .append("remark", getRemark())
-            .append("delFlag", getDelFlag())
-            .toString();
-    }
+    //账单月份
+    private Date reconciliationTime;
 }

@@ -31,7 +31,7 @@ import com.ruoyi.framework.web.page.TableDataInfo;
 @Controller
 @RequestMapping("/smt/paymentInfo")
 public class SmtPaymentInfoController extends BaseController {
-    private String prefix = "smt/paymentInfo";
+    private String prefix = "smt/paymentinfo";
 
     @Autowired
     private ISmtPaymentInfoService smtPaymentInfoService;

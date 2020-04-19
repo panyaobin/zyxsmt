@@ -20,6 +20,7 @@ import com.ruoyi.project.smt.reconciliationfile.service.ISmtReconciliationFileSe
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.*;
 import com.ruoyi.framework.aspectj.lang.annotation.Log;
@@ -38,10 +39,11 @@ import org.springframework.web.multipart.MultipartFile;
  * @author popo
  * @date 2020-04-06
  */
+@lombok.extern.java.Log
 @Controller
 @RequestMapping("/smt/paymentApply")
 public class SmtPaymentApplyController extends BaseController {
-    private String prefix = "smt/paymentApply";
+    private String prefix = "smt/paymentapply";
 
     @Autowired
     private ISmtPaymentApplyService smtPaymentApplyService;
@@ -94,7 +96,10 @@ public class SmtPaymentApplyController extends BaseController {
      * 新增付款申请
      */
     @GetMapping("/add")
-    public String add() {
+    public String add(Model model) {
+        Integer no = getMaxPaymentNo();
+        log.info("新增付款申请生成对账单号是："+no);
+        model.addAttribute("no",no);
         return prefix + "/add";
     }
 
@@ -176,8 +181,8 @@ public class SmtPaymentApplyController extends BaseController {
      *
      * @return
      */
-    @RequestMapping("/getMaxPaymentNo")
-    @ResponseBody
+//    @RequestMapping("/getMaxPaymentNo")
+//    @ResponseBody
     public Integer getMaxPaymentNo() {
         List<SmtPaymentApply> list = smtPaymentApplyService.selectSmtPaymentApplyList(new SmtPaymentApply());
         if (!StringUtils.isEmpty(list)) {

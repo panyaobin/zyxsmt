@@ -2,6 +2,8 @@
 <html lang="zh" xmlns:th="http://www.thymeleaf.org">
 <head>
     <th:block th:include="include :: header('新增付款申请')"/>
+    <th:block th:include="include :: datetimepicker-css"/>
+
     <link href="../../../layui/css/layui.css" type="text/css" rel="stylesheet"/>
 </head>
 <body class="white-bg">
@@ -10,8 +12,13 @@
 
         <div class="form-group">
             <label class="col-sm-3 control-label"><span style="color: red; ">*</span>付款单号：</label>
-            <div class="col-sm-8">
-                <input name="paymentNo" id="autoPaymentNo" class="form-control" type="text" readonly>
+            <div class="col-sm-3">
+                <input name="paymentNo" th:value="*{no}" id="autoPaymentNo" class="form-control" type="text" readonly>
+            </div>
+            <label class="" style="float: left"><span style="color: red; ">*</span><span style="line-height: 30px">账单月份：</span></label>
+            <div class="input-group date" style="width: 30.3%">
+                <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
+                <input name="reconciliationTime" class="form-control" placeholder="yyyy-MM" type="text" required>
             </div>
         </div>
 
@@ -100,10 +107,10 @@
     </form>
 </div>
 <th:block th:include="include :: footer"/>
+<th:block th:include="include :: datetimepicker-js"/>
 <script type="text/javascript">
     var prefix = ctx + "smt/paymentApply";
-    //自动生成付款申请单号
-    GeneratePaymentNo();
+
     $("#form-paymentApply-add").validate({
         focusCleanup: true
     });
@@ -113,6 +120,15 @@
             $.operate.save(prefix + "/add", $('#form-paymentApply-add').serialize());
         }
     }
+
+    $("input[name='reconciliationTime']").datetimepicker({
+        format: 'yyyy-MM',
+        weekStart: 1,
+        autoclose: true,
+        startView: 3,
+        minView: 3,
+        forceParse: false,
+    });
 
     //切换收款单位,获取付款账户信息
     function changeUnit(obj) {
@@ -137,16 +153,7 @@
         }
     }
 
-    //页面打开获取现在客户对账单号，如果没有初始化第一位，有则递增
-    function GeneratePaymentNo() {
-        $.ajax({
-            url: prefix + "/getMaxPaymentNo",
-            type: "post",
-            success: function (result) {
-                document.getElementById("autoPaymentNo").value = result;
-            }
-        })
-    }
+
 
     //填写对账金额键盘弹起转换金额大写提示
     function changeBigCapital(obj) {

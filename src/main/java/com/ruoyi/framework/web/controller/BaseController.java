@@ -24,6 +24,8 @@ import com.ruoyi.project.smt.reconciliationfile.domain.SmtReconciliationFile;
 import com.ruoyi.project.smt.reconciliationfile.service.ISmtReconciliationFileService;
 import com.ruoyi.project.system.config.domain.Config;
 import com.ruoyi.project.system.config.service.IConfigService;
+import com.ruoyi.project.system.dict.domain.DictData;
+import com.ruoyi.project.system.dict.service.IDictDataService;
 import net.sf.jasperreports.engine.JRDataSource;
 import net.sf.jasperreports.engine.JasperRunManager;
 import net.sf.jasperreports.engine.data.JRBeanCollectionDataSource;
@@ -68,8 +70,10 @@ public class BaseController {
     private IConfigService iConfigService;
 
     @Autowired
-    private ISmtReconciliationFileService smtReconciliationFileService;
+    private IDictDataService dictDataService;
 
+    @Autowired
+    private ISmtReconciliationFileService smtReconciliationFileService;
 
 
     /**
@@ -191,6 +195,7 @@ public class BaseController {
 
     /**
      * 查询所有的客户代码和客户名称MAP集合
+     *
      * @return
      */
     public Map<Integer, String> getCusCodeAndCusNameMap() {
@@ -201,6 +206,7 @@ public class BaseController {
 
     /**
      * 查询所有的系统参数键值MAP集合
+     *
      * @return
      */
     public Map<String, String> getConfigKeyAndValueMap() {
@@ -211,6 +217,7 @@ public class BaseController {
 
     /**
      * 查询所有的电子料ID和电子料类型名称
+     *
      * @return
      */
     public Map<Integer, String> getDzlIdAndDzlTypeNameMap() {
@@ -221,16 +228,18 @@ public class BaseController {
 
     /**
      * 查询所有的电子料ID和电子料名称
+     *
      * @return
      */
     public Map<Integer, String> getDzlIdAndDzlNameMap() {
         //查询所有的电子料信息
         List<SmtDzl> dzlList = iSmtDzlService.selectSmtDzlList(new SmtDzl());
-       return dzlList.stream().collect(Collectors.toMap(SmtDzl::getId, SmtDzl::getDzlName, (x, y) -> x));
+        return dzlList.stream().collect(Collectors.toMap(SmtDzl::getId, SmtDzl::getDzlName, (x, y) -> x));
     }
 
     /**
      * 查询所有的bomID和bom名称
+     *
      * @return
      */
     public Map<Integer, String> getBomIdAndBomNameMap() {
@@ -239,7 +248,17 @@ public class BaseController {
         return bomList.stream().collect(Collectors.toMap(SmtBom::getId, SmtBom::getBomName, (x, y) -> x));
     }
 
-
+    /**
+     * 查询所有的字典表中客户费用类型 smt_fee_type,smt_payment_type
+     *
+     * @return
+     */
+    public Map<String, String> getFeeTypeList(String dictType) {
+        DictData data = new DictData();
+        data.setDictType(dictType);
+        List<DictData> dictData = dictDataService.selectDictDataList(data);
+        return dictData.stream().collect(Collectors.toMap(DictData::getDictValue, DictData::getDictLabel, (x, y) -> x));
+    }
 
     /**
      * 生成PDF

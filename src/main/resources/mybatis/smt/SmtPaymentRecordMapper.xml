@@ -97,6 +97,7 @@
             <if test="reconciliationNo != null ">and record.reconciliation_no = #{reconciliationNo}</if>
             <if test="cusCode != null ">and sr.cus_code = #{cusCode}</if>
         </where>
+        order by create_time desc
     </select>
 
 
@@ -115,6 +116,20 @@
 	      `status` = '0'
 	      and reconciliation_no = #{id}
         GROUP BY reconciliation_no
+    </select>
+
+    <!--查询客户付款记录信息集合-->
+    <select id="getPaymentRecordList" resultType="com.ruoyi.project.smt.paymentrecord.domain.SmtPaymentRecord">
+            SELECT
+                r.reconciliation_time as reconciliationTime,
+                r.fee_type AS feeType,
+                pr.reconciliation_no AS reconciliationNo,
+                pr.create_time AS createTime,
+                pr.payment_amount AS paymentAmount,
+                pr.remark
+            FROM
+            `smt_payment_record` pr
+            left join smt_reconciliation r on pr.reconciliation_no = r.reconciliation_no
     </select>
 
     <insert id="insertSmtPaymentRecord" parameterType="SmtPaymentRecord" useGeneratedKeys="true" keyProperty="id">

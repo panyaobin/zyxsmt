@@ -6,6 +6,7 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 
 import java.math.BigDecimal;
+import java.util.Date;
 
 /**
  * 付款申请对象 smt_payment_apply
@@ -25,6 +26,12 @@ public class SmtPaymentApply extends BaseEntity
     /** 付款单号 */
     @Excel(name = "付款单号")
     private Integer paymentNo;
+
+    /**
+     * 对账日期
+     */
+    @Excel(name = "对账日期", width = 30, dateFormat = "yyyy-MM-dd")
+    private Date reconciliationTime;
 
     /** 收款单位 */
     @Excel(name = "收款单位")

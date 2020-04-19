@@ -1,9 +1,13 @@
 package com.ruoyi.project.smt.applyrecord.domain;
 
+import lombok.Data;
+import lombok.EqualsAndHashCode;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 import com.ruoyi.framework.aspectj.lang.annotation.Excel;
 import com.ruoyi.framework.web.domain.BaseEntity;
+
+import java.math.BigDecimal;
 import java.util.Date;
 
 /**
@@ -12,6 +16,8 @@ import java.util.Date;
  * @author popo
  * @date 2020-04-09
  */
+@Data
+@EqualsAndHashCode(callSuper = false)
 public class SmtApplyRecord extends BaseEntity
 {
     private static final long serialVersionUID = 1L;
@@ -25,11 +31,11 @@ public class SmtApplyRecord extends BaseEntity
 
     /** 付款金额 */
     @Excel(name = "付款金额")
-    private Double paymentAmount;
+    private BigDecimal paymentAmount;
 
     /** 手续费 */
     @Excel(name = "手续费")
-    private Double handFee;
+    private BigDecimal handFee;
 
     /** 付款方式 */
     @Excel(name = "付款方式")
@@ -54,115 +60,11 @@ public class SmtApplyRecord extends BaseEntity
     /** 删除标志（0代表存在1代表删除） */
     private String delFlag;
 
-    public void setId(Integer id) 
-    {
-        this.id = id;
-    }
+    //费用类型
+    private String paymentType;
 
-    public Integer getId() 
-    {
-        return id;
-    }
-    public void setPaymentNo(Long paymentNo) 
-    {
-        this.paymentNo = paymentNo;
-    }
+    //账单月份
+    private Date reconciliationTime;
 
-    public Long getPaymentNo() 
-    {
-        return paymentNo;
-    }
-    public void setPaymentAmount(Double paymentAmount) 
-    {
-        this.paymentAmount = paymentAmount;
-    }
 
-    public Double getPaymentAmount() 
-    {
-        return paymentAmount;
-    }
-    public void setHandFee(Double handFee) 
-    {
-        this.handFee = handFee;
-    }
-
-    public Double getHandFee() 
-    {
-        return handFee;
-    }
-    public void setPaymentWay(String paymentWay) 
-    {
-        this.paymentWay = paymentWay;
-    }
-
-    public String getPaymentWay() 
-    {
-        return paymentWay;
-    }
-    public void setPaymentName(String paymentName) 
-    {
-        this.paymentName = paymentName;
-    }
-
-    public String getPaymentName() 
-    {
-        return paymentName;
-    }
-    public void setPaymentNumber(String paymentNumber) 
-    {
-        this.paymentNumber = paymentNumber;
-    }
-
-    public String getPaymentNumber() 
-    {
-        return paymentNumber;
-    }
-    public void setPaymentTime(Date paymentTime) 
-    {
-        this.paymentTime = paymentTime;
-    }
-
-    public Date getPaymentTime() 
-    {
-        return paymentTime;
-    }
-    public void setStatus(String status) 
-    {
-        this.status = status;
-    }
-
-    public String getStatus() 
-    {
-        return status;
-    }
-    public void setDelFlag(String delFlag) 
-    {
-        this.delFlag = delFlag;
-    }
-
-    public String getDelFlag() 
-    {
-        return delFlag;
-    }
-
-    @Override
-    public String toString() {
-        return new ToStringBuilder(this,ToStringStyle.MULTI_LINE_STYLE)
-            .append("id", getId())
-            .append("paymentNo", getPaymentNo())
-            .append("paymentAmount", getPaymentAmount())
-            .append("handFee", getHandFee())
-            .append("paymentWay", getPaymentWay())
-            .append("paymentName", getPaymentName())
-            .append("paymentNumber", getPaymentNumber())
-            .append("paymentTime", getPaymentTime())
-            .append("status", getStatus())
-            .append("createBy", getCreateBy())
-            .append("createTime", getCreateTime())
-            .append("updateBy", getUpdateBy())
-            .append("updateTime", getUpdateTime())
-            .append("remark", getRemark())
-            .append("delFlag", getDelFlag())
-            .toString();
-    }
 }

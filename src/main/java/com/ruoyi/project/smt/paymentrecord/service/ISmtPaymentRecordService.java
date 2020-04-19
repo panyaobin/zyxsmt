@@ -76,4 +76,10 @@ public interface ISmtPaymentRecordService
      * @return
      */
     BigDecimal selectSumPaymentAmount(Integer id);
+
+    /**
+     * 查询客户付款记录信息集合
+     * @return
+     */
+    List<SmtPaymentRecord> getPaymentRecordList();
 }

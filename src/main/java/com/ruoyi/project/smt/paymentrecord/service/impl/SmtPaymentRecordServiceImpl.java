@@ -108,4 +108,9 @@ public class SmtPaymentRecordServiceImpl implements ISmtPaymentRecordService
     public BigDecimal selectSumPaymentAmount(Integer id) {
         return smtPaymentRecordMapper.selectSumPaymentAmount(id);
     }
+
+    @Override
+    public List<SmtPaymentRecord> getPaymentRecordList() {
+        return smtPaymentRecordMapper.getPaymentRecordList();
+    }
 }

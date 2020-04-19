@@ -33,6 +33,7 @@
             <if test="paymentWay != null  and paymentWay != ''">and payment_way = #{paymentWay}</if>
             <if test="paymentTime != null ">and payment_time = #{paymentTime}</if>
         </where>
+        order by create_time desc
     </select>
 
     <select id="selectSmtApplyRecordById" parameterType="Integer" resultMap="SmtApplyRecordResult">
@@ -127,6 +128,21 @@
 	      `status` = '0'
 	      and payment_no = #{id}
         GROUP BY payment_no
+    </select>
+
+    <!--查询应付账目付款信息集合-->
+    <select id="getApplyRecordList" resultType="com.ruoyi.project.smt.applyrecord.domain.SmtApplyRecord">
+        SELECT
+            pa.reconciliation_time as reconciliationTime,
+            pa.payment_type as paymentType,
+            ar.payment_no as paymentNo,
+            ar.create_time as createTime,
+            ar.payment_amount as paymentAmount,
+            ar.hand_fee as handFee,
+            ar.remark
+        FROM
+            `smt_apply_record` ar
+            LEFT JOIN smt_payment_apply pa ON ar.payment_no = pa.payment_no
     </select>
 
 

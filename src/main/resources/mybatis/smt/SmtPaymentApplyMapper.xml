@@ -7,6 +7,7 @@
     <resultMap type="SmtPaymentApply" id="SmtPaymentApplyResult">
         <result property="id" column="id"/>
         <result property="paymentNo" column="payment_no"/>
+        <result property="reconciliationTime"    column="reconciliation_time"    />
         <result property="receiveId" column="receive_id"/>
         <result property="paymentType" column="payment_type"/>
         <result property="applyAmount" column="apply_amount"/>
@@ -27,7 +28,7 @@
     </resultMap>
 
     <sql id="selectSmtPaymentApplyVo">
-        select id,payment_no, receive_id, payment_type, apply_amount, payment_reason, is_settle, status, create_by, create_time, update_by, update_time, remark, del_flag from smt_payment_apply
+        select id,payment_no,reconciliation_time, receive_id, payment_type, apply_amount, payment_reason, is_settle, status, create_by, create_time, update_by, update_time, remark, del_flag from smt_payment_apply
     </sql>
 
     <select id="selectSmtPaymentApplyList" parameterType="SmtPaymentApply" resultMap="SmtPaymentApplyResult">
@@ -46,6 +47,7 @@
         SELECT
         a.id,
         a.payment_no,
+        a.reconciliation_time,
         a.receive_id,
         a.payment_type,
         a.apply_amount,
@@ -82,6 +84,7 @@
         insert into smt_payment_apply
         <trim prefix="(" suffix=")" suffixOverrides=",">
             <if test="paymentNo != null ">payment_no,</if>
+            <if test="reconciliationTime != null ">reconciliation_time,</if>
             <if test="receiveId != null ">receive_id,</if>
             <if test="paymentType != null ">payment_type,</if>
             <if test="applyAmount != null ">apply_amount,</if>
@@ -97,6 +100,7 @@
         </trim>
         <trim prefix="values (" suffix=")" suffixOverrides=",">
             <if test="paymentNo != null ">#{paymentNo},</if>
+            <if test="reconciliationTime != null ">#{reconciliationTime},</if>
             <if test="receiveId != null ">#{receiveId},</if>
             <if test="paymentType != null ">#{paymentType},</if>
             <if test="applyAmount != null ">#{applyAmount},</if>
@@ -117,6 +121,7 @@
         <trim prefix="SET" suffixOverrides=",">
             <if test="receiveId != null ">receive_id = #{receiveId},</if>
             <if test="paymentNo != null ">payment_no = #{paymentNo},</if>
+            <if test="reconciliationTime != null ">payment_no = #{reconciliationTime},</if>
             <if test="paymentType != null ">payment_type = #{paymentType},</if>
             <if test="applyAmount != null ">apply_amount = #{applyAmount},</if>
             <if test="paymentReason != null  and paymentReason != ''">payment_reason = #{paymentReason},</if>

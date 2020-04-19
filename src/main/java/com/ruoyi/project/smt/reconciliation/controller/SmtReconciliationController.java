@@ -1,35 +1,33 @@
 package com.ruoyi.project.smt.reconciliation.controller;
 
-import java.math.BigDecimal;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
-
 import com.ruoyi.common.constant.Constants;
 import com.ruoyi.common.utils.StringUtils;
 import com.ruoyi.common.utils.file.FileUploadUtils;
+import com.ruoyi.common.utils.poi.ExcelUtil;
 import com.ruoyi.common.utils.security.ShiroUtils;
-import com.ruoyi.common.utils.text.Convert;
+import com.ruoyi.framework.aspectj.lang.annotation.Log;
+import com.ruoyi.framework.aspectj.lang.enums.BusinessType;
 import com.ruoyi.framework.config.RuoYiConfig;
-import com.ruoyi.project.smt.paymentrecord.domain.SmtPaymentRecord;
+import com.ruoyi.framework.web.controller.BaseController;
+import com.ruoyi.framework.web.domain.AjaxResult;
+import com.ruoyi.framework.web.page.TableDataInfo;
 import com.ruoyi.project.smt.paymentrecord.service.ISmtPaymentRecordService;
+import com.ruoyi.project.smt.reconciliation.domain.SmtReconciliation;
+import com.ruoyi.project.smt.reconciliation.service.ISmtReconciliationService;
 import com.ruoyi.project.smt.reconciliationfile.domain.SmtReconciliationFile;
 import com.ruoyi.project.smt.reconciliationfile.service.ISmtReconciliationFileService;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.*;
-import com.ruoyi.framework.aspectj.lang.annotation.Log;
-import com.ruoyi.framework.aspectj.lang.enums.BusinessType;
-import com.ruoyi.project.smt.reconciliation.domain.SmtReconciliation;
-import com.ruoyi.project.smt.reconciliation.service.ISmtReconciliationService;
-import com.ruoyi.framework.web.controller.BaseController;
-import com.ruoyi.framework.web.domain.AjaxResult;
-import com.ruoyi.common.utils.poi.ExcelUtil;
-import com.ruoyi.framework.web.page.TableDataInfo;
 import org.springframework.web.multipart.MultipartFile;
+
+import java.math.BigDecimal;
+import java.util.Collections;
+import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * 对账管理Controller
@@ -37,6 +35,7 @@ import org.springframework.web.multipart.MultipartFile;
  * @author popo
  * @date 2020-04-05
  */
+@lombok.extern.java.Log
 @Controller
 @RequestMapping("/smt/reconciliation")
 public class SmtReconciliationController extends BaseController {
@@ -85,7 +84,10 @@ public class SmtReconciliationController extends BaseController {
      * 新增对账管理
      */
     @GetMapping("/add")
-    public String add() {
+    public String add(Model model) {
+        Integer no = generateReconciliationNo();
+        log.info("新增客户对账生成对账单号是："+no);
+        model.addAttribute("no",no);
         return prefix + "/add";
     }
 
@@ -222,8 +224,8 @@ public class SmtReconciliationController extends BaseController {
             String avatar = FileUploadUtils.upload(RuoYiConfig.getAvatarPath(), file);
             SmtReconciliationFile smtFile = new SmtReconciliationFile();
             smtFile.setReconciliationNo(num);
-            smtFile.setFileType(type);
             smtFile.setFileUrl(avatar);
+            smtFile.setFileType(type);
             smtFile.setCreateBy(ShiroUtils.getSysUser().getUserName());
             smtReconciliationFileService.insertSmtReconciliationFile(smtFile);
             return success();
@@ -238,8 +240,8 @@ public class SmtReconciliationController extends BaseController {
      *
      * @return
      */
-    @RequestMapping("/getMaxReconciliationNo")
-    @ResponseBody
+//    @RequestMapping("/getMaxReconciliationNo")
+//    @ResponseBody
     public Integer generateReconciliationNo() {
         List<SmtReconciliation> list = smtReconciliationService.selectSmtReconciliationList(new SmtReconciliation());
         if (StringUtils.isNotEmpty(list)) {

@@ -296,10 +296,24 @@ public class SmtDeliveryRecordController extends BaseController {
     @RequiresPermissions("smt:delivery:export")
     @PostMapping("/export")
     @ResponseBody
-    public AjaxResult export(SmtDeliveryRecord smtDeliveryRecord) {
-        List<SmtDeliveryRecord> list = smtDeliveryRecordService.selectSmtDeliveryRecordList(smtDeliveryRecord);
-        ExcelUtil<SmtDeliveryRecord> util = new ExcelUtil<SmtDeliveryRecord>(SmtDeliveryRecord.class);
-        return util.exportExcel(list, "delivery");
+    public AjaxResult export(SmtOrderEntry entry) {
+        entry.setOrderType(Constants.BOM_TYPE_DZL);
+        List<SmtOrderEntryVO> list = smtOrderEntryService.selectSmtEntryAllDzlList(entry);
+        Map<Integer, String> cusNameMap = getCusCodeAndCusNameMap();
+        for (SmtOrderEntryVO vo : list) {
+            SmtDeliveryRecord record = new SmtDeliveryRecord();
+            record.setBomId(vo.getBomId());
+            record.setCusCode(vo.getCusCode());
+            vo.setCusName(cusNameMap.get(vo.getCusCode()));
+            record.setOrderType(vo.getOrderType());
+            Integer deliveryedQty = smtDeliveryRecordService.getDeliveryQty(record);
+            int i = deliveryedQty == null ? 0 : deliveryedQty.intValue();
+            int sum = vo.getSumOrderQty() - i;
+            vo.setSumOrderQty(sum);
+        }
+        List<SmtOrderEntryVO> collect = list.stream().filter(dzl -> Integer.valueOf(dzl.getSumOrderQty()) > 0).collect(Collectors.toList());
+        ExcelUtil<SmtOrderEntryVO> util = new ExcelUtil<SmtOrderEntryVO>(SmtOrderEntryVO.class);
+        return util.exportExcel(collect, "电子料仓");
     }
 
     /**

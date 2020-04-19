@@ -21,6 +21,8 @@ public class DateUtils extends org.apache.commons.lang3.time.DateUtils
 
     public static String YYYYMMDDHHMMSS = "yyyyMMddHHmmss";
 
+    public static String MMSS = "mmss";
+
     public static String YYYY_MM_DD_HH_MM_SS = "yyyy-MM-dd HH:mm:ss";
 
     private static String[] parsePatterns = {
@@ -56,6 +58,11 @@ public class DateUtils extends org.apache.commons.lang3.time.DateUtils
     public static final String dateTimeNow()
     {
         return dateTimeNow(YYYYMMDDHHMMSS);
+    }
+
+    public static final String dateNowTimeNow()
+    {
+        return dateTimeNow(MMSS);
     }
 
     public static final String dateTimeNow(final String format)
@@ -151,5 +158,10 @@ public class DateUtils extends org.apache.commons.lang3.time.DateUtils
         // 计算差多少秒//输出结果
         // long sec = diff % nd % nh % nm / ns;
         return day + "天" + hour + "小时" + min + "分钟";
+    }
+
+    public static void main(String[] args) {
+        System.out.println(dateTimeNow());
+        System.out.println(dateTimeNow(MMSS));
     }
 }
