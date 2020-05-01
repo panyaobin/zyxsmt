@@ -1,6 +1,7 @@
 package com.ruoyi.project.smt.paymentapply.service;
 
 import com.ruoyi.project.smt.paymentapply.domain.SmtPaymentApply;
+import com.ruoyi.project.smt.paymentapply.print.SmtPaymentApplyPrintVO;
 import com.ruoyi.project.smt.paymentinfo.domain.SmtPaymentInfo;
 
 import java.util.List;
@@ -78,4 +79,10 @@ public interface ISmtPaymentApplyService
      */
     public int changeStatus(SmtPaymentApply apply);
 
+    /**
+     * 根据付款申请单id查询相关付款信息
+     * @param id
+     * @return
+     */
+    SmtPaymentApplyPrintVO selectPrintSmtPaymentApplyById(String id);
 }

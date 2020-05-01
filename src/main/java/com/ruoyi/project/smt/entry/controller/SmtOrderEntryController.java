@@ -89,19 +89,19 @@ public class SmtOrderEntryController extends BaseController {
     public TableDataInfo getAllList(SmtOrderEntry orderEntry) {
         startPage();
         List<SmtOrderEntryVO> entryVOList = smtOrderEntryService.selectSmtEntryAllList(orderEntry);
-        Map<Integer, String> dzlNameMap = getDzlIdAndDzlTypeNameMap();
-        Map<Integer, String> cusNameMap = getCusCodeAndCusNameMap();
-        entryVOList.stream().forEach(bom -> {
-                    bom.setCusName(cusNameMap.get(bom.getCusCode()));
-                    if (1 == bom.getOrderType().intValue()) {
-                        bom.setTypeNo(smtBomService.selectSmtBomById(Long.valueOf(bom.getBomId())).getBomName());
-                        bom.setTypeName(Constants.FPC_TYPE_NAME);
-                    } else {
-                        bom.setTypeNo(smtDzlService.selectSmtDzlById(Long.valueOf(bom.getBomId())).getDzlName());
-                        bom.setTypeName(dzlNameMap.get(bom.getBomId()));
-                    }
-                }
-        );
+//        Map<Integer, String> dzlNameMap = getDzlIdAndDzlTypeNameMap();
+//        Map<Integer, String> cusNameMap = getCusCodeAndCusNameMap();
+//        entryVOList.stream().forEach(bom -> {
+//                    bom.setCusName(cusNameMap.get(bom.getCusCode()));
+//                    if (1 == bom.getOrderType().intValue()) {
+//                        bom.setTypeNo(smtBomService.selectSmtBomById(Long.valueOf(bom.getBomId())).getBomName());
+//                        bom.setTypeName(Constants.FPC_TYPE_NAME);
+//                    } else {
+//                        bom.setTypeNo(smtDzlService.selectSmtDzlById(Long.valueOf(bom.getBomId())).getDzlName());
+//                        bom.setTypeName(dzlNameMap.get(bom.getBomId()));
+//                    }
+//                }
+//        );
         return getDataTable(entryVOList);
     }
 

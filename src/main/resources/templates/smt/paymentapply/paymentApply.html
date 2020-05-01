@@ -104,7 +104,10 @@
                 },
                 {
                     field: 'paymentNo',
-                    title: '付款单号'
+                    title: '付款单号',
+                    formatter: function (value, row, index) {
+                        return "<a onclick='printApply("+row.id+")' title='打印付款申请单'>"+value+"</a>";
+                    }
                 },
                 {
                     field: 'reconciliationTime',
@@ -215,6 +218,12 @@
         $.modal.confirm("确认结清此付款单吗？", function () {
             $.operate.post(prefix + "/changeStatus", {"id": userId, "isSettle": 1});
         })
+    }
+
+    //打印付款申请单
+    function printApply(id) {
+        let url= prefix+"/print?id="+id;
+        $.modal.openReconciliation("打印" + table.options.modalName, url, "1100", "750");
     }
 </script>
 </body>

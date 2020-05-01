@@ -1,6 +1,8 @@
 package com.ruoyi.project.smt.paymentapply.mapper;
 
 import com.ruoyi.project.smt.paymentapply.domain.SmtPaymentApply;
+import com.ruoyi.project.smt.paymentapply.print.SmtPaymentApplyPrintVO;
+
 import java.util.List;
 
 /**
@@ -74,4 +76,11 @@ public interface SmtPaymentApplyMapper
      * @return 结果
      */
     public List<String> selectSmtPaymentNoByIds(String[] ids);
+
+    /**
+     * 根据付款申请单id查询相关付款信息
+     * @param id
+     * @return
+     */
+    SmtPaymentApplyPrintVO selectPrintSmtPaymentApplyById(String id);
 }

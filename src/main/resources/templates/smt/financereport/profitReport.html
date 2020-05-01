@@ -61,9 +61,13 @@
         var options = {
             url: prefix + "/getAllList",
             modalName: "利润表",
-            columns: [{
-                checkbox: true
-            },
+            columns:[
+            [{
+                    title: '2019收支明细',
+                    align: 'center',
+                    colspan: 15,
+            }],
+            [
                 {
                     title: '序号',
                     formatter: function (a, b, c) {
@@ -71,39 +75,58 @@
                     }
                 },
                 {
-                    field: 'id',
-                    title: '序号id',
-                    visible: false
+                    field: 'paymentType',
+                    title: '费用类型',
                 },
                 {
-                    field: 'cusName',
-                    title: '客户名称'
+                    field: 'one',
+                    title: '1月份',
                 },
                 {
-                    field: 'orderNo',
-                    title: '订单编号'
+                    field: 'two',
+                    title: '2月份',
                 },
                 {
-                    field: 'typeNo',
-                    title: '型号'
+                    field: 'three',
+                    title: '3月份',
                 },
                 {
-                    field: 'typeName',
-                    title: '类型'
+                    field: 'four',
+                    title: '4月份',
                 },
                 {
-                    field: 'createTime',
-                    title: '入库时间'
+                    field: 'five',
+                    title: '5月份',
                 },
                 {
-                    field: 'orderQty',
-                    title: '数量'
+                    field: 'six',
+                    title: '6月份',
                 },
                 {
-                    field: 'remark',
-                    title: '说明'
-                }
-            ]
+                    field: 'seven',
+                    title: '7月份',
+                },
+                {
+                    field: 'eight',
+                    title: '8月份',
+                },
+                {
+                    field: 'nine',
+                    title: '9月份',
+                },
+                {
+                    field: 'ten',
+                    title: '10月份',
+                },
+                {
+                    field: 'eleven',
+                    title: '11月份',
+                },
+                {
+                    field: 'twelve',
+                    title: '12月份',
+                },
+            ]]
         };
         $.table.init(options);
     });

@@ -159,13 +159,13 @@ public class SmtProductShipController extends BaseController {
     @PostMapping("/fpcOnLineList")
     @ResponseBody
     public TableDataInfo fpcOnLineList(SmtDeliveryRecord record) {
-//        startPage();
+        startPage();
         List<SmtDeliveryRecord> list = smtDeliveryRecordService.selectFpcOnLineListList(record);
-        if (StringUtils.isNotEmpty(list)){
-            startPage();
-            List<SmtDeliveryRecord> newList = list.stream().filter(deliveryRecord -> deliveryRecord.getSumDeliveryQty().intValue() != 0).collect(Collectors.toList());
-            return getDataTable(newList);
-        }
+//        if (StringUtils.isNotEmpty(list)){
+//            startPage();
+//            List<SmtDeliveryRecord> newList = list.stream().filter(deliveryRecord -> deliveryRecord.getSumDeliveryQty().intValue() != 0).collect(Collectors.toList());
+//            return getDataTable(newList);
+//        }
         return getDataTable(list);
     }
 
@@ -176,12 +176,13 @@ public class SmtProductShipController extends BaseController {
     @PostMapping("/dzlOnLineList")
     @ResponseBody
     public TableDataInfo dzlOnLineList(SmtDeliveryRecord record) {
+        startPage();
         List<SmtDeliveryRecord> list = smtDeliveryRecordService.selectDzlOnLineListList(record);
-        if (StringUtils.isNotEmpty(list)) {
-            startPage();
-            List<SmtDeliveryRecord> newList = list.stream().filter(deliveryRecord -> deliveryRecord.getSumDeliveryQty().intValue() != 0).collect(Collectors.toList());
-            return getDataTable(newList);
-        }
+//        if (StringUtils.isNotEmpty(list)) {
+//            startPage();
+//            List<SmtDeliveryRecord> newList = list.stream().filter(deliveryRecord -> deliveryRecord.getSumDeliveryQty().intValue() != 0).collect(Collectors.toList());
+//            return getDataTable(newList);
+//        }
         return getDataTable(list);
     }
 

@@ -1,6 +1,7 @@
 package com.ruoyi.project.smt.applyrecord.mapper;
 
 import com.ruoyi.project.smt.applyrecord.domain.SmtApplyRecord;
+import com.ruoyi.project.smt.financereport.vo.PaymentVO;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -78,5 +79,5 @@ public interface SmtApplyRecordMapper
      * 查询应付账目付款信息集合
      * @return
      */
-    List<SmtApplyRecord> getApplyRecordList();
+    List<SmtApplyRecord> getApplyRecordList(PaymentVO pVo);
 }

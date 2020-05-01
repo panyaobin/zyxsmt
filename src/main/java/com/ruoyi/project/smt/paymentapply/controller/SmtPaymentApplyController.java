@@ -1,24 +1,27 @@
 package com.ruoyi.project.smt.paymentapply.controller;
 
 import java.math.BigDecimal;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import com.ruoyi.common.constant.Constants;
+import com.ruoyi.common.utils.NumberToCN;
 import com.ruoyi.common.utils.StringUtils;
 import com.ruoyi.common.utils.file.FileUploadUtils;
 import com.ruoyi.common.utils.security.ShiroUtils;
 import com.ruoyi.framework.config.RuoYiConfig;
 import com.ruoyi.project.smt.applyrecord.service.ISmtApplyRecordService;
 import com.ruoyi.project.smt.cus.domain.SmtCus;
+import com.ruoyi.project.smt.paymentapply.print.SmtPaymentApplyPrintVO;
 import com.ruoyi.project.smt.paymentinfo.domain.SmtPaymentInfo;
 import com.ruoyi.project.smt.paymentinfo.service.ISmtPaymentInfoService;
 import com.ruoyi.project.smt.reconciliation.domain.SmtReconciliation;
 import com.ruoyi.project.smt.reconciliationfile.domain.SmtReconciliationFile;
 import com.ruoyi.project.smt.reconciliationfile.service.ISmtReconciliationFileService;
+import org.apache.commons.lang3.time.DateFormatUtils;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.ui.ModelMap;
@@ -33,6 +36,8 @@ import com.ruoyi.common.utils.poi.ExcelUtil;
 import com.ruoyi.framework.web.page.TableDataInfo;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.servlet.http.HttpServletResponse;
+
 /**
  * 付款申请Controller
  *
@@ -44,6 +49,9 @@ import org.springframework.web.multipart.MultipartFile;
 @RequestMapping("/smt/paymentApply")
 public class SmtPaymentApplyController extends BaseController {
     private String prefix = "smt/paymentapply";
+
+    @Value("${jasper.path.apply}")
+    private String applyPrintPath;
 
     @Autowired
     private ISmtPaymentApplyService smtPaymentApplyService;
@@ -215,4 +223,33 @@ public class SmtPaymentApplyController extends BaseController {
         }
     }
 
+    /**
+     * 付款申请打印功能
+     * @param id
+     * @param response
+     */
+    @RequestMapping(value = "print")
+    public void test(@RequestParam("id") String id, HttpServletResponse response) {
+        SmtPaymentApplyPrintVO apply = smtPaymentApplyService.selectPrintSmtPaymentApplyById(id);
+        System.out.println("付款申请打印jasper文件的路径是：" + applyPrintPath);
+        Map<String, Object> map = new HashMap<>(10);
+        String date = DateFormatUtils.format(apply.getCreateTime(), "yyyy年MM月dd日");
+        map.put("createDate",date);
+        map.put("num",String.valueOf(apply.getPaymentNo()));
+        map.put("paymentUnit",apply.getCollectionUnit());
+        map.put("accountNumber",apply.getAccountNumber()+"  "+apply.getAccountName());
+        map.put("accountBank",apply.getAccountBank());
+        map.put("paymentMoney", NumberToCN.number2CNMontrayUnit(apply.getApplyAmount()));
+        map.put("money",String.valueOf(apply.getApplyAmount()));
+        map.put("paymentReason",apply.getPaymentReason());
+        map.put("remarks",apply.getRemark());
+        map.put("createUser", apply.getCreateBy());
+        List<SmtPaymentApplyPrintVO> list=new ArrayList<>();
+        list.add(apply);
+        try {
+            demo(response, map, list, applyPrintPath);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
 }

@@ -143,6 +143,11 @@
         FROM
             `smt_apply_record` ar
             LEFT JOIN smt_payment_apply pa ON ar.payment_no = pa.payment_no
+        <where>
+            <if test="reconciliationNo != null and reconciliationNo != ''">and ar.payment_no = #{reconciliationNo}</if>
+            <if test="reconciliationTime != null and reconciliationTime != ''">and date_format( pa.reconciliation_time, '%Y-%m' ) = #{reconciliationTime}</if>
+            <if test="paymentType != null and paymentType != ''">and pa.payment_type = #{paymentType}</if>
+        </where>
     </select>
 
 

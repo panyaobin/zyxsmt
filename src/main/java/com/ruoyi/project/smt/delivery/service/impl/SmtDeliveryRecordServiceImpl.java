@@ -79,20 +79,21 @@ public class SmtDeliveryRecordServiceImpl implements ISmtDeliveryRecordService {
     @Override
     public List<SmtDeliveryRecord> selectFpcOnLineListList(SmtDeliveryRecord deliveryRecord) {
         List<SmtDeliveryRecord> list = smtDeliveryRecordMapper.selectFpcOnLineListList(deliveryRecord);
-        List<SmtCus> cusList = smtCusMapper.selectSmtCusList(new SmtCus());
-        Map<Integer, String> cusNameMap = cusList.stream().collect(Collectors.toMap(SmtCus::getCusCode, SmtCus::getCusName, (x1, y1) -> x1));
-        List<SmtDeliveryRecord> newList = Lists.newArrayList();
-        for (SmtDeliveryRecord record : list) {
-            record.setCusName(cusNameMap.get(record.getCusCode()));
-            record.setBomName(smtBomMapper.selectSmtBomById(Long.valueOf(record.getBomId())).getBomName());
-            record.setTypeName(Constants.FPC_TYPE_NAME);
-            int i = getSumDeliveryQty(record);
-            record.setSumDeliveryQty(i);
-            if (i != 0) {
-                newList.add(record);
-            }
-        }
-        return newList;
+//        List<SmtCus> cusList = smtCusMapper.selectSmtCusList(new SmtCus());
+//        Map<Integer, String> cusNameMap = cusList.stream().collect(Collectors.toMap(SmtCus::getCusCode, SmtCus::getCusName, (x1, y1) -> x1));
+//        List<SmtDeliveryRecord> newList = Lists.newArrayList();
+//        for (SmtDeliveryRecord record : list) {
+//            record.setCusName(cusNameMap.get(record.getCusCode()));
+//            record.setBomName(smtBomMapper.selectSmtBomById(Long.valueOf(record.getBomId())).getBomName());
+//            record.setTypeName(Constants.FPC_TYPE_NAME);
+//            int i = getSumDeliveryQty(record);
+//            record.setSumDeliveryQty(i);
+//            if (i != 0) {
+//                newList.add(record);
+//            }
+//        }
+//        return newList;
+        return list;
     }
 
     /**
@@ -103,13 +104,13 @@ public class SmtDeliveryRecordServiceImpl implements ISmtDeliveryRecordService {
     @Override
     public List<SmtDeliveryRecord> selectDzlOnLineListList(SmtDeliveryRecord deliveryRecord) {
         List<SmtDeliveryRecord> list = smtDeliveryRecordMapper.selectDzlOnLineListList(deliveryRecord);
-        List<SmtCus> cusList = smtCusMapper.selectSmtCusList(new SmtCus());
-        Map<Integer, String> cusNameMap = cusList.stream().collect(Collectors.toMap(SmtCus::getCusCode, SmtCus::getCusName, (x1, y1) -> x1));
-        for (SmtDeliveryRecord record : list) {
-            record.setCusName(cusNameMap.get(record.getCusCode()));
-            int i = getSumDeliveryQty(record);
-            record.setSumDeliveryQty(i);
-        }
+//        List<SmtCus> cusList = smtCusMapper.selectSmtCusList(new SmtCus());
+//        Map<Integer, String> cusNameMap = cusList.stream().collect(Collectors.toMap(SmtCus::getCusCode, SmtCus::getCusName, (x1, y1) -> x1));
+//        for (SmtDeliveryRecord record : list) {
+//            record.setCusName(cusNameMap.get(record.getCusCode()));
+//            int i = getSumDeliveryQty(record);
+//            record.setSumDeliveryQty(i);
+//        }
         return list;
     }
 

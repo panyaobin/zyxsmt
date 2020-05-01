@@ -157,4 +157,24 @@
         </foreach>
     </select>
 
+    <!--根据付款申请单id查询相关付款信息-->
+    <select id="selectPrintSmtPaymentApplyById" resultType="com.ruoyi.project.smt.paymentapply.print.SmtPaymentApplyPrintVO">
+        SELECT
+            a.id,
+            a.payment_no as paymentNo,
+            i.collection_unit as collectionUnit,
+            i.account_name as accountName,
+            i.account_bank as accountBank,
+            i.account_number as accountNumber,
+            a.apply_amount as applyAmount,
+            a.payment_reason as paymentReason,
+            a.create_by as createBy,
+            a.create_time as createTime,
+            a.remark
+        FROM
+            smt_payment_apply a
+            left JOIN smt_payment_info i ON a.receive_id = i.id
+            where a.id = #{id,jdbcType=VARCHAR} limit 1
+    </select>
+
 </mapper>

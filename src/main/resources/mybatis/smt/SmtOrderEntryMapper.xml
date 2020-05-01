@@ -28,6 +28,7 @@
         <result property="typeName" column="type_name"/>
         <result property="orderQty" column="order_qty"/>
         <result property="cusCode" column="cus_code"/>
+        <result property="cusName" column="cus_name"/>
         <result property="orderNo" column="order_no"/>
         <result property="entryTime" column="entry_time"/>
         <result property="createBy" column="create_by"/>
@@ -60,8 +61,65 @@
         where id = #{id}
     </select>
 
+    <!--FPC仓备份列表,解决分页问题-->
     <!--订单入库全部信息列表-->
+    <!--    <select id="selectSmtEntryAllList" resultType="com.ruoyi.project.smt.entry.vo.SmtOrderEntryVO" resultMap="SmtOrderEntryResultVO">-->
+    <!--        SELECT-->
+    <!--        e.cus_code,-->
+    <!--        e.order_no,-->
+    <!--        e.entry_time,-->
+    <!--        e.create_by,-->
+    <!--        e.create_time,-->
+    <!--        b.bom_name,-->
+    <!--        el.id,-->
+    <!--        el.entry_id,-->
+    <!--        el.order_type,-->
+    <!--        el.bom_id,-->
+    <!--        el.order_qty,-->
+    <!--        el.remark-->
+    <!--        FROM-->
+    <!--        `smt_order_entry` e-->
+    <!--        LEFT JOIN `smt_order_entry_line` el ON e.id = el.entry_id AND el.del_flag = 0-->
+    <!--        LEFT join `smt_bom` b on el.bom_id = b.id and b.del_flag = 0-->
+    <!--        WHERE-->
+    <!--        e.del_flag = 0-->
+    <!--        <if test="cusCode != null ">and e.cus_code = #{cusCode}</if>-->
+    <!--        <if test="bomName != null  and bomName != ''">and b.bom_name like concat('%',#{bomName},'%')</if>-->
+    <!--        <if test="orderType != null  and orderType != ''">and el.order_type = #{orderType}</if>-->
+    <!--        order by e.create_time desc-->
+    <!--    </select>-->
     <select id="selectSmtEntryAllList" resultType="com.ruoyi.project.smt.entry.vo.SmtOrderEntryVO" resultMap="SmtOrderEntryResultVO">
+        SELECT
+        record.cus_code,
+        cus.cus_name,
+        record.order_no,
+        record.entry_time,
+        record.create_by,
+        record.create_time,
+        record.bom_name,
+        record.id,
+        record.entry_id,
+        record.order_type,
+        record.bom_id,
+        record.remark,
+        record.order_qty
+        FROM
+        (
+        SELECT
+        a.cus_code,
+        a.order_no,
+        a.entry_time,
+        a.create_by,
+        a.create_time,
+        a.bom_name,
+        a.id,
+        a.entry_id,
+        a.order_type,
+        a.bom_id,
+        a.remark,
+        ( a.order_qty - IFNULL( sum( b.delivery_qty ), 0 ) ) AS order_qty
+        FROM
+        (
         SELECT
         e.cus_code,
         e.order_no,
@@ -77,38 +135,110 @@
         el.remark
         FROM
         `smt_order_entry` e
-        LEFT JOIN `smt_order_entry_line` el ON e.id = el.entry_id AND el.del_flag = 0
-        LEFT join `smt_bom` b on el.bom_id = b.id and b.del_flag = 0
+        LEFT JOIN `smt_order_entry_line` el ON e.id = el.entry_id
+        AND el.del_flag = 0
+        LEFT JOIN `smt_bom` b ON el.bom_id = b.id
+        AND b.del_flag = 0
         WHERE
         e.del_flag = 0
-        <if test="cusCode != null ">and e.cus_code = #{cusCode}</if>
-        <if test="bomName != null  and bomName != ''">and b.bom_name like concat('%',#{bomName},'%')</if>
-        <if test="orderType != null  and orderType != ''">and el.order_type = #{orderType}</if>
-        order by e.create_time desc
+        AND el.order_type = 1
+        ORDER BY
+        e.create_time DESC
+        ) a
+        LEFT JOIN smt_delivery_record b ON a.cus_code = b.cus_code
+        AND a.order_type = b.order_type
+        AND a.bom_id = b.bom_id
+        AND a.order_no = b.order_no
+        GROUP BY
+        a.cus_code,
+        a.order_type,
+        a.bom_id,
+        a.order_no
+        ) record
+        LEFT JOIN smt_cus cus ON cus.cus_code = record.cus_code
+        WHERE
+        record.order_qty >0
+        <if test="cusCode != null ">and record.cus_code = #{cusCode}</if>
+        <if test="bomName != null  and bomName != ''">and record.bom_name like concat('%',#{bomName},'%')</if>
+        order by record.create_time desc
     </select>
 
 
+    <!--原有电子料仓集合备份,解决分页问题-->
     <!--查询所有电子料集合-->
+    <!--    <select id="selectSmtEntryAllDzlList" resultType="com.ruoyi.project.smt.entry.vo.SmtOrderEntryVO" resultMap="SmtOrderEntryResultVO">-->
+    <!--        SELECT-->
+    <!--        e.cus_code,-->
+    <!--        el.order_type,-->
+    <!--        el.bom_id,-->
+    <!--        sum(el.order_qty) as sumOrderQty,-->
+    <!--        d.dzl_name,-->
+    <!--        d.type_name-->
+    <!--        FROM-->
+    <!--        `smt_order_entry` e-->
+    <!--        LEFT JOIN `smt_order_entry_line` el ON e.id = el.entry_id-->
+    <!--        AND el.del_flag = 0-->
+    <!--        LEFT JOIN smt_dzl d ON el.bom_id = d.id-->
+    <!--        AND d.del_flag = 0-->
+    <!--        WHERE-->
+    <!--        e.del_flag = 0-->
+    <!--        <if test="cusCode != null ">and e.cus_code = #{cusCode}</if>-->
+    <!--        <if test="dzlName != null  and dzlName != ''">and d.dzl_name like concat('%',#{dzlName},'%')</if>-->
+    <!--        <if test="orderType != null  and orderType != ''">and el.order_type = #{orderType}</if>-->
+    <!--        GROUP BY cus_code,bom_id-->
+    <!--    </select>-->
     <select id="selectSmtEntryAllDzlList" resultType="com.ruoyi.project.smt.entry.vo.SmtOrderEntryVO" resultMap="SmtOrderEntryResultVO">
+        SELECT
+        record.cus_code,
+        cus.cus_name,
+        record.order_type,
+        record.bom_id,
+        record.dzl_name,
+        record.type_name,
+        record.sumOrderQty
+        FROM
+        (
+        SELECT
+        a.cus_code,
+        a.order_type,
+        a.bom_id,
+        d.dzl_name,
+        d.type_name,
+        IFNULL( sum( dr.delivery_qty ), 0 ),
+        a.sumOrderQty - IFNULL( sum( dr.delivery_qty ), 0 ) AS sumOrderQty
+        FROM
+        (
         SELECT
         e.cus_code,
         el.order_type,
         el.bom_id,
-        sum(el.order_qty) as sumOrderQty,
-        d.dzl_name,
-        d.type_name
+        sum( el.order_qty ) AS sumOrderQty
         FROM
         `smt_order_entry` e
         LEFT JOIN `smt_order_entry_line` el ON e.id = el.entry_id
-        AND el.del_flag = 0
-        LEFT JOIN smt_dzl d ON el.bom_id = d.id
-        AND d.del_flag = 0
+        AND el.del_flag = 0 --
+
         WHERE
         e.del_flag = 0
-        <if test="cusCode != null ">and e.cus_code = #{cusCode}</if>
-        <if test="dzlName != null  and dzlName != ''">and d.dzl_name like concat('%',#{dzlName},'%')</if>
-        <if test="orderType != null  and orderType != ''">and el.order_type = #{orderType}</if>
-        GROUP BY cus_code,bom_id
+        AND el.order_type = 2
+        GROUP BY
+        cus_code,
+        bom_id
+        ) a
+        LEFT JOIN smt_delivery_record dr ON dr.bom_id = a.bom_id
+        AND dr.order_type = 2
+        AND dr.cus_code = a.cus_code
+        LEFT JOIN smt_dzl d ON d.id = a.bom_id
+        GROUP BY
+        a.bom_id,
+        a.cus_code
+        ) record
+        left join smt_cus cus on cus.cus_code = record.cus_code
+        WHERE
+        record.sumOrderQty >0
+        <if test="cusCode != null ">and record.cus_code = #{cusCode}</if>
+        <if test="dzlName != null  and dzlName != ''">and record.dzl_name like concat('%',#{dzlName},'%')</if>
+        <if test="orderType != null  and orderType != ''">and record.order_type = #{orderType}</if>
     </select>
 
 
@@ -136,11 +266,13 @@
         e.order_no,
         e.entry_time,
         l.bom_id,
+        d.dzl_name,
         l.order_qty
         FROM
         `smt_order_entry` e
         LEFT JOIN smt_order_entry_line l ON e.id = l.entry_id
         AND l.del_flag = 0
+        left join smt_dzl d on d.id = l.bom_id
         WHERE
         e.del_flag = 0
         AND l.order_type = 2

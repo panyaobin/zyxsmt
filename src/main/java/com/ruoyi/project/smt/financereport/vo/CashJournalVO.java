@@ -1,5 +1,6 @@
 package com.ruoyi.project.smt.financereport.vo;
 
+import com.ruoyi.framework.aspectj.lang.annotation.Excel;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
@@ -16,27 +17,43 @@ import java.util.Date;
 @EqualsAndHashCode(callSuper = false)
 public class CashJournalVO {
 
-    //账单号
+    @Excel(name = "单号")
     private Long reconciliationNo;
 
-    //账单月份
+    /**
+     * 账单月份
+     */
     private Date reconciliationTime;
 
-    //费用类型
+    @Excel(name = "账单月份")
+    private String reconciliationTimeStr;
+
+
+    @Excel(name = "类型")
     private String feeType;
 
-    //创建日期
+
+    /**
+     * 日期
+     */
     private Date createTime;
 
-    //收款
+    @Excel(name = "日期")
+    private String createTimeStr;
+
+
+    @Excel(name = "收款")
     private BigDecimal receiveFee;
 
-    //付款
+
+    @Excel(name = "付款")
     private BigDecimal paymentFee;
 
-    //手续费
+
+    @Excel(name = "手续费")
     private BigDecimal handFee;
 
-    //备注
+
+    @Excel(name = "备注")
     private String remark;
 }

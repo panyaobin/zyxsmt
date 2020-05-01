@@ -54,47 +54,156 @@
         GROUP BY cus_code,order_type,bom_id
     </select>
 
+    <!--备份FPC在线列表,解决分页问题-->
     <!--查询FPC在线列表列表-->
+    <!--    <select id="selectFpcOnLineListList" resultType="com.ruoyi.project.smt.delivery.domain.SmtDeliveryRecord">-->
+    <!--        SELECT-->
+    <!--        cus_code as cusCode,-->
+    <!--        order_type as orderType,-->
+    <!--        bom_id as bomId,-->
+    <!--        order_no as orderNo,-->
+    <!--        sum( delivery_qty ) AS sumDeliveryQty-->
+    <!--        FROM-->
+    <!--        smt_delivery_record-->
+    <!--        WHERE-->
+    <!--        order_type = 1-->
+    <!--        and del_flag = 0-->
+    <!--        <if test="cusCode != null  and cusCode != ''">and cus_code = #{cusCode}</if>-->
+    <!--        <if test="orderNo != null  and orderNo != ''">and order_no = #{orderNo}</if>-->
+    <!--        GROUP BY-->
+    <!--        cus_code,-->
+    <!--        bom_id,-->
+    <!--        order_no-->
+    <!--    </select>-->
     <select id="selectFpcOnLineListList" resultType="com.ruoyi.project.smt.delivery.domain.SmtDeliveryRecord">
         SELECT
-        cus_code as cusCode,
-        order_type as orderType,
-        bom_id as bomId,
-        order_no as orderNo,
-        sum( delivery_qty ) AS sumDeliveryQty
+        record.cus_code as cusCode,
+        record.order_type as orderType,
+        record.bom_id as bomId,
+        record.order_no as orderNo,
+        record.sum_delivery_qty as sumDeliveryQty,
+        cus.cus_name as cusName,
+        dzl.dzl_name as dzlName,
+        dzl.type_name as typeName
+        FROM
+        (
+        SELECT
+        a.cus_code,
+        a.order_type,
+        a.bom_id,
+        a.order_no,
+        a.sum_delivery_qty - IFNULL( sum( b.ship_qty ), 0 ) - IFNULL( sum( b.bak ), 0 ) AS sum_delivery_qty
+        FROM
+        (
+        SELECT
+        cus_code,
+        order_type,
+        bom_id,
+        order_no,
+        sum( delivery_qty ) AS sum_delivery_qty
         FROM
         smt_delivery_record
         WHERE
         order_type = 1
-        and del_flag = 0
-        <if test="cusCode != null  and cusCode != ''">and cus_code = #{cusCode}</if>
-        <if test="orderNo != null  and orderNo != ''">and order_no = #{orderNo}</if>
+        AND del_flag = 0
         GROUP BY
         cus_code,
         bom_id,
         order_no
+        ) a
+        LEFT JOIN smt_product_ship b ON a.cus_code = b.cus_code
+        AND a.order_type = b.order_type
+        AND a.order_no = b.order_no
+        AND a.bom_id = b.bom_id
+        GROUP BY
+        a.cus_code,
+        a.order_type,
+        a.bom_id,
+        a.order_no
+        ) record
+        left join smt_cus  cus on cus.cus_code = record.cus_code
+        left join smt_dzl dzl on dzl.id = record.bom_id
+        WHERE
+        record.sum_delivery_qty >0
+        <if test="cusCode != null  and cusCode != ''">and record.cus_code = #{cusCode}</if>
+        <if test="orderNo != null  and orderNo != ''">and record.order_no = #{orderNo}</if>
     </select>
 
+    <!--备份DZL在线列表,解决分页问题-->
     <!--查询DZL在线列表列表-->
+<!--    <select id="selectDzlOnLineListList" resultType="com.ruoyi.project.smt.delivery.domain.SmtDeliveryRecord">-->
+<!--        SELECT-->
+<!--        r.cus_code AS cusCode,-->
+<!--        r.order_type AS orderType,-->
+<!--        r.bom_id AS bomId,-->
+<!--        sum(r.delivery_qty ) AS sumDeliveryQty ,-->
+<!--        d.dzl_name as dzlName,-->
+<!--        d.type_name as typeName-->
+<!--        FROM-->
+<!--        smt_delivery_record r-->
+<!--        left join smt_dzl d on r.bom_id = d.id-->
+<!--        WHERE-->
+<!--        r.order_type = 2-->
+<!--        AND r.del_flag = 0-->
+<!--        <if test="cusCode != null  and cusCode != ''">and r.cus_code = #{cusCode}</if>-->
+<!--        <if test="dzlName != null  and dzlName != ''">and d.dzl_name like concat('%',#{dzlName},'%')</if>-->
+<!--        GROUP BY-->
+<!--        r.cus_code,-->
+<!--        r.bom_id-->
+<!--    </select>-->
     <select id="selectDzlOnLineListList" resultType="com.ruoyi.project.smt.delivery.domain.SmtDeliveryRecord">
         SELECT
-        r.cus_code AS cusCode,
-        r.order_type AS orderType,
-        r.bom_id AS bomId,
-        sum(r.delivery_qty ) AS sumDeliveryQty ,
-        d.dzl_name as dzlName,
-        d.type_name as typeName
+            record.cus_code AS cusCode,
+            record.cus_name as cusName,
+            record.order_type AS orderType,
+            record.bom_id AS bomId,
+            record.dzl_name AS dzlName,
+            record.type_name AS typeName,
+            record.sum_delivery_qty  as sumDeliveryQty
         FROM
-        smt_delivery_record r
-        left join smt_dzl d on r.bom_id = d.id
+            (
+        SELECT
+            a.cus_code,
+            cus.cus_name,
+            a.order_type,
+            a.bom_id,
+            a.dzl_name,
+            a.type_name,
+            (
+            a.sum_delivery_qty - IFNULL( sum( b.ship_qty ), 0 ) - IFNULL( sum( b.bak ), 0 )
+            ) AS  sum_delivery_qty
+        FROM
+            (
+        SELECT
+            r.cus_code,
+            r.order_type,
+            r.bom_id,
+            sum( r.delivery_qty ) AS sum_delivery_qty,
+            d.dzl_name,
+            d.type_name
+        FROM
+            smt_delivery_record r
+            LEFT JOIN smt_dzl d ON r.bom_id = d.id
         WHERE
-        r.order_type = 2
-        AND r.del_flag = 0
-        <if test="cusCode != null  and cusCode != ''">and r.cus_code = #{cusCode}</if>
-        <if test="dzlName != null  and dzlName != ''">and d.dzl_name like concat('%',#{dzlName},'%')</if>
+            r.order_type = 2
+            AND r.del_flag = 0
         GROUP BY
-        r.cus_code,
-        r.bom_id
+            r.cus_code,
+            r.bom_id
+            ) a
+            LEFT JOIN smt_product_ship b ON a.cus_code = b.cus_code
+            AND a.order_type = b.order_type
+            AND a.bom_id = b.bom_id
+            LEFT JOIN smt_cus cus ON a.cus_code = cus.cus_code
+        GROUP BY
+            a.cus_code,
+            a.order_type,
+            a.bom_id
+            ) record
+        WHERE
+            record.sum_delivery_qty != 0
+        <if test="cusCode != null  and cusCode != ''">and record.cus_code = #{cusCode}</if>
+        <if test="dzlName != null  and dzlName != ''">and record.dzl_name like concat('%',#{dzlName},'%')</if>
     </select>
 
     <!--根据发料单号查询发料信息-->

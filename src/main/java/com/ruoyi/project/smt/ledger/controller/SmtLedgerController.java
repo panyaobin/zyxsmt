@@ -67,8 +67,8 @@ public class SmtLedgerController extends BaseController {
     public TableDataInfo dzlEntryList(SmtOrderEntry entry) {
         startPage();
         List<SmtOrderEntryVO> entryList = smtOrderEntryService.dzlEntryList(entry);
-        Map<Integer, String> dzlNameMap = getDzlIdAndDzlNameMap();
-        entryList.stream().forEach(en -> en.setDzlName(dzlNameMap.get(en.getBomId())));
+//        Map<Integer, String> dzlNameMap = getDzlIdAndDzlNameMap();
+//        entryList.stream().forEach(en -> en.setDzlName(dzlNameMap.get(en.getBomId())));
         return getDataTable(entryList);
     }
 
@@ -84,8 +84,6 @@ public class SmtLedgerController extends BaseController {
     public TableDataInfo dzlEntryList(SmtProductShip ship) {
         startPage();
         List<SmtProductShip> shipList = smtProductShipService.selectSmtProductShipExportList(ship);
-        Map<Integer, String> dzlNameMap = getDzlIdAndDzlNameMap();
-        shipList.stream().forEach(en -> en.setDzlName(dzlNameMap.get(en.getBomId())));
         return getDataTable(shipList);
     }
 

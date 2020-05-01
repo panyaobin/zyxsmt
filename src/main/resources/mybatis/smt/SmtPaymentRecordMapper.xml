@@ -130,6 +130,37 @@
             FROM
             `smt_payment_record` pr
             left join smt_reconciliation r on pr.reconciliation_no = r.reconciliation_no
+        <where>
+            <if test="reconciliationNo != null and reconciliationNo != ''">and pr.reconciliation_no = #{reconciliationNo}</if>
+            <if test="reconciliationTime != null and reconciliationTime != ''">and date_format( r.reconciliation_time, '%Y-%m' ) = #{reconciliationTime}</if>
+            <if test="receiveType != null and receiveType != ''">and r.fee_type = #{receiveType}</if>
+        </where>
+    </select>
+
+    <!--统计应付模块付款利润-->
+    <select id="getPaymentProfitReportList" resultType="com.ruoyi.project.smt.financereport.vo.FinanceReportVO">
+        SELECT
+            total_payment AS totalPayment,
+            payment_type AS paymentType,
+            years,
+            months
+        FROM
+            (
+        SELECT
+            sum( a.payment_amount ) AS total_payment,
+            b.payment_type,
+            DATE_FORMAT( b.reconciliation_time, '%Y' ) AS years,
+            date_format( b.reconciliation_time, '%m' ) AS months
+        FROM
+            `smt_apply_record` a
+            LEFT JOIN smt_payment_apply b ON a.payment_no = b.payment_no
+        GROUP BY
+            b.payment_type,
+            date_format( b.reconciliation_time, '%Y-%m' )
+            ) record
+        WHERE
+            record.years = 2020
+            ORDER BY months
     </select>
 
     <insert id="insertSmtPaymentRecord" parameterType="SmtPaymentRecord" useGeneratedKeys="true" keyProperty="id">

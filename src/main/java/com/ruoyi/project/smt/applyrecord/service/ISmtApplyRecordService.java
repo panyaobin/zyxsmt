@@ -1,6 +1,7 @@
 package com.ruoyi.project.smt.applyrecord.service;
 
 import com.ruoyi.project.smt.applyrecord.domain.SmtApplyRecord;
+import com.ruoyi.project.smt.financereport.vo.PaymentVO;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -72,5 +73,5 @@ public interface ISmtApplyRecordService
      * 查询应付账目付款记录
      * @return
      */
-    List<SmtApplyRecord> getApplyRecordList();
+    List<SmtApplyRecord> getApplyRecordList(PaymentVO pVo);
 }

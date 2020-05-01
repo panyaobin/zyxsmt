@@ -2,6 +2,7 @@
 <html lang="zh" xmlns:th="http://www.thymeleaf.org" xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
 <head>
     <th:block th:include="include :: header('现金日记账')"/>
+    <th:block th:include="include :: datetimepicker-css"/>
 </head>
 <style>
     .selectHeight {
@@ -22,24 +23,24 @@
                     <ul>
                         <li>
                             <p class="inputHeight">单号：</p>
-                            <input type="text" class="selectHeight" name="orderNo"/>
+                            <input type="text" class="selectHeight" name="reconciliationNo"/>
                         </li>
 
                         <li>
                             <p class="inputHeight">账单月份：</p>
-                            <input type="text" class="selectHeight" name="orderNo"/>
+                            <input type="text" class="selectHeight" name="reconciliationTime"/>
                         </li>
 
                         <li>
                             <p class="inputHeight">收款类型：</p>
-                            <select name="feeType" required class="form-control m-b selectHeight" th:with="type=${@dict.getType('smt_fee_type')}">
+                            <select name="receiveType" required class="form-control m-b selectHeight" th:with="type=${@dict.getType('smt_fee_type')}" onchange="$.table.search()">
                                 <option value="">请选择</option>
                                 <option th:each="dict : ${type}" th:text="${dict.dictLabel}" th:value="${dict.dictValue}"></option>
                             </select>
                         </li>
                         <li>
                             <p class="inputHeight">付款类型：</p>
-                            <select name="feeType" required class="form-control m-b selectHeight" th:with="type=${@dict.getType('smt_payment_type')}">
+                            <select name="paymentType" required class="form-control m-b selectHeight" th:with="type=${@dict.getType('smt_payment_type')}" onchange="$.table.search()">
                                 <option value="">请选择</option>
                                 <option th:each="dict : ${type}" th:text="${dict.dictLabel}" th:value="${dict.dictValue}"></option>
                             </select>
@@ -65,18 +66,26 @@
     </div>
 </div>
 <th:block th:include="include :: footer"/>
+<th:block th:include="include :: datetimepicker-js"/>
 <script th:inline="javascript">
-    var editFlag = [[${@permission.hasPermi('smt:bom:edit')}]];
-    var removeFlag = [[${@permission.hasPermi('smt:bom:remove')}]];
     var prefix = ctx + "smt/cashJournal";
+
+    //账单月份格式化,日期选择格式   年-月
+    $("input[name='reconciliationTime']").datetimepicker({
+        format: 'yyyy-MM',
+        weekStart: 1,
+        autoclose: true,
+        startView: 3,
+        minView: 3,
+        forceParse: false,
+    });
 
     $(function () {
         var options = {
             url: prefix + "/getAllList",
+            exportUrl: prefix + "/export",
             modalName: "现金日记账",
-            columns: [{
-                checkbox: true
-            },
+            columns: [
                 {
                     title: '序号',
                     formatter: function (a, b, c) {
@@ -143,7 +152,6 @@
         };
         $.table.init(options);
     });
-
 </script>
 </body>
 </html>

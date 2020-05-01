@@ -160,3 +160,5 @@ jasper:
     ship: D:\ship.jasper
     #退货打印文件地址
     returns: D:\returns.jasper
+    #付款申请打印地址
+    apply: D:\paymentApply.jasper

@@ -5,6 +5,7 @@ import java.util.List;
 import com.ruoyi.common.utils.DateUtils;
 import com.ruoyi.project.smt.applyrecord.domain.SmtApplyRecord;
 import com.ruoyi.project.smt.applyrecord.mapper.SmtApplyRecordMapper;
+import com.ruoyi.project.smt.paymentapply.print.SmtPaymentApplyPrintVO;
 import com.ruoyi.project.smt.reconciliationfile.mapper.SmtReconciliationFileMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -118,5 +119,10 @@ public class SmtPaymentApplyServiceImpl implements ISmtPaymentApplyService {
     @Override
     public int changeStatus(SmtPaymentApply apply) {
         return smtPaymentApplyMapper.updateSmtPaymentApply(apply);
+    }
+
+    @Override
+    public SmtPaymentApplyPrintVO selectPrintSmtPaymentApplyById(String id) {
+        return smtPaymentApplyMapper.selectPrintSmtPaymentApplyById(id);
     }
 }

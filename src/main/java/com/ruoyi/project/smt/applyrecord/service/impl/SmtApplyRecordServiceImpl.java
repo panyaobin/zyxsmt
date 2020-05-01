@@ -3,6 +3,7 @@ package com.ruoyi.project.smt.applyrecord.service.impl;
 import java.math.BigDecimal;
 import java.util.List;
 import com.ruoyi.common.utils.DateUtils;
+import com.ruoyi.project.smt.financereport.vo.PaymentVO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import com.ruoyi.project.smt.applyrecord.mapper.SmtApplyRecordMapper;
@@ -102,7 +103,7 @@ public class SmtApplyRecordServiceImpl implements ISmtApplyRecordService
     }
 
     @Override
-    public List<SmtApplyRecord> getApplyRecordList() {
-        return smtApplyRecordMapper.getApplyRecordList();
+    public List<SmtApplyRecord> getApplyRecordList(PaymentVO pVo) {
+        return smtApplyRecordMapper.getApplyRecordList(pVo);
     }
 }

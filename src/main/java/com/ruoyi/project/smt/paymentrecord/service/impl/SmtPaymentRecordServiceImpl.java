@@ -5,6 +5,8 @@ import java.util.List;
 import java.util.Map;
 
 import com.ruoyi.common.utils.DateUtils;
+import com.ruoyi.project.smt.financereport.vo.FinanceReportVO;
+import com.ruoyi.project.smt.financereport.vo.ReceiveVO;
 import com.ruoyi.project.smt.paymentrecord.vo.SmtPaymentRecordVO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -110,7 +112,12 @@ public class SmtPaymentRecordServiceImpl implements ISmtPaymentRecordService
     }
 
     @Override
-    public List<SmtPaymentRecord> getPaymentRecordList() {
-        return smtPaymentRecordMapper.getPaymentRecordList();
+    public List<SmtPaymentRecord> getPaymentRecordList(ReceiveVO rVo) {
+        return smtPaymentRecordMapper.getPaymentRecordList(rVo);
+    }
+
+    @Override
+    public List<FinanceReportVO> getPaymentProfitReportList() {
+        return smtPaymentRecordMapper.getPaymentProfitReportList();
     }
 }

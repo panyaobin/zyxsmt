@@ -110,21 +110,20 @@ public class SmtDeliveryRecordController extends BaseController {
     @PostMapping("/fpcList")
     @ResponseBody
     public TableDataInfo fpcList(SmtOrderEntry entry) {
-        entry.setOrderType(Constants.BOM_TYPE_FPC);
-        List<SmtOrderEntryVO> list = smtOrderEntryService.selectSmtEntryAllList(entry);
-        for (SmtOrderEntryVO vo : list) {
-            SmtDeliveryRecord record = new SmtDeliveryRecord();
-            record.setCusCode(vo.getCusCode());
-            record.setBomId(vo.getBomId());
-            record.setOrderType(vo.getOrderType());
-            record.setOrderNo(vo.getOrderNo());
-            Integer deliveryedQty = smtDeliveryRecordService.getDeliveryQty(record);
-            int i = deliveryedQty == null ? 0 : deliveryedQty.intValue();
-            vo.setOrderQty(vo.getOrderQty() - i);
-        }
         startPage();
-        List<SmtOrderEntryVO> collect = list.stream().filter(entry1 -> entry1.getOrderQty().intValue() > 0).collect(Collectors.toList());
-        return getDataTable(convertList(collect));
+        List<SmtOrderEntryVO> list = smtOrderEntryService.selectSmtEntryAllList(entry);
+//        for (SmtOrderEntryVO vo : list) {
+//            SmtDeliveryRecord record = new SmtDeliveryRecord();
+//            record.setCusCode(vo.getCusCode());
+//            record.setBomId(vo.getBomId());
+//            record.setOrderType(vo.getOrderType());
+//            record.setOrderNo(vo.getOrderNo());
+//            Integer deliveryedQty = smtDeliveryRecordService.getDeliveryQty(record);
+//            int i = deliveryedQty == null ? 0 : deliveryedQty.intValue();
+//            vo.setOrderQty(vo.getOrderQty() - i);
+//        }
+//        List<SmtOrderEntryVO> collect = list.stream().filter(entry1 -> entry1.getOrderQty().intValue() > 0).collect(Collectors.toList());
+        return getDataTable(list);
     }
 
     /**
@@ -171,20 +170,21 @@ public class SmtDeliveryRecordController extends BaseController {
     @PostMapping("/dzlList")
     @ResponseBody
     public TableDataInfo dzlList(SmtOrderEntry entry) {
-        entry.setOrderType(Constants.BOM_TYPE_DZL);
-        List<SmtOrderEntryVO> list = smtOrderEntryService.selectSmtEntryAllDzlList(entry);
-        for (SmtOrderEntryVO vo : list) {
-            SmtDeliveryRecord record = new SmtDeliveryRecord();
-            record.setBomId(vo.getBomId());
-            record.setCusCode(vo.getCusCode());
-            record.setOrderType(vo.getOrderType());
-            Integer deliveryedQty = smtDeliveryRecordService.getDeliveryQty(record);
-            int i = deliveryedQty == null ? 0 : deliveryedQty.intValue();
-            vo.setSumOrderQty(vo.getSumOrderQty() - i);
-        }
         startPage();
-        List<SmtOrderEntryVO> collect = list.stream().filter(dzl -> dzl.getSumOrderQty().intValue() > 0).collect(Collectors.toList());
-        return getDataTable(convertList(collect));
+//        entry.setOrderType(Constants.BOM_TYPE_DZL);
+        List<SmtOrderEntryVO> list = smtOrderEntryService.selectSmtEntryAllDzlList(entry);
+//        for (SmtOrderEntryVO vo : list) {
+//            SmtDeliveryRecord record = new SmtDeliveryRecord();
+//            record.setBomId(vo.getBomId());
+//            record.setCusCode(vo.getCusCode());
+//            record.setOrderType(vo.getOrderType());
+//            Integer deliveryedQty = smtDeliveryRecordService.getDeliveryQty(record);
+//            int i = deliveryedQty == null ? 0 : deliveryedQty.intValue();
+//            vo.setSumOrderQty(vo.getSumOrderQty() - i);
+//        }
+
+        //List<SmtOrderEntryVO> collect = list.stream().filter(dzl -> dzl.getSumOrderQty().intValue() > 0).collect(Collectors.toList());
+        return getDataTable(list);
     }
 
 

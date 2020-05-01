@@ -1,5 +1,7 @@
 package com.ruoyi.project.smt.paymentrecord.service;
 
+import com.ruoyi.project.smt.financereport.vo.FinanceReportVO;
+import com.ruoyi.project.smt.financereport.vo.ReceiveVO;
 import com.ruoyi.project.smt.paymentrecord.domain.SmtPaymentRecord;
 import com.ruoyi.project.smt.paymentrecord.vo.SmtPaymentRecordVO;
 
@@ -81,5 +83,11 @@ public interface ISmtPaymentRecordService
      * 查询客户付款记录信息集合
      * @return
      */
-    List<SmtPaymentRecord> getPaymentRecordList();
+    List<SmtPaymentRecord> getPaymentRecordList(ReceiveVO rVo);
+
+    /**
+     * 统计应付模块付款利润
+     * @return
+     */
+    List<FinanceReportVO> getPaymentProfitReportList();
 }
