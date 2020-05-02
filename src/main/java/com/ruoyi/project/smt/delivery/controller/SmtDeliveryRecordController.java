@@ -188,6 +188,9 @@ public class SmtDeliveryRecordController extends BaseController {
     }
 
 
+
+
+
     @RequiresPermissions("smt:delivery:view")
     @GetMapping("/warehouse")
     public String warehouse() {
@@ -291,29 +294,15 @@ public class SmtDeliveryRecordController extends BaseController {
     }
 
     /**
-     * 导出发料记录列表
+     * 导出电子料仓
      */
     @RequiresPermissions("smt:delivery:export")
     @PostMapping("/export")
     @ResponseBody
-    public AjaxResult export(SmtOrderEntry entry) {
-        entry.setOrderType(Constants.BOM_TYPE_DZL);
+    public AjaxResult exportDzl(SmtOrderEntry entry){
         List<SmtOrderEntryVO> list = smtOrderEntryService.selectSmtEntryAllDzlList(entry);
-        Map<Integer, String> cusNameMap = getCusCodeAndCusNameMap();
-        for (SmtOrderEntryVO vo : list) {
-            SmtDeliveryRecord record = new SmtDeliveryRecord();
-            record.setBomId(vo.getBomId());
-            record.setCusCode(vo.getCusCode());
-            vo.setCusName(cusNameMap.get(vo.getCusCode()));
-            record.setOrderType(vo.getOrderType());
-            Integer deliveryedQty = smtDeliveryRecordService.getDeliveryQty(record);
-            int i = deliveryedQty == null ? 0 : deliveryedQty.intValue();
-            int sum = vo.getSumOrderQty() - i;
-            vo.setSumOrderQty(sum);
-        }
-        List<SmtOrderEntryVO> collect = list.stream().filter(dzl -> Integer.valueOf(dzl.getSumOrderQty()) > 0).collect(Collectors.toList());
         ExcelUtil<SmtOrderEntryVO> util = new ExcelUtil<SmtOrderEntryVO>(SmtOrderEntryVO.class);
-        return util.exportExcel(collect, "电子料仓");
+        return util.exportExcel(list, "电子料仓");
     }
 
     /**
@@ -488,7 +477,7 @@ public class SmtDeliveryRecordController extends BaseController {
         map.put("companyName", configService.selectConfigByKey("print.ship.companyName"));
         map.put("sendNo", String.valueOf(recordList.get(0).getDeliveryNo()));
         map.put("customerName", cusNameMap.get(recordList.get(0).getCusCode()));
-        map.put("createDate", new SimpleDateFormat("yyyy-MM-dd").format(new Date()));
+        map.put("createDate", new SimpleDateFormat("yyyy-MM-dd").format(recordList.get(0).getCreateTime()));
         if (code == 1) {
             map.put("createUser", getSysUser().getUserName());
         } else {

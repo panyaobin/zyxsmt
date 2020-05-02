@@ -212,7 +212,7 @@
                 });
             }
             , done: function (res, index, upload) {
-                debugger
+
                 console.log("文件上传返回信息：" + res)
                 if (res.code == "0") { //上传成功
                     var tr = demoListView.find('tr#upload-' + index)

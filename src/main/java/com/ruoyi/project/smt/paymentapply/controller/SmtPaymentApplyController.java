@@ -241,8 +241,8 @@ public class SmtPaymentApplyController extends BaseController {
         map.put("accountBank",apply.getAccountBank());
         map.put("paymentMoney", NumberToCN.number2CNMontrayUnit(apply.getApplyAmount()));
         map.put("money",String.valueOf(apply.getApplyAmount()));
-        map.put("paymentReason",apply.getPaymentReason());
-        map.put("remarks",apply.getRemark());
+        map.put("paymentReason",null!=apply.getPaymentReason()?apply.getPaymentReason():"");
+        map.put("remarks",null!=apply.getRemark()?apply.getRemark():"");
         map.put("createUser", apply.getCreateBy());
         List<SmtPaymentApplyPrintVO> list=new ArrayList<>();
         list.add(apply);

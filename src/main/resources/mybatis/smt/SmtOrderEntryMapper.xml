@@ -153,13 +153,19 @@
         a.cus_code,
         a.order_type,
         a.bom_id,
-        a.order_no
+        a.order_no,
+        a.id,
+        a.entry_time,
+        a.create_by,
+        a.create_time,
+        a.remark
         ) record
         LEFT JOIN smt_cus cus ON cus.cus_code = record.cus_code
         WHERE
         record.order_qty >0
-        <if test="cusCode != null ">and record.cus_code = #{cusCode}</if>
-        <if test="bomName != null  and bomName != ''">and record.bom_name like concat('%',#{bomName},'%')</if>
+        <if test="cusCode != null and cusCode != ''">and record.cus_code = #{cusCode}</if>
+        <if test="orderNo != null and orderNo != ''">and record.order_no = #{orderNo}</if>
+        <if test="bomName != null and bomName != ''">and record.bom_name like concat('%',#{bomName},'%')</if>
         order by record.create_time desc
     </select>
 

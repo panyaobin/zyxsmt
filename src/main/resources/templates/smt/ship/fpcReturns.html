@@ -175,7 +175,7 @@
                     editoptions: {
                         dataInit: function (element) {
                             $(element).on("keyup", function () {
-                                debugger
+
                                 let v = element.value;
                                 if (v != "" && !(/(^[1-9]\d*$)/.test(v))) {
                                     $.modal.msgWarning("退货数量不合法,请输入正整数!")

@@ -83,8 +83,8 @@
         record.order_no as orderNo,
         record.sum_delivery_qty as sumDeliveryQty,
         cus.cus_name as cusName,
-        dzl.dzl_name as dzlName,
-        dzl.type_name as typeName
+        "FPC" AS typeName,
+        bom.bom_name AS bomName
         FROM
         (
         SELECT
@@ -122,11 +122,12 @@
         a.order_no
         ) record
         left join smt_cus  cus on cus.cus_code = record.cus_code
-        left join smt_dzl dzl on dzl.id = record.bom_id
+        LEFT JOIN smt_bom bom ON bom.id = record.bom_id
         WHERE
         record.sum_delivery_qty >0
         <if test="cusCode != null  and cusCode != ''">and record.cus_code = #{cusCode}</if>
         <if test="orderNo != null  and orderNo != ''">and record.order_no = #{orderNo}</if>
+        <if test="bomName != null  and bomName != ''">and bom.bom_name = #{bomName}</if>
     </select>
 
     <!--备份DZL在线列表,解决分页问题-->

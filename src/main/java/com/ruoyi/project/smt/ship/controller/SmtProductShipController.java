@@ -431,7 +431,7 @@ public class SmtProductShipController extends BaseController {
         map.put("companyName", iConfigService.selectConfigByKey("print.ship.companyName"));
         map.put("customerName", cusNameMap.get(shipList.get(0).getCusCode()));
         map.put("sendNo", shipList.get(0).getCusCode() + String.valueOf(shipList.get(0).getShipNo()));
-        map.put("createDate", new SimpleDateFormat("yyyy-MM-dd").format(new Date()));
+        map.put("createDate", new SimpleDateFormat("yyyy-MM-dd").format(shipList.get(0).getCreateTime()));
         map.put("createUser", getSysUser().getUserName());
         try {
             System.out.println(jasperPath);
@@ -518,7 +518,7 @@ public class SmtProductShipController extends BaseController {
             String createBy = shipList.get(0).getCreateBy();
             User user = userService.selectUserByLoginName(createBy);
             map.put("createUser", user.getUserName());
-            map.put("createDate", new SimpleDateFormat("yyyy-MM-dd").format(new Date()));
+            map.put("createDate", new SimpleDateFormat("yyyy-MM-dd").format(shipList.get(0).getCreateTime()));
             System.out.println(jasperPath);
             demo(response, map, printVOList, jasperPath);
         } catch (
@@ -556,7 +556,7 @@ public class SmtProductShipController extends BaseController {
         //总点数
         String bomPoint = smtBomService.selectSmtBomByBomName(fpcShip.getCusCode(), fpcShip.getBomName());
         map.put("pointCounts", String.valueOf(fpcShip.getShipQty() * (Integer.valueOf(bomPoint))));
-        map.put("createDate", new SimpleDateFormat("yyyy-MM-dd").format(new Date()));
+        map.put("createDate", new SimpleDateFormat("yyyy-MM-dd").format(fpcShip.getCreateTime()));
         map.put("orderNo", fpcShip.getOrderNo());
         map.put("remark", null == fpcShip.getRemark() ? "" : fpcShip.getRemark());
         if (code == 1) {

@@ -248,7 +248,7 @@
                                     fn: function (e) {
                                         let val = this.value;
                                         let cusCode = $("#cusCode").val();
-                                        debugger
+
                                         if (val == "1") {
                                             if (!cusCode) {
                                                 $.modal.alertWarning("请先选择客户!");
@@ -357,7 +357,7 @@
      * @returns {any[]}
      */
     function getCusBomSelectList(selectNum, cusCode) {
-        debugger
+
         let bomDataHtml = "<option value=''>请选择FPC</option>";
         $.ajax({
             type: "POST",
