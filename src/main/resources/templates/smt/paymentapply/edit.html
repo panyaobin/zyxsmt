@@ -52,15 +52,17 @@
                 </div>
             </div>
 
-
             <div class="form-group">
                 <label class="col-sm-3 control-label">付款类型：</label>
                 <div class="col-sm-8">
                     <select  disabled class="form-control" th:with="type=${@dict.getType('smt_payment_type')}">
-                        <option th:each="dict : ${type}" th:text="${dict.dictLabel}" th:value="${dict.dictValue}" th:selected="${smtPaymentApply.paymentType eq dict.dictValue}"></option>
+                        <option th:each="dict : ${type}" th:text="${dict.dictLabel}" th:value="${dict.dictValue}" th:field="${smtPaymentApply.paymentType}"></option>
                     </select>
                 </div>
             </div>
+
+
+
 
             <div class="form-group"  style="margin-bottom: 30px;">
                 <label class="col-sm-3 control-label">金<span style="margin-right: 26px;"></span>额：</label>

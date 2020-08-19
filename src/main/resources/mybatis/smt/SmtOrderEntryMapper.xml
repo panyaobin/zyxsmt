@@ -26,6 +26,7 @@
         <result property="dzlName" column="dzl_name"/>
         <result property="bomName" column="bom_name"/>
         <result property="typeName" column="type_name"/>
+        <result property="typeNo" column="type_no"/>
         <result property="orderQty" column="order_qty"/>
         <result property="cusCode" column="cus_code"/>
         <result property="cusName" column="cus_name"/>
@@ -166,6 +167,45 @@
         <if test="cusCode != null and cusCode != ''">and record.cus_code = #{cusCode}</if>
         <if test="orderNo != null and orderNo != ''">and record.order_no = #{orderNo}</if>
         <if test="bomName != null and bomName != ''">and record.bom_name like concat('%',#{bomName},'%')</if>
+        order by record.create_time desc
+    </select>
+
+    <select id="selectSmtEntryAllTableList" resultType="com.ruoyi.project.smt.entry.vo.SmtOrderEntryVO" resultMap="SmtOrderEntryResultVO">
+        SELECT
+        *
+        FROM
+        (
+        SELECT
+        e.cus_code,
+        cus.cus_name,
+        e.order_no,
+        e.entry_time,
+        e.create_by,
+        e.create_time,
+        el.id,
+        el.entry_id,
+        el.order_type,
+        ( CASE WHEN el.order_type = 1 THEN 'FPC' ELSE ( SELECT type_name FROM smt_dzl WHERE id = el.bom_id LIMIT 1 ) END ) AS type_name,
+        (
+        CASE
+
+        WHEN el.order_type = 1 THEN
+        ( SELECT bom_name FROM smt_bom WHERE id = el.bom_id LIMIT 1 ) ELSE ( SELECT dzl_name FROM smt_dzl WHERE id = el.bom_id LIMIT 1 )
+        END
+        ) AS type_no,
+        el.bom_id,
+        el.order_qty,
+        el.remark
+        FROM
+        `smt_order_entry` e
+        LEFT JOIN `smt_order_entry_line` el ON e.id = el.entry_id
+        AND el.del_flag = 0
+        LEFT JOIN smt_cus cus ON cus.cus_code = e.cus_code
+        ) record
+        where 1=1
+        <if test="cusCode != null and cusCode != ''">and record.cus_code = #{cusCode}</if>
+        <if test="orderNo != null and orderNo != ''">and record.order_no = #{orderNo}</if>
+        <if test="typeNo != null and typeNo != ''">and record.type_no like concat('%',#{typeNo},'%')</if>
         order by record.create_time desc
     </select>
 

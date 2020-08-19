@@ -43,6 +43,11 @@ public class SmtOrderEntry extends BaseEntity {
     private String dzlName;
 
     /**
+     * 型号
+     */
+    private String typeNo;
+
+    /**
      * 物料id,orderType是1时，指FPC 客户bomId
      * 物料id,orderType是2时，指dzl 的bomId
      */

@@ -103,6 +103,17 @@ public class SmtApplyRecordController extends BaseController
     }
 
     /**
+     * 查看应付账目付款记录
+     */
+    @GetMapping("/viewList/{id}")
+    public String viewList(@PathVariable("id") Integer id, ModelMap mmap)
+    {
+        SmtApplyRecord smtApplyRecord = smtApplyRecordService.selectSmtApplyRecordById(id);
+        mmap.put("smtApplyRecord", smtApplyRecord);
+        return prefix + "/viewList";
+    }
+
+    /**
      * 修改保存应付账目付款记录
      */
     @RequiresPermissions("smt:applyRecord:edit")

@@ -2,6 +2,7 @@
 <html lang="zh" xmlns:th="http://www.thymeleaf.org" xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
 <head>
     <th:block th:include="include :: header('客户付款列表')"/>
+    <th:block th:include="include :: datetimepicker-css"/>
 </head>
 <style>
     .selectHeight {
@@ -33,6 +34,20 @@
                         </li>
 
                         <li>
+                            <p class="inputHeight">是否结清：</p>
+                            <select name="isSettle" class="form-control col-sm-12 select2-selection--multiple selectHeight" onchange="$.table.search()">
+                                <option value="">请选择</option>
+                                <option value="1">是</option>
+                                <option value="0">否</option>
+                            </select>
+                        </li>
+
+                        <li class="select-time">
+                            <p class="inputHeight">对账年月：</p>
+                            <input type="text" name="startTime" class="selectHeight" placeholder="账单月份"/>
+                        </li>
+
+                        <li>
                             <a class="btn btn-primary btn-rounded btn-sm" onclick="$.table.search()"><i class="fa fa-search"></i>&nbsp;搜索</a>
                             <a class="btn btn-warning btn-rounded btn-sm" onclick="$.form.reset()"><i class="fa fa-refresh"></i>&nbsp;重置</a>
                         </li>
@@ -52,12 +67,23 @@
     </div>
 </div>
 <th:block th:include="include :: footer"/>
+<th:block th:include="include :: datetimepicker-js"/>
 <script th:inline="javascript">
     var editFlag = [[${@permission.hasPermi('smt:reconciliation:edit')}]];
     var removeFlag = [[${@permission.hasPermi('smt:reconciliation:remove')}]];
     var auditFlag = [[${@permission.hasPermi('smt:reconciliation:audit')}]];
     var feeTypeDatas = [[${@dict.getType('smt_fee_type')}]];
     var prefix = ctx + "smt/reconciliation";
+
+    $("input[name='startTime']").datetimepicker({
+        format: 'yyyy-MM',
+        weekStart: 1,
+        autoclose: true,
+        startView: 3,
+        minView: 3,
+        forceParse: false,
+    });
+
 
     $(function () {
         var options = {

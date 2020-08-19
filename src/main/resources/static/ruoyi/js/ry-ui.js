@@ -59,7 +59,7 @@ var table = {
                     showExport: false,
                     clickToSelect: false,
                     mobileResponsive: true,
-                    rememberSelected: false,
+                    // rememberSelected: true,
                     fixedColumns: false,
                     fixedNumber: 0,
                     rightFixedColumns: false,
@@ -105,6 +105,11 @@ var table = {
                     mobileResponsive: options.mobileResponsive,         // 是否支持移动端适配
                     detailView: options.detailView,                     // 是否启用显示细节视图
                     onClickRow: options.onClickRow,                     // 点击某行触发的事件
+
+                    onCheck: options.onCheck,                     // 选中一行操作
+                    onUncheck: options.onUncheck,               // 反选
+                    onCheckAll: options.onCheckAll,               // 全选
+                    onUncheckAll: options.onUncheckAll,               // 全不选
                     onDblClickRow: options.onDblClickRow,               // 双击某行触发的事件
                     onClickCell: options.onClickCell,                   // 单击某格触发的事件
                     onDblClickCell: options.onDblClickCell,             // 双击某格触发的事件
@@ -243,7 +248,7 @@ var table = {
                     showExport: false,
                     clickToSelect: false,
                     mobileResponsive: true,
-                    rememberSelected: false,
+                    rememberSelected: true,
                     fixedColumns: false,
                     fixedNumber: 0,
                     rightFixedColumns: false,
@@ -1292,6 +1297,10 @@ var table = {
             editApplyRecord: function (id) {
                 $.modal.open("修改" + table.options.modalName, $.operate.editUrl(id), "800", "600");
             },
+            //查看应付收款记录
+            viewApplyRecord: function (id) {
+                $.modal.openReconciliation("查看" + table.options.modalName, $.operate.viewUrl(id), "800", "600");
+            },
 
             // 修改付款信息
             editPaymentInfo: function (id) {
@@ -1347,6 +1356,11 @@ var table = {
                 } else {
                     $.modal.open("修改" + table.options.modalName, $.operate.editUrl(id), "1100", "750");
                 }
+            },// 查看入库信息
+            viewEntry: function (id) {
+                table.set();
+                $.modal.openReconciliation("查看" + table.options.modalName, $.operate.viewUrl(id),"1100", "750");
+
             },
             // 修改信息，以tab页展现
             editTab: function (id) {
@@ -1377,6 +1391,22 @@ var table = {
                         return;
                     }
                     url = table.options.updateUrl.replace("{id}", id);
+                }
+                return url;
+            },
+
+            // 查看访问地址
+            viewUrl: function (id) {
+                var url = "/404.html";
+                if ($.common.isNotEmpty(id)) {
+                    url = table.options.viewUrl.replace("{id}", id);
+                } else {
+                    var id = $.common.isEmpty(table.options.uniqueId) ? $.table.selectFirstColumns() : $.table.selectColumns(table.options.uniqueId);
+                    if (id.length == 0) {
+                        $.modal.alertWarning("请至少选择一条记录");
+                        return;
+                    }
+                    url = table.options.viewUrl.replace("{id}", id);
                 }
                 return url;
             },

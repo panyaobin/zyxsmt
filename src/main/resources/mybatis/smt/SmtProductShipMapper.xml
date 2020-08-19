@@ -10,6 +10,10 @@
         <result property="cusCode" column="cus_code"/>
         <result property="orderNo" column="order_no"/>
         <result property="bomName" column="bom_name"/>
+
+        <result property="dzlName" column="dzl_name"/>
+        <result property="typeName" column="type_name"/>
+
         <result property="orderType" column="order_type"/>
         <result property="bomId" column="bom_id"/>
         <result property="shipType" column="ship_type"/>
@@ -29,7 +33,30 @@
     </sql>
 
     <select id="selectSmtProductShipList" parameterType="SmtProductShip" resultMap="SmtProductShipResult">
-        <include refid="selectSmtProductShipVo"/>
+        select
+        *
+        from
+        (SELECT
+        id,
+        ship_no,
+        cus_code,
+        order_no,
+        order_type,
+        (case when order_type=1 then (select bom_name from smt_bom where id = bom_id limit 1) else (select dzl_name from smt_dzl where id= bom_id limit 1) end) AS dzl_name,
+        (case when order_type=1 then 'FPC' else ( SELECT type_name FROM smt_dzl WHERE id = bom_id LIMIT 1 ) end) AS type_name,
+        bom_id,
+        ship_type,
+        ship_qty,
+        dzl_number,
+        bak,
+        create_by,
+        create_time,
+        update_by,
+        update_time,
+        remark,
+        del_flag
+        FROM
+        smt_product_ship) rerord
         <where>
             <if test="shipNo != null ">and ship_no like concat('%', #{shipNo}, '%')</if>
             <if test="shipPrintNo != null ">and ship_no = #{shipPrintNo}</if>
@@ -38,6 +65,7 @@
                 and ship_no = #{shipSearchNo}
             </if>
             <if test="cusCode != null ">and cus_code = #{cusCode}</if>
+            <if test="dzlName != null and dzlName !=''">and dzl_name like concat('%',#{dzlName},'%')</if>
             <if test="bomId != null ">and bom_id = #{bomId}</if>
             <if test="shipType != null ">and ship_type = #{shipType}</if>
             <if test="orderType != null ">and order_type = #{orderType}</if>
@@ -48,9 +76,8 @@
             <if test="params.endTime != null and params.endTime != ''"><!-- 结束时间检索 -->
                 AND date_format(create_time,'%y%m%d') &lt;= date_format(#{params.endTime},'%y%m%d')
             </if>
-            <if test="bomName != null and bomName!=''">and bom_name = #{bomName}</if>
         </where>
-        order by order_type asc,create_time desc
+        order by create_time desc,order_type
     </select>
 
     <select id="selectSmtProductShipById" parameterType="Integer" resultMap="SmtProductShipResult">

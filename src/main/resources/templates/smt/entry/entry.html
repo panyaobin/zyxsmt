@@ -77,6 +77,7 @@
             url: prefix + "/list",
             createUrl: prefix + "/add",
             updateUrl: prefix + "/edit/{id}",
+            viewUrl: prefix + "/view/{id}",
             removeUrl: prefix + "/remove",
             exportUrl: prefix + "/export",
             modalName: "订单入库",
@@ -100,7 +101,10 @@
                 },
                 {
                     field: 'orderNo',
-                    title: '订单编号'
+                    title: '订单编号',
+                    formatter: function (value, row, index) {
+                        return '<a href="javascript:void(0)" onclick="$.operate.viewEntry(\'' + row.id + '\')">'+value+'</a> ';
+                    }
                 },
                 {
                     field: 'entryTime',

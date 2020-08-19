@@ -56,7 +56,7 @@
     <form class="form-horizontal m" id="form-bom-edit">
         <input type="hidden" id="deliveryDzlList" name="deliveryDzlList">
         <fieldset>
-            <legend class="legend-color" style="margin-bottom: 0px;">发料信息</legend>
+            <legend class="legend-color" style="margin-bottom: 0px;">发料信息22222222</legend>
             <div class="container-div">
                 <div class="row">
                     <div class="col-sm-12 select-table table-striped bomDiv">
@@ -87,6 +87,7 @@
             saveAllRows("bomTable");
             let tableData = $("#bomTable").jqGrid("getRowData");
             let dataArr = new Array();
+            debugger
             for (let elem of tableData) {
                 if (elem.deliveryQty != "0" && $.common.trim(elem.deliveryQty) != "") {
                     let arr = new Object();
@@ -95,6 +96,7 @@
                     arr.bomId = elem.bomId;
                     arr.deliveryQty = elem.deliveryQty;
                     arr.remark = elem.remark;
+                    arr.orderType = elem.orderType;
                     if (elem.orderNo != "undefined" && $.common.trim(elem.orderNo) != "") {
                         arr.orderNo = elem.orderNo;
                     }

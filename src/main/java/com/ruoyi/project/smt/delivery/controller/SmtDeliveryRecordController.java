@@ -278,18 +278,18 @@ public class SmtDeliveryRecordController extends BaseController {
     public TableDataInfo list(SmtDeliveryRecord smtDeliveryRecord) {
         startPage();
         List<SmtDeliveryRecord> list = smtDeliveryRecordService.selectSmtDeliveryRecordList(smtDeliveryRecord);
-        Map<Integer, String> cusNameMap = getCusCodeAndCusNameMap();
-        Map<Integer, String> dzlTypeNameMap = getDzlIdAndDzlTypeNameMap();
-        Map<Integer, String> dzlNameMap = getDzlIdAndDzlNameMap();
-        for (SmtDeliveryRecord record : list) {
-            record.setCusName(cusNameMap.get(record.getCusCode()));
-            if (smtDeliveryRecord.getOrderType().intValue() == Constants.BOM_TYPE_DZL) {
-                record.setDzlName(dzlNameMap.get(record.getBomId()));
-                record.setTypeName(dzlTypeNameMap.get(record.getBomId()));
-            } else {
-                record.setBomName(smtBomService.selectSmtBomById(Long.valueOf(record.getBomId())).getBomName());
-            }
-        }
+//        Map<Integer, String> cusNameMap = getCusCodeAndCusNameMap();
+//        Map<Integer, String> dzlTypeNameMap = getDzlIdAndDzlTypeNameMap();
+//        Map<Integer, String> dzlNameMap = getDzlIdAndDzlNameMap();
+//        for (SmtDeliveryRecord record : list) {
+//            record.setCusName(cusNameMap.get(record.getCusCode()));
+//            if (smtDeliveryRecord.getOrderType().intValue() == Constants.BOM_TYPE_DZL) {
+//                record.setDzlName(dzlNameMap.get(record.getBomId()));
+//                record.setTypeName(dzlTypeNameMap.get(record.getBomId()));
+//            } else {
+//                record.setBomName(smtBomService.selectSmtBomById(Long.valueOf(record.getBomId())).getBomName());
+//            }
+//        }
         return getDataTable(list);
     }
 

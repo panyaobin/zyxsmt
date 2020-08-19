@@ -124,6 +124,7 @@
                 r.reconciliation_time as reconciliationTime,
                 r.fee_type AS feeType,
                 pr.reconciliation_no AS reconciliationNo,
+                pr.payment_time AS paymentTime,
                 pr.create_time AS createTime,
                 pr.payment_amount AS paymentAmount,
                 pr.remark
@@ -156,6 +157,7 @@
             LEFT JOIN smt_payment_apply b ON a.payment_no = b.payment_no
         GROUP BY
             b.payment_type,
+            b.reconciliation_time,
             date_format( b.reconciliation_time, '%Y-%m' )
             ) record
         WHERE

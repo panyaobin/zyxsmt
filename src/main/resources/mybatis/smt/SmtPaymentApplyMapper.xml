@@ -72,6 +72,7 @@
             <if test="isSettle != null  and isSettle != ''">and a.is_settle = #{isSettle}</if>
             <if test="status != null  and status != ''">and a.status = #{status}</if>
         </where>
+        ORDER BY a.create_time desc
     </select>
 
 

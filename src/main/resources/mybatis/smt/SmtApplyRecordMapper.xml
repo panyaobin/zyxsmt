@@ -137,6 +137,7 @@
             pa.payment_type as paymentType,
             ar.payment_no as paymentNo,
             ar.create_time as createTime,
+            ar.payment_time AS paymentTime,
             ar.payment_amount as paymentAmount,
             ar.hand_fee as handFee,
             ar.remark

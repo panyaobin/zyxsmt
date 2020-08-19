@@ -329,6 +329,17 @@ public class SmtProductShipController extends BaseController {
     }
 
     /**
+     * 删除退货记录
+     */
+    @RequiresPermissions("smt:ship:remove")
+    @Log(title = "退货记录", businessType = BusinessType.DELETE)
+    @PostMapping("/removeReturn")
+    @ResponseBody
+    public AjaxResult removeReturn(String ids) {
+        return toAjax(smtProductShipService.deleteSmtProductShipReturnByIds(ids));
+    }
+
+    /**
      * 查询客户bom信息
      *
      * @param smtBom

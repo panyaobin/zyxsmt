@@ -8,7 +8,10 @@
         <result property="id" column="id"/>
         <result property="deliveryNo" column="delivery_no"/>
         <result property="cusCode" column="cus_code"/>
+        <result property="cusName" column="cus_name"/>
         <result property="orderNo" column="order_no"/>
+        <result property="typeNo" column="type_no"/>
+        <result property="typeName" column="type_name"/>
         <result property="orderType" column="order_type"/>
         <result property="bomId" column="bom_id"/>
         <result property="deliveryQty" column="delivery_qty"/>
@@ -25,16 +28,50 @@
     </sql>
 
     <select id="selectSmtDeliveryRecordList" parameterType="SmtDeliveryRecord" resultMap="SmtDeliveryRecordResult">
-        <include refid="selectSmtDeliveryRecordVo"/>
+        select
+        record.id,
+        record.delivery_no,
+        record.cus_code,
+        cus.cus_name,
+        record.order_no,
+        record.order_type,
+        record.bom_id,
+        record.type_name,
+        record.type_no,
+        record.delivery_qty,
+        record.create_by,
+        record.create_time,
+        record.remark,
+        record.del_flag
+        from
+        (SELECT
+        id,
+        delivery_no,
+        cus_code,
+        order_no,
+        order_type,
+        bom_id,
+        (case when order_type = 1 then 'FPC' else (select type_name from smt_dzl where id =bom_id limit 1) end) type_name,
+        (case when order_type = 1 then (select bom_name from smt_bom where id = bom_id limit 1) else (select dzl_name from smt_dzl where id =bom_id limit 1) end) type_no,
+        delivery_qty,
+        create_by,
+        create_time,
+        remark,
+        del_flag
+        FROM
+        smt_delivery_record
+        WHERE
+        order_type = #{orderType}
+        ORDER BY
+        create_time DESC ) record
+        left join smt_cus cus on cus.cus_code = record.cus_code
         <where>
-            <if test="deliveryNo != null  and deliveryNo != ''">and delivery_no like concat('%',#{deliveryNo},'%')</if>
-            <if test="orderNo != null  and orderNo != ''">and order_no like concat('%',#{orderNo},'%')</if>
-            <if test="cusCode != null ">and cus_code = #{cusCode}</if>
-            <if test="orderType != null ">and order_type = #{orderType}</if>
-            <if test="bomId != null ">and bom_id = #{bomId}</if>
-            <if test="deliveryQty != null ">and delivery_qty = #{deliveryQty}</if>
+            <if test="deliveryNo != null  and deliveryNo != ''">and record.delivery_no like concat('%',#{deliveryNo},'%')</if>
+            <if test="orderNo != null  and orderNo != ''">and record.order_no like concat('%',#{orderNo},'%')</if>
+            <if test="cusCode != null and cusCode!='' ">and cus.cus_code = #{cusCode}</if>
+            <if test="typeNo != null and typeNo!=''">and record.type_no  like concat('%',#{typeNo},'%')</if>
         </where>
-        order by create_time desc
+        order by record.create_time desc
     </select>
 
     <select id="selectSmtDeliveryRecordById" parameterType="Integer" resultMap="SmtDeliveryRecordResult">
@@ -121,88 +158,89 @@
         a.bom_id,
         a.order_no
         ) record
-        left join smt_cus  cus on cus.cus_code = record.cus_code
+        left join smt_cus cus on cus.cus_code = record.cus_code
         LEFT JOIN smt_bom bom ON bom.id = record.bom_id
         WHERE
         record.sum_delivery_qty >0
         <if test="cusCode != null  and cusCode != ''">and record.cus_code = #{cusCode}</if>
         <if test="orderNo != null  and orderNo != ''">and record.order_no = #{orderNo}</if>
-        <if test="bomName != null  and bomName != ''">and bom.bom_name = #{bomName}</if>
+        <if test="bomName != null  and bomName != ''">and bom.bom_name like concat('%',#{bomName},'%')</if>
     </select>
 
     <!--备份DZL在线列表,解决分页问题-->
     <!--查询DZL在线列表列表-->
-<!--    <select id="selectDzlOnLineListList" resultType="com.ruoyi.project.smt.delivery.domain.SmtDeliveryRecord">-->
-<!--        SELECT-->
-<!--        r.cus_code AS cusCode,-->
-<!--        r.order_type AS orderType,-->
-<!--        r.bom_id AS bomId,-->
-<!--        sum(r.delivery_qty ) AS sumDeliveryQty ,-->
-<!--        d.dzl_name as dzlName,-->
-<!--        d.type_name as typeName-->
-<!--        FROM-->
-<!--        smt_delivery_record r-->
-<!--        left join smt_dzl d on r.bom_id = d.id-->
-<!--        WHERE-->
-<!--        r.order_type = 2-->
-<!--        AND r.del_flag = 0-->
-<!--        <if test="cusCode != null  and cusCode != ''">and r.cus_code = #{cusCode}</if>-->
-<!--        <if test="dzlName != null  and dzlName != ''">and d.dzl_name like concat('%',#{dzlName},'%')</if>-->
-<!--        GROUP BY-->
-<!--        r.cus_code,-->
-<!--        r.bom_id-->
-<!--    </select>-->
+    <!--    <select id="selectDzlOnLineListList" resultType="com.ruoyi.project.smt.delivery.domain.SmtDeliveryRecord">-->
+    <!--        SELECT-->
+    <!--        r.cus_code AS cusCode,-->
+    <!--        r.order_type AS orderType,-->
+    <!--        r.bom_id AS bomId,-->
+    <!--        sum(r.delivery_qty ) AS sumDeliveryQty ,-->
+    <!--        d.dzl_name as dzlName,-->
+    <!--        d.type_name as typeName-->
+    <!--        FROM-->
+    <!--        smt_delivery_record r-->
+    <!--        left join smt_dzl d on r.bom_id = d.id-->
+    <!--        WHERE-->
+    <!--        r.order_type = 2-->
+    <!--        AND r.del_flag = 0-->
+    <!--        <if test="cusCode != null  and cusCode != ''">and r.cus_code = #{cusCode}</if>-->
+    <!--        <if test="dzlName != null  and dzlName != ''">and d.dzl_name like concat('%',#{dzlName},'%')</if>-->
+    <!--        GROUP BY-->
+    <!--        r.cus_code,-->
+    <!--        r.bom_id-->
+    <!--    </select>-->
     <select id="selectDzlOnLineListList" resultType="com.ruoyi.project.smt.delivery.domain.SmtDeliveryRecord">
         SELECT
-            record.cus_code AS cusCode,
-            record.cus_name as cusName,
-            record.order_type AS orderType,
-            record.bom_id AS bomId,
-            record.dzl_name AS dzlName,
-            record.type_name AS typeName,
-            record.sum_delivery_qty  as sumDeliveryQty
+        record.cus_code AS cusCode,
+        record.cus_name as cusName,
+        record.order_type AS orderType,
+        record.bom_id AS bomId,
+        record.dzl_name AS dzlName,
+        record.type_name AS typeName,
+        record.sum_delivery_qty as sumDeliveryQty
         FROM
-            (
+        (
         SELECT
-            a.cus_code,
-            cus.cus_name,
-            a.order_type,
-            a.bom_id,
-            a.dzl_name,
-            a.type_name,
-            (
-            a.sum_delivery_qty - IFNULL( sum( b.ship_qty ), 0 ) - IFNULL( sum( b.bak ), 0 )
-            ) AS  sum_delivery_qty
+        a.cus_code,
+        cus.cus_name,
+        a.order_type,
+        a.bom_id,
+        a.dzl_name,
+        a.type_name,
+        (
+        a.sum_delivery_qty - IFNULL( sum( b.ship_qty ), 0 ) - IFNULL( sum( b.bak ), 0 )
+        ) AS sum_delivery_qty
         FROM
-            (
+        (
         SELECT
-            r.cus_code,
-            r.order_type,
-            r.bom_id,
-            sum( r.delivery_qty ) AS sum_delivery_qty,
-            d.dzl_name,
-            d.type_name
+        r.cus_code,
+        r.order_type,
+        r.bom_id,
+        sum( r.delivery_qty ) AS sum_delivery_qty,
+        d.dzl_name,
+        d.type_name
         FROM
-            smt_delivery_record r
-            LEFT JOIN smt_dzl d ON r.bom_id = d.id
+        smt_delivery_record r
+        LEFT JOIN smt_dzl d ON r.bom_id = d.id
         WHERE
-            r.order_type = 2
-            AND r.del_flag = 0
+        r.order_type = 2
+        AND r.del_flag = 0
         GROUP BY
-            r.cus_code,
-            r.bom_id
-            ) a
-            LEFT JOIN smt_product_ship b ON a.cus_code = b.cus_code
-            AND a.order_type = b.order_type
-            AND a.bom_id = b.bom_id
-            LEFT JOIN smt_cus cus ON a.cus_code = cus.cus_code
+        r.cus_code,
+        r.bom_id
+        ) a
+        LEFT JOIN smt_product_ship b ON a.cus_code = b.cus_code
+        AND a.order_type = b.order_type
+        AND a.bom_id = b.bom_id
+        LEFT JOIN smt_cus cus ON a.cus_code = cus.cus_code
         GROUP BY
-            a.cus_code,
-            a.order_type,
-            a.bom_id
-            ) record
+        a.cus_code,
+        cus.cus_name,
+        a.order_type,
+        a.bom_id
+        ) record
         WHERE
-            record.sum_delivery_qty != 0
+        record.sum_delivery_qty != 0
         <if test="cusCode != null  and cusCode != ''">and record.cus_code = #{cusCode}</if>
         <if test="dzlName != null  and dzlName != ''">and record.dzl_name like concat('%',#{dzlName},'%')</if>
     </select>

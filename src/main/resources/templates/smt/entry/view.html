@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="zh" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <th:block th:include="include :: header('查看订单信息')"/>
+</head>
+<style>
+    .ui-jqgrid-htable th {
+        height: 40px;
+        border-right: 1px solid #e1e1e1;
+        border-bottom: 1px solid #e1e1e1;
+        background-color: #9e9e9e1f;
+        text-align: center;
+    }
+
+    .ui-jqgrid-htable th span {
+        display: none;
+    }
+
+    #bomTable {
+        background-color: #f6f6f6;
+    }
+
+    #bomTable tr {
+        height: 20px;
+        font-size: 16px;
+    }
+
+    #bomTable tr td input {
+        height: 95%;
+        width: 95%;
+    }
+
+    #bomTable tr td {
+        height: 35px;
+        border-right: 1px solid #e1e1e1;
+        border-bottom: 1px solid #e1e1e1;
+    }
+
+    .bomDiv {
+        box-shadow: none;
+        padding-bottom: 0px;
+    }
+
+    select {
+        width: 95%;
+        height: 95% !important;
+    }
+
+    .textarea-width {
+        width: 888px
+    }
+
+    .remark-width {
+        width: 82.5px
+    }
+
+    .del_icon {
+        color: red;
+    }
+
+    .del_icon:hover {
+        transform: scale(1.4);
+    }
+
+    .legend-color {
+        color: #1890ff;
+    }
+</style>
+<body class="white-bg">
+<div class="wrapper wrapper-content animated fadeInRight ibox-content">
+    <form class="form-horizontal m" id="form-bom-edit" th:object="${smtOrderEntry}">
+        <input name="id" th:field="*{id}" type="hidden" id="entryId">
+        <input type="hidden" id="entryLineList" name="entryLineList">
+        <fieldset>
+            <legend class="legend-color">基本信息</legend>
+            <div class="col-md-12">
+                <div class="col-md-4" style="margin-right: 0px">
+                    <div class="form-group">
+                        <label class="col-sm-3 control-label nopadding"><span style="color: red; ">*</span>客户名称：</label>
+                        <div class="col-sm-8 nopadding">
+                            <select name="cusCode" disabled readonly="readonly" onchange="changeCusCode()" id="cusCode" class="form-control select2-selection--multiple" th:with="cusList=${@cus.getCus()}" required>
+                                <option value="">===请选择===</option>
+                                <option th:each="c:${cusList}" th:value="${c.cusCode}" th:text="${c.cusName}" th:selected="${smtOrderEntry.cusCode eq c.cusCode}"></option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="form-group">
+                        <label class="col-sm-3 control-label nopadding"><span style="color: red; ">*</span>订单编号：</label>
+                        <div class="col-sm-8 nopadding">
+                            <input type="text" name="orderNo" class="form-control" maxlength="32" th:field="*{orderNo}" placeholder="" readonly required>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="form-group">
+                        <label class="col-sm-3 control-label nopadding"><span style="color: red; ">*</span>入库时间：</label>
+                        <div class="col-sm-8 nopadding">
+                            <div class="input-group date">
+                                <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
+                                <input name="entryTime" th:value="${#dates.format(smtOrderEntry.entryTime, 'yyyy-MM-dd')}" readonly class="form-control" placeholder="yyyy-MM-dd" required type="text">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-12">
+                <div class="col-md-12 form-group">
+                    <label class="col-sm-1 control-label nopadding remark-width">备<span style="margin-right: 25px;"></span>注：</label>
+                    <div class="col-sm-9 nopadding">
+                        <input type="text" id="remark" name="remark" th:field="*{remark}" readonly placeholder="(选填)" class="form-control textarea-width">
+                    </div>
+                </div>
+            </div>
+        </fieldset>
+        <fieldset>
+            <legend class="legend-color" style="margin-bottom: 0px;">详细信息</legend>
+            <div class="container-div">
+                <div class="row">
+                    <div class="col-sm-12 select-table table-striped bomDiv">
+                        <table id="bomTable" class="ui-jqgrid-htable"></table>
+                    </div>
+                </div>
+            </div>
+        </fieldset>
+    </form>
+</div>
+<th:block th:include="include :: footer"/>
+<th:block th:include="include :: datetimepicker-js"/>
+<script th:src="@{/ruoyi/jqGrid/4.6/js/jquery.jqGrid.js}"></script>
+<script th:src="@{/ruoyi/jqGrid/4.6/i18n/grid.locale-cn.js}"></script>
+<link th:href="@{/ruoyi/jqGrid/4.6/css/ui.jqgrid.css}">
+<link th:href="@{/ruoyi/css/select.css}" rel="stylesheet"/>
+<script th:src="@{/ruoyi/js/select.js}"></script>
+
+<script th:inline="javascript">
+    const prefix = ctx + "smt/entry";
+
+    $(function () {
+        var options = {
+            url: prefix + "/getAllList",
+            modalName: "订单入库信息",
+            columns: [
+                {
+                    title: '序号',
+                    formatter: function (a, b, c) {
+                        return ++c;
+                    }
+                },
+                {
+                    field: 'id',
+                    title: '序号id',
+                    visible: false
+                },
+                {
+                    field: 'cusName',
+                    title: '客户名称'
+                },
+                {
+                    field: 'orderNo',
+                    title: '订单编号'
+                },
+                {
+                    field: 'typeNo',
+                    title: '型号'
+                },
+                {
+                    field: 'typeName',
+                    title: '类型'
+                },
+                {
+                    field: 'createTime',
+                    title: '入库时间'
+                },
+                {
+                    field: 'orderQty',
+                    title: '数量'
+                },
+                {
+                    field: 'remark',
+                    title: '说明'
+                }
+            ]
+        };
+        $.table.init(options);
+
+        //显示数据
+        loadTable()
+    });
+
+    //页面加载数据
+    function loadTable() {
+        let entryId = $("#entryId").val();
+        $.ajax({
+            url: prefix + "/getViewEntryLineById",
+            data: {
+                entryId: entryId
+            },
+            type: "post",
+            success: function (result) {
+                initTable("bomTable", result);
+            }
+        })
+    }
+
+    //初始化表格
+    function initTable(obj, data) {
+        $("#" + obj).jqGrid({
+            data: data,
+            datatype: "local",
+            height: 'auto',
+            beforeSelectRow: function (rowid, e) {
+                return false
+            },
+            colNames:
+                [
+                    "id",
+                    "类型",
+                    "型号",
+                    "BomId",
+                    "数量",
+                    "说明",
+                ],
+
+            colModel: [
+                {sortable: false, name: 'id', align: "center", index: 'id', editable: true, hidden: true, width: '100px'},
+                {
+                    sortable: false, name: 'orderType', align: "center", index: 'orderType',
+                    formatter: function (value, row, obj) {
+                        if (value=="1"){
+                            return "FPC"
+                        }else{
+                            return "电子料"
+                        }
+                    }
+                },
+                {
+                    name: 'bomName', index: 'bomName', width: '150px', align: "center", sortable: false, editable: true, edittype: 'select',
+                },
+                {sortable: false, name: 'bomId', align: "center", index: 'bomId', editable: true, hidden: true, width: '100px'},
+                {sortable: false, name: 'orderQty', align: "center", index: 'orderQty', editable: true, width: '100px'},
+                {sortable: false, name: 'remark', align: "center", index: 'remark', editable: true},
+            ],
+            rownumbers: true,
+            autowidth: true,
+        });
+    }
+</script>
+<style>
+    .select2-selection--single {
+        line-height: 34px !important;
+        border: 1px solid #e5e6e7 !important;
+        height: 34px !important;
+    }
+
+    #bomTable .select2-selection__rendered {
+        border: 1px solid #aaaaaa;
+        height: 32px;
+        background: white;
+    }
+</style>
+</body>
+</html>

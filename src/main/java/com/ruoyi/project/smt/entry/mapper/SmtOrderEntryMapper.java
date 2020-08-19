@@ -71,6 +71,8 @@ public interface SmtOrderEntryMapper
      * @param orderEntry 订单入库信息参数
      * @return 订单入库全部信息列表
      */
+    public List<SmtOrderEntryVO> selectSmtEntryAllTableList(SmtOrderEntry orderEntry);
+
     public List<SmtOrderEntryVO> selectSmtEntryAllList(SmtOrderEntry orderEntry);
 
     /**

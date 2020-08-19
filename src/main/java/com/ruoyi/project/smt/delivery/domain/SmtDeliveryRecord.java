@@ -46,6 +46,11 @@ public class SmtDeliveryRecord extends BaseEntity
     private String dzlName;
 
     /**
+     * 型号
+     */
+    private String typeNo;
+
+    /**
      * 电子料类型名称
      */
     private String typeName;

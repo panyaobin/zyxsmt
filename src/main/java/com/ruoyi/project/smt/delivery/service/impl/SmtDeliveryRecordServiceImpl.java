@@ -152,7 +152,10 @@ public class SmtDeliveryRecordServiceImpl implements ISmtDeliveryRecordService {
 
     @Override
     public int batchInsertSmtDeliveryRecord(SmtDeliveryRecordVO vo) {
-        List<SmtDeliveryRecord> recordList = smtDeliveryRecordMapper.selectSmtDeliveryRecordList(new SmtDeliveryRecord());
+        List<SmtDeliveryRecord> voList = (List<SmtDeliveryRecord>) JSONArray.toCollection(JSONArray.fromObject(vo.getDeliveryDzlList()), SmtDeliveryRecord.class);
+        SmtDeliveryRecord dd = new SmtDeliveryRecord();
+        dd.setOrderType(voList.get(0).getOrderType());
+        List<SmtDeliveryRecord> recordList = smtDeliveryRecordMapper.selectSmtDeliveryRecordList(dd);
         List<SmtDeliveryRecord> cacheList = Lists.newArrayList();
         int no;
         if (StringUtils.isNotEmpty(recordList)) {
@@ -160,7 +163,6 @@ public class SmtDeliveryRecordServiceImpl implements ISmtDeliveryRecordService {
         } else {
             no = Constants.DELIVERY_NO_START;
         }
-        List<SmtDeliveryRecord> voList = (List<SmtDeliveryRecord>) JSONArray.toCollection(JSONArray.fromObject(vo.getDeliveryDzlList()), SmtDeliveryRecord.class);
         for (SmtDeliveryRecord record : voList) {
             record.setCreateBy(ShiroUtils.getLoginName());
             record.setCreateTime(new Date());

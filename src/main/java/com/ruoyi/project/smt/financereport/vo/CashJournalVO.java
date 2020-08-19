@@ -38,6 +38,11 @@ public class CashJournalVO {
      */
     private Date createTime;
 
+    /**
+     * 付款日期
+     */
+    private Date paymentTime;
+
     @Excel(name = "日期")
     private String createTimeStr;
 

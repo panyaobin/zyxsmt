@@ -24,8 +24,10 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * @Description 现金日记账controller
@@ -102,6 +104,7 @@ public class CashJournalController extends BaseController {
                 vo.setFeeType(feeTypeList.get(payment.getFeeType()));
                 vo.setReconciliationNo(payment.getReconciliationNo());
                 vo.setCreateTime(payment.getCreateTime());
+                vo.setPaymentTime(payment.getPaymentTime());
                 vo.setCreateTimeStr(DateUtils.parseDateToStr("yyyy-MM",payment.getCreateTime()));
                 vo.setReceiveFee(payment.getPaymentAmount());
                 vo.setRemark(payment.getRemark());
@@ -117,6 +120,7 @@ public class CashJournalController extends BaseController {
                 vo.setFeeType(payTypeList.get(apply.getPaymentType()));
                 vo.setReconciliationNo(apply.getPaymentNo());
                 vo.setCreateTime(apply.getCreateTime());
+                vo.setPaymentTime(apply.getPaymentTime());
                 vo.setCreateTimeStr(DateUtils.parseDateToStr("yyyy-MM",apply.getCreateTime()));
                 vo.setPaymentFee(apply.getPaymentAmount());
                 vo.setHandFee(apply.getHandFee());
@@ -124,7 +128,6 @@ public class CashJournalController extends BaseController {
                 voList.add(vo);
             });
         }
-
-        return voList;
+        return voList.stream().sorted(Comparator.comparing(CashJournalVO::getPaymentTime).reversed()).collect(Collectors.toList());
     }
 }

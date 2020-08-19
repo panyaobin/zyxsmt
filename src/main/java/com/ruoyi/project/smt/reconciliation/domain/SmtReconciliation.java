@@ -43,6 +43,8 @@ public class SmtReconciliation extends BaseEntity {
     @Excel(name = "对账日期", width = 30, dateFormat = "yyyy-MM-dd")
     private Date reconciliationTime;
 
+    private String startTime;
+
     /**
      * 费用类型
      */

@@ -18,4 +18,6 @@ public class SmtDeliveryRecordVO extends BaseEntity {
      * 发货记录集合
      */
     private String deliveryDzlList;
+
+    private Integer orderType;
 }

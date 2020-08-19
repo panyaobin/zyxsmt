@@ -88,7 +88,8 @@ public class SmtOrderEntryController extends BaseController {
     @ResponseBody
     public TableDataInfo getAllList(SmtOrderEntry orderEntry) {
         startPage();
-        List<SmtOrderEntryVO> entryVOList = smtOrderEntryService.selectSmtEntryAllList(orderEntry);
+        //List<SmtOrderEntryVO> entryVOList = smtOrderEntryService.selectSmtEntryAllList(orderEntry);
+        List<SmtOrderEntryVO> entryVOList = smtOrderEntryService.selectSmtEntryAllTableList(orderEntry);
 //        Map<Integer, String> dzlNameMap = getDzlIdAndDzlTypeNameMap();
 //        Map<Integer, String> cusNameMap = getCusCodeAndCusNameMap();
 //        entryVOList.stream().forEach(bom -> {
@@ -147,6 +148,16 @@ public class SmtOrderEntryController extends BaseController {
     }
 
     /**
+     * 查看订单入库
+     */
+    @GetMapping("/view/{id}")
+    public String view(@PathVariable("id") Integer id, ModelMap mmap) {
+        SmtOrderEntry smtOrderEntry = smtOrderEntryService.selectSmtOrderEntryById(id);
+        mmap.put("smtOrderEntry", smtOrderEntry);
+        return prefix + "/view";
+    }
+
+    /**
      * 修改保存订单入库
      */
     @RequiresPermissions("smt:entry:edit")
@@ -189,6 +200,27 @@ public class SmtOrderEntryController extends BaseController {
     @RequestMapping("/getEntryLineById")
     public List<SmtOrderEntryLine> getEntryLineById(SmtOrderEntryLine smtOrderEntryLine) {
         List<SmtOrderEntryLine> orderEntryLineList = smtOrderEntryLineService.selectSmtOrderEntryLineList(smtOrderEntryLine);
+        return orderEntryLineList;
+    }
+
+
+    /**
+     * 通过bomId查询bom明细信息(通过订单编号查询)
+     *
+     * @param smtOrderEntryLine
+     * @return
+     */
+    @ResponseBody
+    @RequestMapping("/getViewEntryLineById")
+    public List<SmtOrderEntryLine> getViewEntryLineById(SmtOrderEntryLine smtOrderEntryLine) {
+        List<SmtOrderEntryLine> orderEntryLineList = smtOrderEntryLineService.selectSmtOrderEntryLineList(smtOrderEntryLine);
+        for (SmtOrderEntryLine line : orderEntryLineList) {
+            if (line.getOrderType().intValue() == Constants.BOM_TYPE_FPC.intValue()) {
+                line.setBomName(getBomIdAndBomNameMap().get(line.getBomId()));
+            }else{
+                line.setBomName(getDzlIdAndDzlNameMap().get(line.getBomId()));
+            }
+        }
         return orderEntryLineList;
     }
 

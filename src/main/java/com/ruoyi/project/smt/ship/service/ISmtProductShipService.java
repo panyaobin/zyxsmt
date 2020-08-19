@@ -86,6 +86,13 @@ public interface ISmtProductShipService {
     public int deleteSmtProductShipByIds(String ids);
 
     /**
+     * 删除退货记录
+     * @param ids
+     * @return
+     */
+    public int deleteSmtProductShipReturnByIds(String ids);
+
+    /**
      * 删除产品出货信息
      *
      * @param id 产品出货ID

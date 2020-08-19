@@ -108,8 +108,11 @@
                     title: '类型'
                 },
                 {
-                    field: 'createTime',
-                    title: '创建日期'
+                    field: 'paymentTime',
+                    title: '付款日期',
+                    formatter: function (value, row, index) {
+                        return value.substring(0,10);
+                    }
                 },
                 {
                     field: 'receiveFee',

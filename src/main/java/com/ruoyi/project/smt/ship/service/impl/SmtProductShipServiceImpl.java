@@ -118,17 +118,17 @@ public class SmtProductShipServiceImpl implements ISmtProductShipService {
         }
         List<SmtProductShip> shipList = smtProductShipMapper.selectSmtProductShipList(smtProductShip);
         //查询所有的电子料信息
-        List<SmtDzl> dzlList = smtDzlMapper.selectSmtDzlList(new SmtDzl());
-        Map<Integer, String> dzlNameMap = dzlList.stream().collect(Collectors.toMap(SmtDzl::getId, SmtDzl::getDzlName, (x, y) -> x));
-        Map<Integer, String> typeNameMap = dzlList.stream().collect(Collectors.toMap(SmtDzl::getId, SmtDzl::getTypeName, (x, y) -> x));
+        // List<SmtDzl> dzlList = smtDzlMapper.selectSmtDzlList(new SmtDzl());
+        // Map<Integer, String> dzlNameMap = dzlList.stream().collect(Collectors.toMap(SmtDzl::getId, SmtDzl::getDzlName, (x, y) -> x));
+        // Map<Integer, String> typeNameMap = dzlList.stream().collect(Collectors.toMap(SmtDzl::getId, SmtDzl::getTypeName, (x, y) -> x));
         //查询所有的客户信息
         List<SmtCus> cusList = smtCusMapper.selectSmtCusList(new SmtCus());
         Map<Integer, String> cusNameMap = cusList.stream().collect(Collectors.toMap(SmtCus::getCusCode, SmtCus::getCusName, (x, y) -> x));
         for (SmtProductShip ship : shipList) {
             ship.setCusName(cusNameMap.get(ship.getCusCode()));
             ship.setShipExportNo(ship.getCusCode() + "" + ship.getShipNo());
-            ship.setDzlName(dzlNameMap.get(ship.getBomId()));
-            ship.setTypeName(typeNameMap.get(ship.getBomId()));
+            // ship.setDzlName(dzlNameMap.get(ship.getBomId()));
+            // ship.setTypeName(typeNameMap.get(ship.getBomId()));
             //通过出货单号查询FPC出货数量,orderType为1(FPC)的
             Integer qty = smtProductShipMapper.selectSmtProductShipByShipNoAndOrderType(ship.getShipNo());
             ship.setFpcShipQty(qty);
@@ -163,20 +163,24 @@ public class SmtProductShipServiceImpl implements ISmtProductShipService {
         List<SmtProductShip> shipList = (List<SmtProductShip>) JSONArray.toCollection(JSONArray.fromObject(smtProductShip.getShipList()), SmtProductShip.class);
         int returnsStart = Constants.RETURNS_NO_START;
         int shipStart = Constants.SHIP_NO_START;
-        for (SmtProductShip ship : shipList) {
-            SmtProductShip productShip = new SmtProductShip();
-            productShip.setCusCode(ship.getCusCode());
-            productShip.setShipType(ship.getShipType());
 
-            List<SmtProductShip> productShipList = smtProductShipMapper.selectSmtProductShipList(productShip);
-            if (StringUtils.isNotEmpty(productShipList)) {
-                int shipNo = productShipList.stream().map(SmtProductShip::getShipNo).max(Integer::compareTo).get();
-                ship.setShipNo(shipList.size() == 1 ? ++shipNo : shipNo + 1);
-            } else if (Constants.SHIP_TYPE_SHIP.intValue() == ship.getShipType().intValue()) {
-                ship.setShipNo(shipList.size() == 1 ? ++shipStart : shipStart + 1);
-            } else if (Constants.SHIP_TYPE_RETURNS.intValue() == ship.getShipType().intValue()) {
-                ship.setShipNo(shipList.size() == 1 ? ++returnsStart : returnsStart + 1);
-            }
+        SmtProductShip productShip = new SmtProductShip();
+        Integer cusCode = shipList.get(0).getCusCode();
+        Integer shipType = shipList.get(0).getShipType();
+        int shipTypeValue = shipList.get(0).getShipType().intValue();
+        List<SmtProductShip> productShipList = smtProductShipMapper.selectSmtProductShipList(productShip);
+        int hasShipNo = productShipList.stream().map(SmtProductShip::getShipNo).max(Integer::compareTo).get();
+        Integer shipNo = null;
+
+        if (StringUtils.isNotEmpty(productShipList)) {
+            shipNo = shipList.size() == 1 ? ++hasShipNo : hasShipNo + 1;
+        } else if (Constants.SHIP_TYPE_SHIP.intValue() == shipTypeValue) {
+            shipNo = shipList.size() == 1 ? ++shipStart : shipStart + 1;
+        } else if (Constants.SHIP_TYPE_RETURNS.intValue() == shipTypeValue) {
+            shipNo = shipList.size() == 1 ? ++returnsStart : returnsStart + 1;
+        }
+        for (SmtProductShip ship : shipList) {
+            ship.setShipNo(shipNo);
             ship.setCreateBy(ShiroUtils.getLoginName());
             ship.setCreateTime(new Date());
             smtProductShipMapper.insertSmtProductShip(ship);
@@ -280,6 +284,14 @@ public class SmtProductShipServiceImpl implements ISmtProductShipService {
         //删除相同订单号的数据
         return smtProductShipMapper.deleteSmtProductShipByShipNos(shipNos);
     }
+
+
+    @Override
+    public int deleteSmtProductShipReturnByIds(String ids) {
+        //选择的数据主键ID
+        return smtProductShipMapper.deleteSmtProductShipByIds(Convert.toStrArray(ids));
+    }
+
 
     /**
      * 删除产品出货信息

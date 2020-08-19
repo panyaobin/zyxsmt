@@ -169,6 +169,11 @@ public class SmtOrderEntryServiceImpl implements ISmtOrderEntryService {
     }
 
     @Override
+    public List<SmtOrderEntryVO> selectSmtEntryAllTableList(SmtOrderEntry orderEntry) {
+        return smtOrderEntryMapper.selectSmtEntryAllTableList(orderEntry);
+    }
+
+    @Override
     public List<SmtOrderEntryVO> selectSmtEntryAllDzlList(SmtOrderEntry orderEntry) {
         return smtOrderEntryMapper.selectSmtEntryAllDzlList(orderEntry);
     }
